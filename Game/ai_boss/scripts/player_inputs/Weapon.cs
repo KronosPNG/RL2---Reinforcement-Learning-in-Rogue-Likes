@@ -58,7 +58,7 @@ public partial class Weapon : Node2D, IPedestalItem
 
 	// ---- Damage Application Settings ----
 	// If false, only the signal will be emitted and other systems should subscribe.
-	[Export] public bool AutoApplyDamage = false;
+	[Export] public bool AutoApplyDamage = true;
 	[Export] public string EnemyDamageMethodName = "ApplyDamage"; // name of method to call on enemies (if AutoApplyDamage)
 
 
@@ -457,13 +457,13 @@ public partial class Weapon : Node2D, IPedestalItem
 			// Attempt to call configured method
 			if (body.HasMethod(EnemyDamageMethodName))
 			{	
-				body.Call(EnemyDamageMethodName, damage);
+				body.Call(EnemyDamageMethodName, damage, this.OwnerCharacter);
 			}
 			else
 			{
 				// fallback: try common names
-				if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", damage);
-				else if (body.HasMethod("TakeDamage")) body.Call("TakeDamage", damage);
+				if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", damage, this.OwnerCharacter);
+				else if (body.HasMethod("TakeDamage")) body.Call("TakeDamage", damage, this.OwnerCharacter);
 				// else GD.Print($"Weapon: hit {body.Name} for {damage}, but no damage method found.");
 			}
 		}

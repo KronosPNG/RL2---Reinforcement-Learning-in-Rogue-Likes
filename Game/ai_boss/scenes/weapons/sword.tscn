@@ -14,7 +14,7 @@ InnerRadius = 10.0
 OuterRadius = 30.0
 AngleDeg = 70.0
 ArcCenterOffsetDeg = 0.0
-Damage = 0.0
+Damage = 20.0
 Cooldown = 0.15
 Windup = 0.0
 Active = 0.25
@@ -29,7 +29,7 @@ InnerRadius = 15.0
 OuterRadius = 40.0
 AngleDeg = 120.0
 ArcCenterOffsetDeg = 0.0
-Damage = 0.0
+Damage = 50.0
 Cooldown = 1.0
 Windup = 0.0
 Active = 0.5
@@ -174,13 +174,12 @@ animations = [{
 }]
 
 [node name="Sword" type="Node2D"]
-scale = Vector2(7, 7)
 script = ExtResource("1_58ehi")
 WeaponName = "Longsword"
 Description = "A well balanced two-handed melee weapon with good range."
+PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_s4ec8")
 HeavyAttackConfig = SubResource("Resource_k5whp")
-AutoApplyDamage = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_jvvga")

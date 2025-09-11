@@ -12,7 +12,7 @@ InnerRadius = 5.0
 OuterRadius = 25.0
 AngleDeg = 30.0
 ArcCenterOffsetDeg = 0.0
-Damage = 0.0
+Damage = 15.0
 Cooldown = 0.05
 Windup = 0.0
 Active = 0.25
@@ -27,7 +27,7 @@ InnerRadius = 13.0
 OuterRadius = 30.0
 AngleDeg = 90.0
 ArcCenterOffsetDeg = 0.0
-Damage = 0.0
+Damage = 50.0
 Cooldown = 1.0
 Windup = 0.0
 Active = 0.5
@@ -165,13 +165,12 @@ animations = [{
 }]
 
 [node name="Dagger" type="Node2D"]
-scale = Vector2(7, 7)
 script = ExtResource("1_j34lm")
 WeaponName = "Dagger"
 Description = "A short blade,  nimble and fast for quick attacks."
+PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_mhf5r")
 HeavyAttackConfig = SubResource("Resource_siec8")
-AutoApplyDamage = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_jvvga")
@@ -184,6 +183,7 @@ collision_layer = 16
 collision_mask = 2
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea"]
+visible = false
 
 [node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
 visible = false

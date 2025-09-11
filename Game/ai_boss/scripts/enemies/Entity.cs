@@ -17,9 +17,26 @@ public partial class Entity : CharacterBody2D, IEntity
 	// ---- Movement properties ----
 	[Export] public float BaseSpeed { get; private set; } = 200f;
 	[Export] public float DetectionRange { get; private set; } = 300f;
-	[Export] public float AttackRange { get; private set; } = 50f;
+	[Export] public float KnockbackResistance { get; private set; } = 0f; // 0 = no resistance, 1 = full resistance
 	protected Vector2 _facingDirection = Vector2.Right;
 	protected sbyte _lastHorizontalFacing = 1;
+
+	// ---- Visual properties ----
+	// Color system: 
+	// - OriginalModulate: Normal sprite color
+	// - DamagedModulate: Flash color when taking damage
+	// - DeadModulate: Final color when entity dies
+	// The system smoothly transitions between colors during state changes
+	protected Color OriginalModulate;
+	[Export] public Color DamagedModulate { get; set; } = new Color(1, 0.75f, 0.75f);
+	[Export] public Color DeadModulate { get; set; } = new Color(0.5f, 0.5f, 0.5f);
+	[Export] public float DamageFlashDuration { get; set; } = 0.1f;
+	protected float _damageFlashTimer = 0f;
+	
+	// ---- Death color transition ----
+	[Export] public float DeathColorTransitionDuration { get; set; } = 1.0f;
+	protected float _deathColorTimer = 0f;
+	protected bool _isTransitioningToDeath = false;
 
 	// ---- State Machine ----
 	public enum EntityState
@@ -40,7 +57,9 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected float _stateTimer = 0f;
 	protected float _hitStunDuration = 0.5f;
 	protected float _wanderTimer = 0f;
-	protected float _wanderCooldown = 2f;
+	[Export] public float WanderMaxDuration { get; private set; } = 3f;
+	[Export] public float WanderCooldown { get; private set; } = 2f;
+	[Export] public float ChasingDecay { get; private set; } = 2f;
 
 	// ---- AI Properties ----
 	protected Node2D _target;
@@ -52,6 +71,10 @@ public partial class Entity : CharacterBody2D, IEntity
 	[Signal] public delegate void DiedEventHandler();
 	[Signal] public delegate void StateChangedEventHandler(string newState);
 
+	// ---- Attack properties ----
+	[Export] public float AttackRange { get; private set; } = 50f;
+	[Export] public float AttackCooldown { get; private set; } = .5f;
+	[Export] public AttackBase AttackType { get; private set; } = null;
 
 	public override void _Ready()
 	{
@@ -81,6 +104,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected virtual void InitializeEntity()
 	{
 		// Override in derived classes
+		OriginalModulate = _sprite.Modulate;
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -99,6 +123,13 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		_stateTimer += delta;
 		_wanderTimer -= delta;
+		_damageFlashTimer -= delta;
+		
+		// Update death color transition
+		if (_isTransitioningToDeath)
+		{
+			_deathColorTimer += delta;
+		}
 	}
 
 	protected virtual void UpdateAI(float delta)
@@ -174,7 +205,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 
 		// Stop wandering after some time
-		if (_stateTimer > 3f)
+		if (_stateTimer > WanderMaxDuration)
 		{
 			TransitionToState(EntityState.Idle);
 		}
@@ -185,7 +216,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		if (!CanSeeTarget())
 		{
 			// Lost target, return to idle after a moment
-			if (_stateTimer > 2f)
+			if (_stateTimer > ChasingDecay)
 				TransitionToState(EntityState.Idle);
 			return;
 		}
@@ -245,7 +276,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				break;
 
 			case EntityState.Wandering:
-				Velocity = _wanderDirection * BaseSpeed * 0.5f;
+				Velocity = _wanderDirection * BaseSpeed * 0.75f;
 				break;
 
 			case EntityState.Chasing:
@@ -314,12 +345,12 @@ public partial class Entity : CharacterBody2D, IEntity
 		switch (state)
 		{
 			case EntityState.Idle:
-				_wanderTimer = _wanderCooldown;
+				_wanderTimer = WanderCooldown;
 				break;
 
 			case EntityState.Wandering:
 				GenerateWanderDirection();
-				_wanderTimer = _wanderCooldown;
+				_wanderTimer = WanderCooldown;
 				break;
 
 			case EntityState.Chasing:
@@ -333,11 +364,20 @@ public partial class Entity : CharacterBody2D, IEntity
 
 			case EntityState.Hit:
 				_sprite.Play(GetAnimationForState(state));
+				// Apply damage flash effect
+				ApplyDamageFlash();
 				break;
 
 			case EntityState.Dying:
-				if (_hitArea != null)
-					_hitArea.Monitoring = false;
+				_hitArea.SetDeferred("monitoring", false);
+				_collisionShape.SetDeferred("disabled", true);
+				// Start death color transition
+				StartDeathColorTransition();
+				break;
+
+			case EntityState.Dead:
+				// Darken the sprite 
+				DarkenSprite();
 				break;
 		}
 	}
@@ -363,18 +403,23 @@ public partial class Entity : CharacterBody2D, IEntity
 		// Deal damage to target if in range
 		if (_target != null && IsInAttackRange())
 		{
-			if (_target.HasMethod("ApplyDamage"))
-				_target.Call("ApplyDamage", 10f); // Basic damage
+			GD.Print($"{Name} attacks {_target.Name}");
 		}
 	}
 
 	protected virtual void UpdateAnimationIfNeeded()
 	{
 		if (_sprite == null) return;
+		
+		// Handle visual effects
+		UpdateVisualEffects();
+		
+		if (!IsAlive || _currentState == EntityState.Dead)
+		{
+			return;
+		}
 
-		bool stateChanged = _currentState != _previousState;
-
-		// Update sprite facing
+		bool stateChanged = _currentState != _previousState;		// Update sprite facing
 		if (!Mathf.IsEqualApprox(Velocity.X, 0))
 			_sprite.FlipH = Velocity.X < 0;
 		else
@@ -433,18 +478,35 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	// ---- IEntity Implementation ----
 
-	public void ApplyDamage(float amount)
+	public void ApplyDamage(float amount, Node2D attacker)
 	{
 		if (!IsAlive) return;
 
 		if (!IsInvulnerable) CurrentHealth -= amount;
 
-		// Transition to Hit state instead of directly playing animation
-		TransitionToState(EntityState.Hit);
+		// Check if damage is lethal
+		bool isLethalDamage = CurrentHealth <= 0;
+		
+		// Only transition to Hit state if damage is not lethal
+		if (!isLethalDamage)
+		{
+			TransitionToState(EntityState.Hit);
+		}
+
+		if (attacker != null)
+		{
+			// Apply knockback or other effects based on the attacker
+			Vector2 knockbackDir = (GlobalPosition - attacker.GlobalPosition).Normalized();
+			Velocity += knockbackDir * (1 - KnockbackResistance) * 200f;
+			MoveAndSlide();
+		}
+
+		// Emit health changed signal
+		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
 
 		GD.Print($"Entity {Name} took {amount} damage. Current Health: {CurrentHealth}");
 
-		if (CurrentHealth <= 0)
+		if (isLethalDamage)
 		{
 			CurrentHealth = 0;
 			Die();
@@ -464,9 +526,8 @@ public partial class Entity : CharacterBody2D, IEntity
 	public void Die()
 	{
 		GD.Print($"Entity {Name} has died.");
-
+		TransitionToState(EntityState.Dying);
 		CurrentHealth = 0;
-		_hitArea.Monitoring = false;
 		_sprite.Play("die");
 	}
 
@@ -503,9 +564,82 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		throw new System.NotImplementedException();
 	}
+
+	protected void DarkenSprite()
+	{
+		// gradually darken the sprite over time
+		_sprite.Modulate = OriginalModulate.Lerp(DeadModulate, 0.1f);
+	}
+	
+	protected virtual void ApplyDamageFlash()
+	{
+		if (_sprite == null) return;
+		
+		_sprite.Modulate = DamagedModulate;
+		_damageFlashTimer = DamageFlashDuration;
+	}
+	
+	protected virtual void StartDeathColorTransition()
+	{
+		if (_sprite == null) return;
+		
+		_isTransitioningToDeath = true;
+		_deathColorTimer = 0f;
+		// Clear damage flash to prevent flickering
+		_damageFlashTimer = 0f;
+	}
+	
+	protected virtual void UpdateVisualEffects()
+	{
+		if (_sprite == null) return;
+		
+		// Death transition takes priority over damage flash
+		if (_isTransitioningToDeath)
+		{
+			// Smoothly transition to death color
+			float progress = Mathf.Clamp(_deathColorTimer / DeathColorTransitionDuration, 0f, 1f);
+			_sprite.Modulate = OriginalModulate.Lerp(DeadModulate, progress);
+			
+			// Stop transition when complete
+			if (progress >= 1f)
+			{
+				_isTransitioningToDeath = false;
+			}
+		}
+		// Handle damage flash only if not dying
+		else if (_damageFlashTimer > 0f && _currentState != EntityState.Dying && _currentState != EntityState.Dead)
+		{
+			// Flash is active, keep damaged color
+			_sprite.Modulate = DamagedModulate;
+		}
+		else if (_currentState != EntityState.Hit && _currentState != EntityState.Dying && _currentState != EntityState.Dead)
+		{
+			// Return to original color when not damaged/dying
+			_sprite.Modulate = OriginalModulate;
+		}
+	}
+	
+	// Immediately sets the sprite to the dead color without transition
+	public virtual void SetDeadColorImmediate()
+	{
+		if (_sprite == null) return;
+		
+		_sprite.Modulate = DeadModulate;
+		_isTransitioningToDeath = false;
+	}
+	
+	// Resets the sprite color to original
+	public virtual void ResetSpriteColor()
+	{
+		if (_sprite == null) return;
+		
+		_sprite.Modulate = OriginalModulate;
+		_isTransitioningToDeath = false;
+		_damageFlashTimer = 0f;
+	}
 	
 	// ---- Public Getters for AI customization ----
-    public EntityState CurrentState => _currentState;
+	public EntityState CurrentState => _currentState;
     public Node2D Target => _target;
     public Vector2 FacingDirection => _facingDirection;
 }

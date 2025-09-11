@@ -16,6 +16,7 @@ public partial class Projectile : RigidBody2D
 	private Vector2 _direction;
 	private HashSet<Node> _alreadyHit = new HashSet<Node>();
 	public bool DestroyOnHit = true;
+	public bool DestroyOnWallHit = true;
 	
 	// Node references
 	private Area2D _hitArea;
@@ -48,9 +49,6 @@ public partial class Projectile : RigidBody2D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		// Move the projectile
-		LinearVelocity = _direction * _speed;
-
 		// Handle lifetime
 		_lifetime -= (float)delta;
 		if (_lifetime <= 0f)
@@ -65,7 +63,7 @@ public partial class Projectile : RigidBody2D
 		}
 	}
 
-	public void Initialize(Vector2 startPosition, Vector2 direction, float speed, float damage, float lifetime, Node2D owner, bool destroyOnHit = true)
+	public void Initialize(Vector2 startPosition, Vector2 direction, float speed, float damage, float lifetime, Node2D owner, bool destroyOnHit = true, bool destroyOnWallHit = true)
 	{
 		GlobalPosition = startPosition;
 		_direction = direction.Normalized();
@@ -74,6 +72,7 @@ public partial class Projectile : RigidBody2D
 		_lifetime = lifetime;
 		ProjectileOwner = owner;
 		DestroyOnHit = destroyOnHit;
+		DestroyOnWallHit = destroyOnWallHit;
 
 		// Set initial rotation
 		if (_direction != Vector2.Zero)
@@ -83,6 +82,8 @@ public partial class Projectile : RigidBody2D
 
 		_sprite.Play("default");
 
+		// Move the projectile
+		LinearVelocity = _direction * _speed;
 	}
 
 	private void OnBodyEntered(Node body)
@@ -104,11 +105,11 @@ public partial class Projectile : RigidBody2D
 		if (body.HasMethod("ApplyDamage"))
 		{
 			GD.Print($"Applying damage to {body.Name}");
-			body.Call("ApplyDamage", Damage);
+			body.Call("ApplyDamage", Damage, this);
 		}
 		else if (body.HasMethod("TakeDamage"))
 		{
-			body.Call("TakeDamage", Damage);
+			body.Call("TakeDamage", Damage, this);
 		}
 
 		GD.Print($"Projectile hit {body.Name} for {Damage} damage.");
@@ -131,18 +132,22 @@ public partial class Projectile : RigidBody2D
 	}
 
 	private void OnCollisionBodyEntered(Node body)
-	{	
+	{
+		if (body == ProjectileOwner) return; // Don't hit the owner4
+
 		GD.Print($"Projectile collision detected with body: {body.Name}");
-		// Handle collision with static bodies (walls, obstacles)
-		if (body is StaticBody2D || body is CharacterBody2D)
+		
+		if (DestroyOnWallHit)
 		{
-			// Check if it's terrain/walls vs characters
-			if (body != ProjectileOwner)
-			{
-				GD.Print("Projectile collided with wall/obstacle, destroying.");
-				DestroyProjectile();
-			}
+			DestroyProjectile();
 		}
+		else
+		{
+			// stop the projectile on collision with walls/obstacles
+			LinearVelocity = Vector2.Zero;
+			_hitArea.Monitoring = false; // Disable further hit detection
+		}
+		
 	}
 
 	private void ExpireProjectile()

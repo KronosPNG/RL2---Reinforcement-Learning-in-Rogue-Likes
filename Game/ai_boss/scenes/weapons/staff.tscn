@@ -11,13 +11,13 @@
 [sub_resource type="Resource" id="Resource_rh371"]
 script = ExtResource("3_j3civ")
 ProjectileScene = ExtResource("2_rh371")
-ProjectileSpeed = 900.0
+ProjectileSpeed = 150.0
 ProjectileLifetime = 5.0
 ProjectileCount = 1
 SpreadAngleDeg = 0.0
-SpawnDistanceFromPlayer = 100.0
+SpawnDistanceFromPlayer = 16.0
 DestroyOnHit = true
-Damage = 2.0
+Damage = 15.0
 Cooldown = 0.0
 Windup = 0.25
 Active = 0.0
@@ -26,11 +26,11 @@ metadata/_custom_type_script = "uid://behghmgcgacq5"
 [sub_resource type="Resource" id="Resource_j3civ"]
 script = ExtResource("3_j3civ")
 ProjectileScene = ExtResource("4_hiblv")
-ProjectileSpeed = 600.0
+ProjectileSpeed = 75.0
 ProjectileLifetime = 5.0
 ProjectileCount = 1
 SpreadAngleDeg = 0.0
-SpawnDistanceFromPlayer = 150.0
+SpawnDistanceFromPlayer = 20.0
 DestroyOnHit = false
 Damage = 10.0
 Cooldown = 0.0
@@ -58,7 +58,7 @@ MaxChargeDamagePercentage = 1.0
 RequiresMinCharge = true
 ChargeAnimation = "charge"
 IdleAnimation = "idle"
-Damage = 0.0
+Damage = 75.0
 Cooldown = 0.0
 Windup = 0.65
 Active = 0.0
@@ -341,13 +341,12 @@ animations = [{
 }]
 
 [node name="Staff" type="Node2D"]
-scale = Vector2(7, 7)
 script = ExtResource("1_lakth")
 WeaponName = "Staff"
 Description = ""
+PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_rh371")
 HeavyAttackConfig = SubResource("Resource_hiblv")
-AutoApplyDamage = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_jvvga")

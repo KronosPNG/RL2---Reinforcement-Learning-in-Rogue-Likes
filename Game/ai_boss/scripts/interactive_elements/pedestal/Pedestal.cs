@@ -106,7 +106,7 @@ public partial class Pedestal : StaticBody2D
 				_itemSprite.Scale = pedestalItem.GetDisplayScale();
 				
 				// Position the sprite slightly above the pedestal
-				_itemSprite.Position = new Vector2(0, -16*7/4);
+				_itemSprite.Position = new Vector2(0, -8);
 				
 				// Make it visible
 				_itemSprite.Visible = true;

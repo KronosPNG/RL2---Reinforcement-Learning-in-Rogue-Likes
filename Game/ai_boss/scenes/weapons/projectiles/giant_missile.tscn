@@ -43,24 +43,22 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_u3w50"]
-radius = 12.0
+radius = 13.5093
 
 [node name="MagicMissile" type="RigidBody2D"]
 collision_layer = 8
+continuous_cd = 1
 script = ExtResource("1_imdjo")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
-position = Vector2(-0.499999, 0.5)
-scale = Vector2(7, 7)
 shape = SubResource("CircleShape2D_86edt")
 debug_color = Color(1, 1, 0, 0.419608)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(7, 7)
 sprite_frames = SubResource("SpriteFrames_7dxrr")
 frame_progress = 0.557472
-offset = Vector2(-3.43, 0)
+offset = Vector2(-3, 0)
 
 [node name="HitArea" type="Area2D" parent="."]
 collision_layer = 16
@@ -68,7 +66,5 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
 visible = false
-position = Vector2(-0.499999, 0.499999)
-scale = Vector2(7, 7)
 shape = SubResource("CircleShape2D_u3w50")
 debug_color = Color(0.682353, 0, 0.0745098, 0.419608)

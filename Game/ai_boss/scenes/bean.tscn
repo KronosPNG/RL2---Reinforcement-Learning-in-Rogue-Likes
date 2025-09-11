@@ -231,16 +231,17 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wxo2p"]
-size = Vector2(42, 98)
+size = Vector2(8, 16)
 
 [node name="Bean" type="CharacterBody2D" groups=["Player"]]
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_vdqyq")
+BaseSpeed = 100.0
+DodgeSpeed = 300.0
 
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
-scale = Vector2(7, 7)
 sprite_frames = SubResource("SpriteFrames_kckdp")
 animation = &"charge_idle"
 metadata/_aseprite_wizard_interface_config_ = {
@@ -270,7 +271,6 @@ metadata/_aseprite_wizard_source_file_hash_ = "e8f29a3492ff11e531f9e5072f607a06"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
-position = Vector2(0, 7)
 shape = SubResource("RectangleShape2D_wxo2p")
 
 [node name="Hand" type="Node2D" parent="."]

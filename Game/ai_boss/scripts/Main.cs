@@ -4,25 +4,29 @@ using System;
 public partial class Main : Node2D
 {
 	private PackedScene beanScene;
-	private PackedScene swordScene;
+	private PackedScene weaponScene;
+	private Node2D sortSceneElements;
 	
 	public override void _Ready()
 	{
 		// Load scenes
 		beanScene = ResourceLoader.Load<PackedScene>("res://scenes/bean.tscn");
-		swordScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/sword.tscn");
+		weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/bow.tscn");
 		
-		// Instantiate Bean
+		// Get the SortSceneElements node
+		sortSceneElements = GetNode<Node2D>("SortSceneElements");
+		
+		// Instantiate Bean in sorting area
 		PlayerController beanInstance = beanScene.Instantiate<PlayerController>();
-		beanInstance.Position = new Vector2(200, 150); // Center position
-		AddChild(beanInstance);
+		beanInstance.Position = new Vector2(0, 0); // Center position
+		sortSceneElements.AddChild(beanInstance);
 		
 		// Wait for Bean to be ready, then spawn sword in hand
-		CallDeferred(nameof(SpawnSwordInBeanHand), beanInstance);
+		CallDeferred(nameof(SpawnWeaponInBeanHand), beanInstance);
 	}
-	
-	private void SpawnSwordInBeanHand(PlayerController bean)
+
+	private void SpawnWeaponInBeanHand(PlayerController bean)
 	{
-		bean.CallDeferred("EquipWeapon", swordScene);
+		bean.CallDeferred("EquipWeapon", weaponScene);
 	}
 }
