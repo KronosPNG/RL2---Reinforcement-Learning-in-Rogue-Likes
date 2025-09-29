@@ -23,8 +23,15 @@ public partial class ChargedMeleeAttack : ChargedAttack, IAttack, IChargeable
             weapon._anim.Play(animName);
         }
 
-        // Execute the melee attack
+        // Store original damage and temporarily set charged damage
+        float originalDamage = MeleeAttack.Damage;
+        MeleeAttack.Damage = chargedDamage;
+
+        // Execute the melee attack with charged damage
         MeleeAttack.Execute(weapon, target, facingLeft);
+
+        // Restore original damage
+        MeleeAttack.Damage = originalDamage;
 
         // Calculate total attack duration (windup + active time)
         float attackDuration = Windup + Active;

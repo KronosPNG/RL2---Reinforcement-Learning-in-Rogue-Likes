@@ -434,8 +434,6 @@ public partial class Weapon : Node2D, IPedestalItem
 
 		GD.Print($"Weapon hit detected on body: {body.Name}");
 		// Called when a physics body enters the hit area while Monitoring=true.
-		// We only act during Active state.
-		if (_state != WeaponState.Active) return;
 		if (body == null) return;
 		if (_alreadyHit.Contains(body)) return;
 

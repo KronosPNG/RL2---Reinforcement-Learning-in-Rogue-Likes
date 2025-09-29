@@ -19,6 +19,7 @@ Damage = 35.0
 Cooldown = 0.15
 Windup = 0.0
 Active = 0.25
+Knockback = 0.0
 metadata/_custom_type_script = "uid://cpybuc7cg7rl5"
 
 [sub_resource type="Resource" id="Resource_xs7jb"]
@@ -34,6 +35,7 @@ Damage = 65.0
 Cooldown = 1.0
 Windup = 0.0
 Active = 0.5
+Knockback = 0.0
 metadata/_custom_type_script = "uid://cpybuc7cg7rl5"
 
 [sub_resource type="Resource" id="Resource_w46s4"]
@@ -51,6 +53,7 @@ Damage = 65.0
 Cooldown = 1.0
 Windup = 0.0
 Active = 0.5
+Knockback = 0.0
 metadata/_custom_type_script = "uid://d4efj1c25co5w"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gwb47"]
@@ -367,6 +370,7 @@ collision_layer = 16
 collision_mask = 2
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea"]
+visible = false
 
 [node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
 visible = false

@@ -116,7 +116,7 @@ public partial class Projectile : RigidBody2D
 		if (body.HasMethod("ApplyDamage"))
 		{
 			GD.Print($"Applying damage to {body.Name}");
-			body.Call("ApplyDamage", Damage, this);
+			body.Call("ApplyDamage", Damage, this, Knockback);
 		}
 		else if (body.HasMethod("TakeDamage"))
 		{
