@@ -264,12 +264,15 @@ collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_bi20d")
 MaxHealth = 100.0
-DetectionRange = 600.0
+BaseSpeed = 17.5
+DetectionRange = 150.0
 AttackRange = 0.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")
 animation = &"die"
+frame = 8
+frame_progress = 1.0
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
 visible = false
@@ -285,7 +288,6 @@ collision_mask = 16
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
 visible = false
 position = Vector2(3.27825e-07, -9.36644e-08)
-scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://3ck2mhc1l2m0"]
+[gd_scene load_steps=41 format=3 uid="uid://3ck2mhc1l2m0"]
 
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_rs3f0"]
 [ext_resource type="Texture2D" uid="uid://c6pcpe0mr10b6" path="res://art/animations/weapons/bow-Sheet.png" id="2_pevdf"]
@@ -43,7 +43,7 @@ MaxChargeDamagePercentage = 1.0
 RequiresMinCharge = true
 ChargeAnimation = "charge"
 IdleAnimation = "idle"
-Damage = 3.0
+Damage = 35.0
 Cooldown = 0.0
 Windup = 0.0
 Active = 0.0
@@ -59,7 +59,7 @@ SpreadAngleDeg = 20.0
 SpawnDistanceFromPlayer = 0.0
 DestroyOnHit = true
 DestroyOnWallHit = false
-Damage = 20.0
+Damage = 25.0
 Cooldown = 0.0
 Windup = 0.25
 Active = 0.0
@@ -88,6 +88,38 @@ region = Rect2(128, 0, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_qsm82"]
 atlas = ExtResource("2_pevdf")
 region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jga22"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x7f65"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c1owu"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aoq2u"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(96, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dvk8n"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(128, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x41v2"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(160, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v0rsj"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(192, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7rb8j"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(224, 32, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wr7d4"]
 atlas = ExtResource("2_pevdf")
@@ -172,6 +204,35 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_jga22")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x7f65")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c1owu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aoq2u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dvk8n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x41v2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v0rsj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7rb8j")
+}],
+"loop": true,
+"name": &"fully_charged",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_wr7d4")
 }, {
 "duration": 1.0,
@@ -253,9 +314,7 @@ HeavyAttackConfig = SubResource("Resource_rs3f0")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_jvvga")
-animation = &"light_attack"
-frame = 3
-frame_progress = 1.0
+animation = &"idle"
 
 [node name="Pivot" type="Node2D" parent="."]
 

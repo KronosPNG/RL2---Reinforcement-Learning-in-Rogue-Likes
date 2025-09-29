@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://d02snf7r66hnm"]
+[gd_scene load_steps=15 format=3 uid="uid://d02snf7r66hnm"]
 
 [ext_resource type="Script" uid="uid://07c5bmv6j10k" path="res://scripts/enemies/Dummy.cs" id="1_fj17u"]
 [ext_resource type="Texture2D" uid="uid://c0x4cfkw0sevv" path="res://art/animations/dummy/dummy-Sheet.png" id="1_khxps"]
@@ -14,6 +14,10 @@ region = Rect2(48, 0, 24, 24)
 [sub_resource type="AtlasTexture" id="AtlasTexture_rigdy"]
 atlas = ExtResource("1_khxps")
 region = Rect2(72, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ab73t"]
+atlas = ExtResource("1_khxps")
+region = Rect2(0, 0, 24, 24)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4rn7n"]
 atlas = ExtResource("1_khxps")
@@ -46,6 +50,9 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_rigdy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ab73t")
 }],
 "loop": false,
 "name": &"hit",
@@ -109,7 +116,7 @@ AttackRange = 0.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")
-animation = &"idle"
+animation = &"hit"
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
 visible = false

@@ -14,10 +14,12 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
     [ExportGroup("Visual Feedback")]
     [Export] public PackedScene ChargeEffectScene;     // Visual effect during charging
     [Export] public string ChargeAnimation = "charge"; // Animation to play while charging
+    [Export] public string FullyChargedAnimation = "fully_charged"; // Animation to play when fully charged
     [Export] public string IdleAnimation = "idle";     // Animation to play while idle
     public float _currentChargeTime = 0f;
     private Node _chargeEffect;
     private bool _isCharging = false;
+    private bool _isFullyCharged = false; // Track if we've reached max charge
     private AnimatedSprite2D _anim;
     protected float chargeRatio = 0f;
 
@@ -42,6 +44,7 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
     {
         _isCharging = true;
         _currentChargeTime = 0f;
+        _isFullyCharged = false; // Reset fully charged state
 
 
         if (weapon._anim != null && !string.IsNullOrEmpty(ChargeAnimation))
@@ -61,13 +64,23 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
     {
         if (!_isCharging) return;
 
+        float previousChargeTime = _currentChargeTime;
         _currentChargeTime += delta;
 
-        // Clamp to max charge time
+        // Check if we've reached max charge time
         if (_currentChargeTime >= MaxChargeTime)
         {
             _currentChargeTime = MaxChargeTime;
-            // Could emit signal here for "fully charged" feedback
+            
+            // Play fully charged animation if we just reached max charge
+            if (!_isFullyCharged && previousChargeTime < MaxChargeTime)
+            {
+                _isFullyCharged = true;
+                if (weapon._anim != null && !string.IsNullOrEmpty(FullyChargedAnimation))
+                {
+                    weapon._anim.Play(FullyChargedAnimation);
+                }
+            }
         }
 
         // Update charge effect intensity based on charge level
@@ -89,21 +102,18 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
             return;
         }
 
-        // GD.Print($"[ChargedAttack] Current charge time: {_currentChargeTime} seconds");
-        // Calculate final damage based on charge time
-        float chargedDamage = GetChargedDamage(_currentChargeTime);
-
         // GD.Print($"[ChargedAttack] Charged damage calculated: {chargedDamage}");
         if (_currentChargeTime < MinChargeTime)
         {
-            // GD.Print("[ChargedAttack] Cannot execute charged attack: insufficient charge.");
-            // GD.Print($"[ChargedAttack] Required min charge time: {MinChargeTime}, current charge time: {_currentChargeTime}");
             Interrupt(weapon);
             return;
         }
 
-        // GD.Print($"[ChargedAttack] Executing charged attack with {chargedDamage} damage after {_currentChargeTime} seconds of charging.");
+        // GD.Print($"[ChargedAttack] Current charge time: {_currentChargeTime} seconds");
+        // Calculate final damage based on charge time
+        float chargedDamage = GetChargedDamage(_currentChargeTime);
 
+        // GD.Print($"[ChargedAttack] Executing charged attack with {chargedDamage} damage after {_currentChargeTime} seconds of charging.");
         // Clean up charging effects
         StopCharging(weapon);
 
@@ -114,18 +124,7 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
 
     protected virtual void ExecuteChargedAttack(Weapon weapon, Vector2 target, bool facingLeft, float damage)
     {
-        // Instead of immediately calling CloseHitWindow, trigger the normal attack sequence
-        // Play the appropriate attack animation that will call OpenHitWindow
-        if (weapon._anim != null)
-        {
-            // Play the attack animation - this should have animation calls to OpenHitWindow
-            string animName = weapon._isCurrentAttackHeavy ? "heavy_attack" : "light_attack";
-            weapon._anim.Play(animName);
-        }
-
-        weapon.CloseHitWindow(weapon._isCurrentAttackHeavy);
-
-        // GD.Print($"Charged attack executed with {damage} damage!");
+        return;
     }
 
     public override void Interrupt(Weapon weapon)
@@ -137,13 +136,14 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
         }
 
         StopCharging(weapon);
-        weapon.CloseHitWindow(false);
+        weapon.ResetWeaponState(false);
     }
 
     private void StopCharging(Weapon weapon)
     {
         _isCharging = false;
         _currentChargeTime = 0f;
+        _isFullyCharged = false; // Reset fully charged state
 
         // Clean up charge effect
         if (_chargeEffect != null)

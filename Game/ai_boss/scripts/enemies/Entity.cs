@@ -419,11 +419,23 @@ public partial class Entity : CharacterBody2D, IEntity
 			return;
 		}
 
-		bool stateChanged = _currentState != _previousState;		// Update sprite facing
-		if (!Mathf.IsEqualApprox(Velocity.X, 0))
-			_sprite.FlipH = Velocity.X < 0;
-		else
-			_sprite.FlipH = _lastHorizontalFacing < 0;
+		bool stateChanged = _currentState != _previousState;
+		
+		// Update sprite facing - only update if we're in a state where movement affects facing
+		// Don't update facing during Hit, Dying, or Attacking states to preserve direction
+		if (_currentState != EntityState.Hit && _currentState != EntityState.Dying && _currentState != EntityState.Attacking)
+		{
+			if (!Mathf.IsEqualApprox(Velocity.X, 0))
+			{
+				_sprite.FlipH = Velocity.X < 0;
+				_lastHorizontalFacing = (sbyte)(Velocity.X < 0 ? -1 : 1);
+			}
+			else
+			{
+				_sprite.FlipH = _lastHorizontalFacing < 0;
+			}
+		}
+		// During Hit, Dying, and Attacking states, preserve the current flip state
 
 		// Set animation based on state
 		string targetAnimation = GetAnimationForState(_currentState);
@@ -497,7 +509,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		{
 			// Apply knockback or other effects based on the attacker
 			Vector2 knockbackDir = (GlobalPosition - attacker.GlobalPosition).Normalized();
-			Velocity += knockbackDir * (1 - KnockbackResistance) * 200f;
+			Velocity += knockbackDir * (1 - KnockbackResistance) * 400f;
 			MoveAndSlide();
 		}
 
@@ -640,6 +652,6 @@ public partial class Entity : CharacterBody2D, IEntity
 	
 	// ---- Public Getters for AI customization ----
 	public EntityState CurrentState => _currentState;
-    public Node2D Target => _target;
-    public Vector2 FacingDirection => _facingDirection;
+	public Node2D Target => _target;
+	public Vector2 FacingDirection => _facingDirection;
 }

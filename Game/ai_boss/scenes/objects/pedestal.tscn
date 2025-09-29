@@ -29,8 +29,10 @@ radius = 14.0357
 collision_mask = 14
 script = ExtResource("1_aedhk")
 ItemScene = ExtResource("2_vgg7g")
+InteractRange = 40.0
 
 [node name="PedestalCollision" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(-2.72478e-07, 0)
 shape = SubResource("RectangleShape2D_aedhk")
 
