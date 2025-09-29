@@ -12,7 +12,7 @@ public partial class Weapon : Node2D, IPedestalItem
 
 	//---- Signals ----
 	[Signal] public delegate void AttackStartedEventHandler(string attackName); // Emitted when an attack starts
-	[Signal] public delegate void EntityHitEventHandler(Node2D entity, int damage); // Emitted when an entity is hit
+	[Signal] public delegate void EntityHitEventHandler(Node2D entity, float damage, float knockback); // Emitted when an entity is hit
 	[Signal] public delegate void AttackEndedEventHandler(string attackName); // Emitted when an attack ends
 
 	// Signals for equipping/unequipping
@@ -444,26 +444,27 @@ public partial class Weapon : Node2D, IPedestalItem
 		GD.Print($"Weapon registering hit on body: {body.Name}");
 
 		float damage = _isCurrentAttackHeavy ? HeavyAttackConfig.Damage : LightAttackConfig.Damage;
+		float knockback = _isCurrentAttackHeavy ? HeavyAttackConfig.Knockback : LightAttackConfig.Knockback;
 	
 		// Emit signal so other systems (ui, sfx, particles) can respond
 		if (body is Node2D node2d)
-			EmitSignal(nameof(EntityHit), node2d, damage);
+			EmitSignal(nameof(EntityHit), node2d, damage, knockback);
 
 		// Optionally auto-apply damage directly.
 		if (AutoApplyDamage)
 		{
-			GD.Print($"Weapon auto-applying {damage} damage to {body.Name}");
+			GD.Print($"Weapon auto-applying {damage} damage with {knockback} knockback to {body.Name}");
 
 			// Attempt to call configured method
 			if (body.HasMethod(EnemyDamageMethodName))
 			{	
-				body.Call(EnemyDamageMethodName, damage, this.OwnerCharacter);
+				body.Call(EnemyDamageMethodName, damage, this.OwnerCharacter, knockback);
 			}
 			else
 			{
 				// fallback: try common names
-				if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", damage, this.OwnerCharacter);
-				else if (body.HasMethod("TakeDamage")) body.Call("TakeDamage", damage, this.OwnerCharacter);
+				if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", damage, this.OwnerCharacter, knockback);
+				else if (body.HasMethod("TakeDamage")) body.Call("TakeDamage", damage, this.OwnerCharacter, knockback);
 				// else GD.Print($"Weapon: hit {body.Name} for {damage}, but no damage method found.");
 			}
 		}

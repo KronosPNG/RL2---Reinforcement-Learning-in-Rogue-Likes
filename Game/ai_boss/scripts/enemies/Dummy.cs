@@ -31,11 +31,11 @@ public partial class Dummy : Entity, IEntity
 	{
 		if (_sprite == null) return;
 
-		// For chasing state, don't use the default animation system
-		// The ChaseTarget method handles animations directly
-		if (_currentState == EntityState.Chasing)
+		// For player noticed state, don't use the default animation system
+		// The PerformPlayerNoticeBehavior method handles animations directly
+		if (_currentState == EntityState.PlayerNoticed)
 		{
-			return; // Let ChaseTarget handle the looking animations
+			return; // Let PerformPlayerNoticeBehavior handle the looking animations
 		}
 
 		// For other states, use the default animation system
@@ -50,9 +50,9 @@ public partial class Dummy : Entity, IEntity
 
 	protected override void ApplyMovementByState(float delta)
 	{
-		if (_currentState == EntityState.Chasing)
+		if (_currentState == EntityState.PlayerNoticed)
 		{
-			ChaseTarget();
+			PerformPlayerNoticeBehavior();
 		}
 
 	}
@@ -61,11 +61,11 @@ public partial class Dummy : Entity, IEntity
 	{
 		if (CanSeeTarget())
 		{
-			TransitionToState(EntityState.Chasing);
+			TransitionToState(EntityState.PlayerNoticed);
 		}
 	}
 
-	protected override void HandleChasingTransitions()
+	protected override void HandlePlayerNoticedTransitions()
 	{
 		if (!CanSeeTarget())
 		{
@@ -76,7 +76,7 @@ public partial class Dummy : Entity, IEntity
 		}
 	}
 
-	protected override void ChaseTarget()
+	protected override void PerformPlayerNoticeBehavior()
 	{
 		// Dummy does not chase but follows with eyes
 		if (_target != null && IsInstanceValid(_target))
@@ -119,7 +119,7 @@ public partial class Dummy : Entity, IEntity
 	{
 		switch (state)
 		{
-			case EntityState.Chasing:
+			case EntityState.PlayerNoticed:
 				if (_target != null)
 					_lastKnownTargetPosition = _target.GlobalPosition;
 				break;

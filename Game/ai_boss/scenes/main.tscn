@@ -44,6 +44,7 @@ position = Vector2(108, -7)
 FlipSpriteHorizontally = true
 DetectionRange = 32.0
 KnockbackResistance = 1.0
+ChasingDecay = null
 
 [node name="Pedestal" parent="SortSceneElements" instance=ExtResource("4_tefeu")]
 position = Vector2(-128, -48)

@@ -9,7 +9,7 @@ public interface IEntity
     bool IsInvulnerable { get; }
 
     // Core damage and health system
-    void ApplyDamage(float amount, Node2D attacker);
+    void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f);
     void Heal(float amount);
     void Die();
     

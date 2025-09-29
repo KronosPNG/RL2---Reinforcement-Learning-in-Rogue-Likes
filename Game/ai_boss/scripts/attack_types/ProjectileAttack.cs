@@ -78,6 +78,7 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
             ProjectileSpeed,
             Damage,
             ProjectileLifetime,
+            Knockback,
             weapon.OwnerCharacter, // Pass owner to avoid self-damage
             DestroyOnHit,
             DestroyOnWallHit

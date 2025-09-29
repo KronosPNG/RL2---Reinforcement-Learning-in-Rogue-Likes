@@ -43,7 +43,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		Idle,
 		Wandering,
-		Chasing,
+		PlayerNoticed,
 		Attacking,
 		Hit,
 		Dying,
@@ -59,7 +59,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected float _wanderTimer = 0f;
 	[Export] public float WanderMaxDuration { get; private set; } = 3f;
 	[Export] public float WanderCooldown { get; private set; } = 2f;
-	[Export] public float ChasingDecay { get; private set; } = 2f;
+	[Export] public float PlayerNoticeDecay { get; private set; } = 2f;
 
 	// ---- AI Properties ----
 	protected Node2D _target;
@@ -163,8 +163,8 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.Wandering:
 				HandleWanderingTransitions();
 				break;
-			case EntityState.Chasing:
-				HandleChasingTransitions();
+			case EntityState.PlayerNoticed:
+				HandlePlayerNoticedTransitions();
 				break;
 			case EntityState.Attacking:
 				HandleAttackingTransitions();
@@ -185,7 +185,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		if (CanSeeTarget())
 		{
-			TransitionToState(EntityState.Chasing);
+			TransitionToState(EntityState.PlayerNoticed);
 			return;
 		}
 
@@ -200,7 +200,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		if (CanSeeTarget())
 		{
-			TransitionToState(EntityState.Chasing);
+			TransitionToState(EntityState.PlayerNoticed);
 			return;
 		}
 
@@ -211,12 +211,12 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 	}
 
-	protected virtual void HandleChasingTransitions()
+	protected virtual void HandlePlayerNoticedTransitions()
 	{
 		if (!CanSeeTarget())
 		{
 			// Lost target, return to idle after a moment
-			if (_stateTimer > ChasingDecay)
+			if (_stateTimer > PlayerNoticeDecay)
 				TransitionToState(EntityState.Idle);
 			return;
 		}
@@ -238,7 +238,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		if (_stateTimer >= _hitStunDuration)
 		{
 			if (CanSeeTarget())
-				TransitionToState(EntityState.Chasing);
+				TransitionToState(EntityState.PlayerNoticed);
 			else
 				TransitionToState(EntityState.Idle);
 		}
@@ -279,8 +279,8 @@ public partial class Entity : CharacterBody2D, IEntity
 				Velocity = _wanderDirection * BaseSpeed * 0.75f;
 				break;
 
-			case EntityState.Chasing:
-				ChaseTarget();
+			case EntityState.PlayerNoticed:
+				PerformPlayerNoticeBehavior();
 				break;
 
 			case EntityState.Attacking:
@@ -297,7 +297,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		MoveAndSlide();
 	}
 
-	protected virtual void ChaseTarget()
+	protected virtual void PerformPlayerNoticeBehavior()
 	{
 		if (_target == null || !IsInstanceValid(_target))
 		{
@@ -305,6 +305,7 @@ public partial class Entity : CharacterBody2D, IEntity
 			return;
 		}
 
+		// Default behavior: move towards the target (chase)
 		// Use NavigationAgent2D if available
 		if (_navAgent != null)
 		{
@@ -353,7 +354,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				_wanderTimer = WanderCooldown;
 				break;
 
-			case EntityState.Chasing:
+			case EntityState.PlayerNoticed:
 				if (_target != null)
 					_lastKnownTargetPosition = _target.GlobalPosition;
 				break;
@@ -453,7 +454,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		{
 			EntityState.Idle => "idle",
 			EntityState.Wandering => "walk",
-			EntityState.Chasing => "walk",
+			EntityState.PlayerNoticed => "walk",
 			EntityState.Attacking => "attack",
 			EntityState.Hit => "hit",
 			EntityState.Dying => "die",
@@ -473,7 +474,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				{
 					// Return to appropriate state after attack
 					if (CanSeeTarget())
-						TransitionToState(EntityState.Chasing);
+						TransitionToState(EntityState.PlayerNoticed);
 					else
 						TransitionToState(EntityState.Idle);
 				}
@@ -490,7 +491,7 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	// ---- IEntity Implementation ----
 
-	public void ApplyDamage(float amount, Node2D attacker)
+	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
 	{
 		if (!IsAlive) return;
 
@@ -509,7 +510,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		{
 			// Apply knockback or other effects based on the attacker
 			Vector2 knockbackDir = (GlobalPosition - attacker.GlobalPosition).Normalized();
-			Velocity += knockbackDir * (1 - KnockbackResistance) * 400f;
+			Velocity += knockbackDir * (1 - KnockbackResistance) * knockbackStrength;
 			MoveAndSlide();
 		}
 

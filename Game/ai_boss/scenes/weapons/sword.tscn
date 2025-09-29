@@ -45,6 +45,7 @@ MinChargeDamagePercentage = 1.0
 MaxChargeDamagePercentage = 1.0
 RequiresMinCharge = true
 ChargeAnimation = "charge"
+FullyChargedAnimation = "fully_charged"
 IdleAnimation = "idle"
 Damage = 65.0
 Cooldown = 1.0

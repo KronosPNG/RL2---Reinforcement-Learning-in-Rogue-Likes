@@ -9,6 +9,7 @@ public partial class Projectile : RigidBody2D
 	// Properties
 	public float Damage { get; private set; }
 	public Node2D ProjectileOwner { get; private set; }
+	public float Knockback { get; private set; }
 	
 	// Internal state
 	private float _lifetime;
@@ -63,12 +64,22 @@ public partial class Projectile : RigidBody2D
 		}
 	}
 
-	public void Initialize(Vector2 startPosition, Vector2 direction, float speed, float damage, float lifetime, Node2D owner, bool destroyOnHit = true, bool destroyOnWallHit = true)
+	public void Initialize(
+		Vector2 startPosition,
+		Vector2 direction,
+		float speed,
+		float damage,
+		float knockback,
+		float lifetime,
+		Node2D owner,
+		bool destroyOnHit = true,
+		bool destroyOnWallHit = true)
 	{
 		GlobalPosition = startPosition;
 		_direction = direction.Normalized();
 		_speed = speed;
 		Damage = damage;
+		Knockback = knockback;
 		_lifetime = lifetime;
 		ProjectileOwner = owner;
 		DestroyOnHit = destroyOnHit;
