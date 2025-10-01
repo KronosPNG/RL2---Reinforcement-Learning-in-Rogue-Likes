@@ -9,25 +9,30 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected NavigationAgent2D _navAgent;
 
 	// ---- Health properties ----
+	[ExportGroup("Health Properties")]
 	public float CurrentHealth { get; private set; }
 	[Export] public float MaxHealth { get; private set; }
 	[Export] public bool IsInvulnerable { get; private set; }
 	public bool IsAlive => CurrentHealth > 0;
 
 	// ---- Movement properties ----
+	[ExportGroup("Movement Properties")]
 	[Export] public float BaseSpeed { get; private set; } = 200f;
-	[Export] public float DetectionRange { get; private set; } = 300f;
-	[Export] public float KnockbackResistance { get; private set; } = 0f; // 0 = no resistance, 1 = full resistance
-	protected Vector2 _facingDirection = Vector2.Right;
+	
+	private float _knockbackResistance = 0f;
+	[Export(PropertyHint.Range, "0.0,1.0,0.01")] public float KnockbackResistance 
+	{ 
+		get => _knockbackResistance;
+		private set => _knockbackResistance = Mathf.Clamp(value, 0f, 1f);
+	}
+	
+	public Vector2 FacingDirection { get; set; } = Vector2.Right;
 	protected sbyte _lastHorizontalFacing = 1;
 
 	// ---- Visual properties ----
-	// Color system: 
-	// - OriginalModulate: Normal sprite color
-	// - DamagedModulate: Flash color when taking damage
-	// - DeadModulate: Final color when entity dies
-	// The system smoothly transitions between colors during state changes
+	[ExportGroup("Visual Effects")]
 	protected Color OriginalModulate;
+	[Export] public bool FlipSpriteHorizontally = false;
 	[Export] public Color DamagedModulate { get; set; } = new Color(1, 0.75f, 0.75f);
 	[Export] public Color DeadModulate { get; set; } = new Color(0.5f, 0.5f, 0.5f);
 	[Export] public float DamageFlashDuration { get; set; } = 0.1f;
@@ -43,7 +48,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		Idle,
 		Wandering,
-		PlayerNoticed,
+		Aggro,
 		Attacking,
 		Hit,
 		Dying,
@@ -57,32 +62,37 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected float _stateTimer = 0f;
 	protected float _hitStunDuration = 0.5f;
 	protected float _wanderTimer = 0f;
-	[Export] public float WanderMaxDuration { get; private set; } = 3f;
-	[Export] public float WanderCooldown { get; private set; } = 2f;
+	
 	[Export] public float PlayerNoticeDecay { get; private set; } = 2f;
 
 	// ---- AI Properties ----
 	protected Node2D _target;
-	protected Vector2 _wanderDirection = Vector2.Zero;
 	protected Vector2 _lastKnownTargetPosition = Vector2.Zero;
+
+	// ---- Behaviour Strategies ----
+	[ExportGroup("AI Behaviours")]
+	[Export] public WanderBehaviour WanderingBehavior;
+	[Export] public AggroBehaviour AggroBehavior;
+	[Export] public AttackBehaviour AttackBehavior;
 
 	// ---- Signals ----
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, float maxHealth);
 	[Signal] public delegate void DiedEventHandler();
 	[Signal] public delegate void StateChangedEventHandler(string newState);
 
-	// ---- Attack properties ----
-	[Export] public float AttackRange { get; private set; } = 50f;
-	[Export] public float AttackCooldown { get; private set; } = .5f;
-	[Export] public AttackBase AttackType { get; private set; } = null;
-
 	public override void _Ready()
 	{
 		InitializeNodes();
+		InitializeBehaviours();
 		InitializeEntity();
 
 		if (_sprite != null)
 			_sprite.AnimationFinished += OnAnimationFinished;
+
+		if (FlipSpriteHorizontally)
+		{
+			_sprite.FlipH = true;
+		}
 
 		CurrentHealth = MaxHealth;
 		TransitionToState(EntityState.Idle);
@@ -94,17 +104,46 @@ public partial class Entity : CharacterBody2D, IEntity
 		_collisionShape = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_navAgent = GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
+	}
 
-		if (_sprite == null) GD.PrintErr($"{Name}: Sprite node not found");
-		if (_collisionShape == null) GD.PrintErr($"{Name}: PhysicalCollision node not found");
-		if (_hitArea == null) GD.PrintErr($"{Name}: HitArea node not found");
-		if (_navAgent == null) GD.PrintErr($"{Name}: NavigationAgent2D node not found");
+	protected virtual void InitializeBehaviours()
+	{
+		// Set default behaviours only if not already set in inspector
+		// This prevents overwriting inspector-configured behaviours
+		if (WanderingBehavior == null)
+			WanderingBehavior = new WanderImmovable();
+		if (AggroBehavior == null)
+			AggroBehavior = new AggroFollowGaze();
+		if (AttackBehavior == null)
+			AttackBehavior = new AttackInoffensive();
 	}
 
 	protected virtual void InitializeEntity()
 	{
 		// Override in derived classes
 		OriginalModulate = _sprite.Modulate;
+	}
+
+	// ---- Public methods to change behaviours at runtime ----
+	public void SetWanderBehaviour(WanderBehaviour behaviour)
+	{
+		WanderingBehavior = behaviour;
+	}
+
+	public void SetNoticeBehaviour(AggroBehaviour behaviour)
+	{
+		AggroBehavior = behaviour;
+	}
+
+	public void SetAttackBehaviour(AttackBehaviour behaviour)
+	{
+		AttackBehavior = behaviour;
+	}
+
+	// ---- Public methods to modify properties with validation ----
+	public void SetKnockbackResistance(float value)
+	{
+		KnockbackResistance = value; // This will automatically clamp to 0-1 range
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -136,14 +175,16 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		// Find target (usually player)
 		if (_target == null)
+		{
 			_target = FindTarget();
+		}
 
 		// Update facing direction based on movement
 		if (Velocity.LengthSquared() > 0.1f)
 		{
-			_facingDirection = Velocity.Normalized();
-			if (!Mathf.IsEqualApprox(_facingDirection.X, 0))
-				_lastHorizontalFacing = (sbyte)Mathf.Sign(_facingDirection.X);
+			FacingDirection = Velocity.Normalized();
+			if (!Mathf.IsEqualApprox(FacingDirection.X, 0))
+				_lastHorizontalFacing = (sbyte)Mathf.Sign(FacingDirection.X);
 		}
 	}
 
@@ -163,7 +204,7 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.Wandering:
 				HandleWanderingTransitions();
 				break;
-			case EntityState.PlayerNoticed:
+			case EntityState.Aggro:
 				HandlePlayerNoticedTransitions();
 				break;
 			case EntityState.Attacking:
@@ -176,16 +217,15 @@ public partial class Entity : CharacterBody2D, IEntity
 				HandleDyingTransitions();
 				break;
 			case EntityState.Dead:
-				// Dead entities don't transition
 				break;
 		}
 	}
 
 	protected virtual void HandleIdleTransitions()
 	{
-		if (CanSeeTarget())
+		if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
 		{
-			TransitionToState(EntityState.PlayerNoticed);
+			TransitionToState(EntityState.Aggro);
 			return;
 		}
 
@@ -198,14 +238,14 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	protected virtual void HandleWanderingTransitions()
 	{
-		if (CanSeeTarget())
+		if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
 		{
-			TransitionToState(EntityState.PlayerNoticed);
+			TransitionToState(EntityState.Aggro);
 			return;
 		}
 
 		// Stop wandering after some time
-		if (_stateTimer > WanderMaxDuration)
+		if (WanderingBehavior != null && WanderingBehavior.ShouldStopWandering(this))
 		{
 			TransitionToState(EntityState.Idle);
 		}
@@ -213,16 +253,14 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	protected virtual void HandlePlayerNoticedTransitions()
 	{
-		if (!CanSeeTarget())
+		if (AggroBehavior != null && AggroBehavior.ShouldLoseTarget(this))
 		{
-			// Lost target, return to idle after a moment
-			if (_stateTimer > PlayerNoticeDecay)
-				TransitionToState(EntityState.Idle);
+			TransitionToState(EntityState.Idle);
 			return;
 		}
 
 		// Close enough to attack
-		if (IsInAttackRange())
+		if (AttackBehavior != null && AttackBehavior.IsInAttackRange(this) && AttackBehavior.CanAttack(this))
 		{
 			TransitionToState(EntityState.Attacking);
 		}
@@ -237,29 +275,11 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		if (_stateTimer >= _hitStunDuration)
 		{
-			if (CanSeeTarget())
-				TransitionToState(EntityState.PlayerNoticed);
+			if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
+				TransitionToState(EntityState.Aggro);
 			else
 				TransitionToState(EntityState.Idle);
 		}
-	}
-
-	protected virtual bool CanSeeTarget()
-	{
-		if (_target == null || !IsInstanceValid(_target))
-			return false;
-
-		float distance = GlobalPosition.DistanceTo(_target.GlobalPosition);
-		return distance <= DetectionRange;
-	}
-
-	protected virtual bool IsInAttackRange()
-	{
-		if (_target == null || !IsInstanceValid(_target))
-			return false;
-
-		float distance = GlobalPosition.DistanceTo(_target.GlobalPosition);
-		return distance <= AttackRange;
 	}
 
 	protected virtual void HandleDyingTransitions()
@@ -276,15 +296,16 @@ public partial class Entity : CharacterBody2D, IEntity
 				break;
 
 			case EntityState.Wandering:
-				Velocity = _wanderDirection * BaseSpeed * 0.75f;
+				Velocity = WanderingBehavior.GetWanderVelocity(this, delta);
 				break;
 
-			case EntityState.PlayerNoticed:
-				PerformPlayerNoticeBehavior();
+			case EntityState.Aggro:
+				Velocity = AggroBehavior.GetChaseVelocity(this, delta);
+				AggroBehavior.PerformPlayerNoticeBehavior(this);
 				break;
 
 			case EntityState.Attacking:
-				Velocity = Vector2.Zero; // Stop during attack
+				Velocity = AttackBehavior.GetAttackVelocity(this, delta);
 				break;
 
 			case EntityState.Hit:
@@ -295,37 +316,6 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 
 		MoveAndSlide();
-	}
-
-	protected virtual void PerformPlayerNoticeBehavior()
-	{
-		if (_target == null || !IsInstanceValid(_target))
-		{
-			Velocity = Vector2.Zero;
-			return;
-		}
-
-		// Default behavior: move towards the target (chase)
-		// Use NavigationAgent2D if available
-		if (_navAgent != null)
-		{
-			_navAgent.TargetPosition = _target.GlobalPosition;
-			if (!_navAgent.IsNavigationFinished())
-			{
-				Vector2 direction = GlobalPosition.DirectionTo(_navAgent.GetNextPathPosition());
-				Velocity = direction * BaseSpeed;
-			}
-			else
-			{
-				Velocity = Vector2.Zero;
-			}
-		}
-		else
-		{
-			// Direct movement towards target
-			Vector2 direction = GlobalPosition.DirectionTo(_target.GlobalPosition);
-			Velocity = direction * BaseSpeed;
-		}
 	}
 
 	protected virtual void TransitionToState(EntityState newState)
@@ -346,21 +336,22 @@ public partial class Entity : CharacterBody2D, IEntity
 		switch (state)
 		{
 			case EntityState.Idle:
-				_wanderTimer = WanderCooldown;
+				_wanderTimer = WanderingBehavior.WanderCooldown;
 				break;
 
 			case EntityState.Wandering:
-				GenerateWanderDirection();
-				_wanderTimer = WanderCooldown;
+				WanderingBehavior.OnEnterWander(this);
+				_wanderTimer = WanderingBehavior.WanderCooldown;
 				break;
 
-			case EntityState.PlayerNoticed:
-				if (_target != null)
-					_lastKnownTargetPosition = _target.GlobalPosition;
+			case EntityState.Aggro:
+				AggroBehavior.OnEnterNotice(this);
+				AggroBehavior.PerformPlayerNoticeBehavior(this);
 				break;
 
 			case EntityState.Attacking:
-				PerformAttack();
+				AttackBehavior.OnEnterAttack(this);
+				AttackBehavior.PerformAttack(this);
 				break;
 
 			case EntityState.Hit:
@@ -376,7 +367,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				StartDeathColorTransition();
 				break;
 
-			case EntityState.Dead:
+			case EntityState.Dead:				
 				// Darken the sprite 
 				DarkenSprite();
 				break;
@@ -385,26 +376,19 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	protected virtual void OnExitState(EntityState state)
 	{
-		// Override in derived classes for state cleanup
-	}
-
-	protected virtual void GenerateWanderDirection()
-	{
-		_wanderDirection = new Vector2(
-			GD.Randf() * 2 - 1,
-			GD.Randf() * 2 - 1
-		).Normalized();
-	}
-
-	protected virtual void PerformAttack()
-	{
-		// Override in derived classes for specific attack behavior
-		GD.Print($"{Name} performs basic attack");
-
-		// Deal damage to target if in range
-		if (_target != null && IsInAttackRange())
+		switch (state)
 		{
-			GD.Print($"{Name} attacks {_target.Name}");
+			case EntityState.Wandering:
+				WanderingBehavior.OnExitWander(this);
+				break;
+
+			case EntityState.Aggro:
+				AggroBehavior.OnExitNotice(this);
+				break;
+
+			case EntityState.Attacking:
+				AttackBehavior.OnExitAttack(this);
+				break;
 		}
 	}
 
@@ -433,7 +417,9 @@ public partial class Entity : CharacterBody2D, IEntity
 			}
 			else
 			{
-				_sprite.FlipH = _lastHorizontalFacing < 0;
+				// For entities that don't move (like dummies), respect the FlipSpriteHorizontally setting
+				// Otherwise use the last horizontal facing direction
+				_sprite.FlipH = FlipSpriteHorizontally || _lastHorizontalFacing < 0;
 			}
 		}
 		// During Hit, Dying, and Attacking states, preserve the current flip state
@@ -454,7 +440,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		{
 			EntityState.Idle => "idle",
 			EntityState.Wandering => "walk",
-			EntityState.PlayerNoticed => "walk",
+			EntityState.Aggro => "walk",
 			EntityState.Attacking => "attack",
 			EntityState.Hit => "hit",
 			EntityState.Dying => "die",
@@ -472,9 +458,8 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.Attacking:
 				if (animName == "attack")
 				{
-					// Return to appropriate state after attack
-					if (CanSeeTarget())
-						TransitionToState(EntityState.PlayerNoticed);
+					if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
+						TransitionToState(EntityState.Aggro);
 					else
 						TransitionToState(EntityState.Idle);
 				}
@@ -516,8 +501,6 @@ public partial class Entity : CharacterBody2D, IEntity
 
 		// Emit health changed signal
 		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
-
-		GD.Print($"Entity {Name} took {amount} damage. Current Health: {CurrentHealth}");
 
 		if (isLethalDamage)
 		{
@@ -650,9 +633,23 @@ public partial class Entity : CharacterBody2D, IEntity
 		_isTransitioningToDeath = false;
 		_damageFlashTimer = 0f;
 	}
+
+	public void PlayAnimation(string animationName)
+	{
+		if (_sprite == null) return;
+
+		if (_sprite.SpriteFrames.HasAnimation(animationName))
+		{
+			_sprite.Play(animationName);
+		}
+		else
+		{
+			GD.PrintErr($"Entity {Name} does not have animation '{animationName}'");
+		}
+	}
 	
 	// ---- Public Getters for AI customization ----
 	public EntityState CurrentState => _currentState;
 	public Node2D Target => _target;
-	public Vector2 FacingDirection => _facingDirection;
+	public float StateTimer => _stateTimer;
 }

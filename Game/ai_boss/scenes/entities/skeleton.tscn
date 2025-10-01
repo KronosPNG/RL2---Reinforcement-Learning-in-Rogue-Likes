@@ -1,6 +1,5 @@
-[gd_scene load_steps=52 format=3 uid="uid://c2e1s6ljjv0p"]
+[gd_scene load_steps=51 format=3 uid="uid://c2e1s6ljjv0p"]
 
-[ext_resource type="Script" uid="uid://co8uj0tjvsmiu" path="res://scripts/enemies/Entity.cs" id="1_ceu7g"]
 [ext_resource type="Texture2D" uid="uid://sxwmc72wj5r3" path="res://art/animations/skeleton/skeleton_sheet.png" id="2_ceu7g"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_m1fgu"]
@@ -367,11 +366,6 @@ size = Vector2(1.42857, 2.57143)
 [node name="Skeleton" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 7
-script = ExtResource("1_ceu7g")
-MaxHealth = 100.0
-BaseSpeed = 17.5
-DetectionRange = 150.0
-AttackRange = 0.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")

@@ -1,7 +1,28 @@
-[gd_scene load_steps=15 format=3 uid="uid://d02snf7r66hnm"]
+[gd_scene load_steps=21 format=3 uid="uid://d02snf7r66hnm"]
 
-[ext_resource type="Script" uid="uid://07c5bmv6j10k" path="res://scripts/enemies/Dummy.cs" id="1_fj17u"]
+[ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_ab73t"]
 [ext_resource type="Texture2D" uid="uid://c0x4cfkw0sevv" path="res://art/animations/dummy/dummy-Sheet.png" id="1_khxps"]
+[ext_resource type="Script" uid="uid://cwmynn16gnl81" path="res://scripts/entities/Behaviours/Wandering/WanderImmovable.cs" id="2_tpd06"]
+[ext_resource type="Script" uid="uid://sujx2e5tb2vm" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="3_fb3xl"]
+[ext_resource type="Script" uid="uid://bkbvhfotdpa6c" path="res://scripts/entities/Behaviours/Attacking/AttackInoffensive.cs" id="4_0eyuu"]
+
+[sub_resource type="Resource" id="Resource_wd821"]
+script = ExtResource("2_tpd06")
+WanderMaxDuration = 0.0
+WanderCooldown = 0.0
+metadata/_custom_type_script = "uid://cwmynn16gnl81"
+
+[sub_resource type="Resource" id="Resource_gtckb"]
+script = ExtResource("3_fb3xl")
+DetectionRange = 50.0
+ChaseSpeed = 0.0
+metadata/_custom_type_script = "uid://sujx2e5tb2vm"
+
+[sub_resource type="Resource" id="Resource_5i650"]
+script = ExtResource("4_0eyuu")
+AttackRange = 0.0
+AttackCooldown = 0.0
+metadata/_custom_type_script = "uid://bkbvhfotdpa6c"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vlvhm"]
 atlas = ExtResource("1_khxps")
@@ -108,18 +129,22 @@ size = Vector2(0.714286, 1.5)
 [node name="Dummy" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 7
-script = ExtResource("1_fj17u")
+script = ExtResource("1_ab73t")
 MaxHealth = 100.0
 IsInvulnerable = true
 BaseSpeed = 0.0
-AttackRange = 0.0
+KnockbackResistance = 1.0
+WanderingBehavior = SubResource("Resource_wd821")
+AggroBehavior = SubResource("Resource_gtckb")
+AttackBehavior = SubResource("Resource_5i650")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")
 animation = &"hit"
+frame = 3
+frame_progress = 1.0
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(0.5, 1.5)
 shape = SubResource("RectangleShape2D_khxps")
 

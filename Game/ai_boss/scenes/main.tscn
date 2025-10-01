@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=4 uid="uid://1nf46nrhiyd1"]
+[gd_scene load_steps=11 format=4 uid="uid://1nf46nrhiyd1"]
 
 [ext_resource type="Script" uid="uid://ue8mbbs06g27" path="res://scripts/Main.cs" id="1_jyhfs"]
 [ext_resource type="TileSet" uid="uid://cncwrtmglwj0e" path="res://assets/main_tileset.tres" id="2_0wfyh"]
@@ -8,6 +8,13 @@
 [ext_resource type="PackedScene" uid="uid://djl2qfaytujjk" path="res://scenes/weapons/dagger.tscn" id="5_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://rf3kky6lb4ed" path="res://scenes/weapons/staff.tscn" id="6_tipki"]
 [ext_resource type="PackedScene" uid="uid://d02snf7r66hnm" path="res://scenes/entities/dummy.tscn" id="7_o6xl0"]
+[ext_resource type="Script" uid="uid://sujx2e5tb2vm" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="9_85g3d"]
+
+[sub_resource type="Resource" id="Resource_choun"]
+script = ExtResource("9_85g3d")
+DetectionRange = 100.0
+ChaseSpeed = 0.0
+metadata/_custom_type_script = "uid://sujx2e5tb2vm"
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_jyhfs")
@@ -39,12 +46,6 @@ y_sort_enabled = true
 [node name="Zombie" parent="SortSceneElements" instance=ExtResource("3_o6xl0")]
 position = Vector2(104, 41)
 
-[node name="Dummy" parent="SortSceneElements" instance=ExtResource("7_o6xl0")]
-position = Vector2(108, -7)
-FlipSpriteHorizontally = true
-DetectionRange = 32.0
-KnockbackResistance = 1.0
-
 [node name="Pedestal" parent="SortSceneElements" instance=ExtResource("4_tefeu")]
 position = Vector2(-128, -48)
 
@@ -55,3 +56,8 @@ ItemScene = ExtResource("5_o6xl0")
 [node name="Pedestal3" parent="SortSceneElements" instance=ExtResource("4_tefeu")]
 position = Vector2(-64, -48)
 ItemScene = ExtResource("6_tipki")
+
+[node name="Dummy" parent="." instance=ExtResource("7_o6xl0")]
+position = Vector2(147, -2)
+FlipSpriteHorizontally = true
+AggroBehavior = SubResource("Resource_choun")
