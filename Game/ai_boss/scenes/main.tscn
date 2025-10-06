@@ -1,19 +1,19 @@
-[gd_scene load_steps=11 format=4 uid="uid://1nf46nrhiyd1"]
+[gd_scene load_steps=10 format=4 uid="uid://1nf46nrhiyd1"]
 
 [ext_resource type="Script" uid="uid://ue8mbbs06g27" path="res://scripts/Main.cs" id="1_jyhfs"]
 [ext_resource type="TileSet" uid="uid://cncwrtmglwj0e" path="res://assets/main_tileset.tres" id="2_0wfyh"]
-[ext_resource type="PackedScene" uid="uid://bruty6dkmp88e" path="res://scenes/entities/zombie.tscn" id="3_o6xl0"]
-[ext_resource type="PackedScene" uid="uid://c2e1s6ljjv0p" path="res://scenes/entities/skeleton.tscn" id="3_tipki"]
 [ext_resource type="PackedScene" uid="uid://c28gni2g3ftbe" path="res://scenes/objects/pedestal.tscn" id="4_tefeu"]
 [ext_resource type="PackedScene" uid="uid://djl2qfaytujjk" path="res://scenes/weapons/dagger.tscn" id="5_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://rf3kky6lb4ed" path="res://scenes/weapons/staff.tscn" id="6_tipki"]
 [ext_resource type="PackedScene" uid="uid://d02snf7r66hnm" path="res://scenes/entities/dummy.tscn" id="7_o6xl0"]
+[ext_resource type="PackedScene" uid="uid://c2e1s6ljjv0p" path="res://scenes/entities/skeleton.tscn" id="8_tipki"]
 [ext_resource type="Script" uid="uid://sujx2e5tb2vm" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="9_85g3d"]
 
 [sub_resource type="Resource" id="Resource_choun"]
 script = ExtResource("9_85g3d")
 DetectionRange = 100.0
-ChaseSpeed = 0.0
+ChaseSpeedModifier = 1.0
+AggroDecayTime = 2.0
 metadata/_custom_type_script = "uid://sujx2e5tb2vm"
 
 [node name="Main" type="Node2D"]
@@ -37,14 +37,8 @@ tile_map_data = PackedByteArray("AAAIAAMAAgABAAEAAAAIAAIAAgABAAEAAAAIAAEAAgABAAE
 tile_set = ExtResource("2_0wfyh")
 collision_visibility_mode = 2
 
-[node name="Skeleton" parent="TileMap" instance=ExtResource("3_tipki")]
-position = Vector2(141, 55)
-
 [node name="SortSceneElements" type="Node2D" parent="."]
 y_sort_enabled = true
-
-[node name="Zombie" parent="SortSceneElements" instance=ExtResource("3_o6xl0")]
-position = Vector2(104, 41)
 
 [node name="Pedestal" parent="SortSceneElements" instance=ExtResource("4_tefeu")]
 position = Vector2(-128, -48)
@@ -58,6 +52,9 @@ position = Vector2(-64, -48)
 ItemScene = ExtResource("6_tipki")
 
 [node name="Dummy" parent="." instance=ExtResource("7_o6xl0")]
-position = Vector2(147, -2)
-FlipSpriteHorizontally = true
+position = Vector2(150, -2)
 AggroBehavior = SubResource("Resource_choun")
+FlipSpriteHorizontally = true
+
+[node name="Skeleton" parent="." instance=ExtResource("8_tipki")]
+position = Vector2(139, 58)

@@ -1,13 +1,13 @@
 [gd_scene load_steps=7 format=3 uid="uid://dufefxrpx60dr"]
 
-[ext_resource type="Script" uid="uid://bppn0nrxopvcr" path="res://scripts/attack_types/Projectile.cs" id="1_di1w4"]
+[ext_resource type="Script" uid="uid://b5i0dbufc7jtg" path="res://scripts/attack_types/Projectile.cs" id="1_di1w4"]
 [ext_resource type="Texture2D" uid="uid://dbcydwltr3pmr" path="res://art/animations/weapons/arrow-Sheet.png" id="2_lwydh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_di1w4"]
-size = Vector2(1.42857, 0.285714)
+size = Vector2(0.285714, 0.285714)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lwydh"]
-size = Vector2(12, 4)
+size = Vector2(4, 4)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_di1w4"]
 atlas = ExtResource("2_lwydh")
@@ -30,7 +30,7 @@ continuous_cd = 1
 script = ExtResource("1_di1w4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-1.78814e-07, 2.98023e-08)
+position = Vector2(4, 2.98023e-08)
 scale = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_di1w4")
 debug_color = Color(0.522613, 0.13251, 0.652217, 0.42)
@@ -40,7 +40,7 @@ collision_layer = 16
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
-visible = false
+position = Vector2(4, 0)
 shape = SubResource("RectangleShape2D_lwydh")
 debug_color = Color(0.682353, 0, 0.0745098, 0.419608)
 

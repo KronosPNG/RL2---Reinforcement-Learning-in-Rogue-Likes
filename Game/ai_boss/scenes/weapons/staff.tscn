@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_lakth"]
 [ext_resource type="PackedScene" uid="uid://btlvl7kus6crp" path="res://scenes/weapons/projectiles/magic_missile.tscn" id="2_rh371"]
 [ext_resource type="Texture2D" uid="uid://bilq6snonsws4" path="res://art/animations/weapons/staff-Sheet.png" id="3_52f0k"]
-[ext_resource type="Script" uid="uid://behghmgcgacq5" path="res://scripts/attack_types/ProjectileAttack.cs" id="3_j3civ"]
+[ext_resource type="Script" uid="uid://d3c176vks5jg6" path="res://scripts/attack_types/ProjectileAttack.cs" id="3_j3civ"]
 [ext_resource type="PackedScene" uid="uid://x7kojflwwlva" path="res://scenes/weapons/projectiles/giant_missile.tscn" id="4_hiblv"]
-[ext_resource type="Script" uid="uid://yslsc0gfiae4" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_lakth"]
+[ext_resource type="Script" uid="uid://dwplos1b2bkmp" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_lakth"]
 [ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="7_j3civ"]
 
 [sub_resource type="Resource" id="Resource_rh371"]

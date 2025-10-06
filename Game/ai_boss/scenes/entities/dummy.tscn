@@ -10,12 +10,14 @@
 script = ExtResource("2_tpd06")
 WanderMaxDuration = 0.0
 WanderCooldown = 0.0
+WanderSpeedMultiplier = 0.75
 metadata/_custom_type_script = "uid://cwmynn16gnl81"
 
 [sub_resource type="Resource" id="Resource_gtckb"]
 script = ExtResource("3_fb3xl")
 DetectionRange = 50.0
-ChaseSpeed = 0.0
+ChaseSpeedModifier = 1.0
+AggroDecayTime = 2.0
 metadata/_custom_type_script = "uid://sujx2e5tb2vm"
 
 [sub_resource type="Resource" id="Resource_5i650"]

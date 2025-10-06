@@ -7,6 +7,6 @@ public interface IAggroBehaviour
     bool CanSeeTarget(Entity entity);
     bool ShouldLoseTarget(Entity entity);
     Vector2 GetChaseVelocity(Entity entity, float delta);
-    void PerformPlayerNoticeBehavior(Entity entity);
+    void PerformAggroBehaviour(Entity entity);
 
 }

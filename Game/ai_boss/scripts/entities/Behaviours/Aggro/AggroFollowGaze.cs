@@ -14,24 +14,19 @@ public partial class AggroFollowGaze : AggroBehaviour
     }
     public override bool CanSeeTarget(Entity entity)
     {
-        if (entity.Target == null || !IsInstanceValid(entity.Target))
-        {
-            return false;
-        }
-
-        float distance = entity.GlobalPosition.DistanceTo(entity.Target.GlobalPosition);
-        bool canSee = distance <= DetectionRange;
-        return canSee;
+        return base.CanSeeTarget(entity);
     }
 
     public override bool ShouldLoseTarget(Entity entity)
     {
-        if (entity.Target == null) return true;
+        if (entity.Target == null || !IsInstanceValid(entity.Target)) return true;
 
-        Vector2 toTarget = entity.Target.GlobalPosition - entity.GlobalPosition;
-        float distanceToTarget = toTarget.Length();
+        // If we can still see the target, don't lose them
+        if (CanSeeTarget(entity))
+            return false;
 
-        if (distanceToTarget > DetectionRange)
+        // Lose target only after being unable to see them for the decay time
+        if (entity.StateTimer > AggroDecayTime)
             return true;
 
         return false;
@@ -42,7 +37,7 @@ public partial class AggroFollowGaze : AggroBehaviour
         return Vector2.Zero; // This behavior does not move the entity
     }
 
-    public override void PerformPlayerNoticeBehavior(Entity entity)
+    public override void PerformAggroBehaviour(Entity entity)
     {
         // Dummy does not chase but follows with eyes
 		if (entity.Target != null && IsInstanceValid(entity.Target))

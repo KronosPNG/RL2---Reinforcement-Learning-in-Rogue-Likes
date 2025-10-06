@@ -1,21 +1,21 @@
-[gd_scene load_steps=9 format=3 uid="uid://btlvl7kus6crp"]
+[gd_scene load_steps=9 format=3 uid="uid://bebq38eunlmnr"]
 
-[ext_resource type="Script" uid="uid://b5i0dbufc7jtg" path="res://scripts/attack_types/Projectile.cs" id="1_pqfyw"]
-[ext_resource type="Texture2D" uid="uid://b7f84cei5xux" path="res://art/animations/weapons/magic_missile-Sheet.png" id="2_pqfyw"]
+[ext_resource type="Script" uid="uid://b5i0dbufc7jtg" path="res://scripts/attack_types/Projectile.cs" id="1_lxf1j"]
+[ext_resource type="Texture2D" uid="uid://b7f84cei5xux" path="res://art/animations/weapons/magic_missile-Sheet.png" id="2_gdm88"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_di1w4"]
 size = Vector2(0.571429, 1.375)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o2qux"]
-atlas = ExtResource("2_pqfyw")
+atlas = ExtResource("2_gdm88")
 region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_belpv"]
-atlas = ExtResource("2_pqfyw")
+atlas = ExtResource("2_gdm88")
 region = Rect2(16, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fk3xx"]
-atlas = ExtResource("2_pqfyw")
+atlas = ExtResource("2_gdm88")
 region = Rect2(32, 0, 16, 16)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_7dxrr"]
@@ -41,7 +41,7 @@ size = Vector2(16, 12)
 [node name="MagicMissile" type="RigidBody2D"]
 collision_layer = 8
 continuous_cd = 1
-script = ExtResource("1_pqfyw")
+script = ExtResource("1_lxf1j")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(5, -0.1875)

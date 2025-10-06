@@ -1,6 +1,36 @@
-[gd_scene load_steps=51 format=3 uid="uid://c2e1s6ljjv0p"]
+[gd_scene load_steps=58 format=3 uid="uid://c2e1s6ljjv0p"]
 
+[ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_ceu7g"]
+[ext_resource type="Script" uid="uid://cdjmp2xwqotcq" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_a53x7"]
 [ext_resource type="Texture2D" uid="uid://sxwmc72wj5r3" path="res://art/animations/skeleton/skeleton_sheet.png" id="2_ceu7g"]
+[ext_resource type="Script" uid="uid://beqi3c4w10k6l" path="res://scripts/entities/Behaviours/Aggro/AggroKeepDistance.cs" id="3_ed2xj"]
+[ext_resource type="Script" uid="uid://bkbvhfotdpa6c" path="res://scripts/entities/Behaviours/Attacking/AttackInoffensive.cs" id="4_jsnsc"]
+
+[sub_resource type="Resource" id="Resource_sb2t5"]
+script = ExtResource("2_a53x7")
+WanderMaxDuration = 2.0
+WanderCooldown = 5.0
+WanderSpeedMultiplier = 0.75
+metadata/_custom_type_script = "uid://cdjmp2xwqotcq"
+
+[sub_resource type="Resource" id="Resource_87w4c"]
+script = ExtResource("3_ed2xj")
+PreferredDistance = 150.0
+DistanceTolerance = 20.0
+StrafeSpeed = 300.0
+EnableStrafing = false
+MinStrafeDuration = 1.5
+MaxStrafeDuration = 3.0
+DetectionRange = 200.0
+ChaseSpeedModifier = 1.0
+AggroDecayTime = 2.0
+metadata/_custom_type_script = "uid://beqi3c4w10k6l"
+
+[sub_resource type="Resource" id="Resource_5gv7q"]
+script = ExtResource("4_jsnsc")
+AttackRange = 0.0
+AttackCooldown = 0.0
+metadata/_custom_type_script = "uid://bkbvhfotdpa6c"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_m1fgu"]
 atlas = ExtResource("2_ceu7g")
@@ -366,6 +396,11 @@ size = Vector2(1.42857, 2.57143)
 [node name="Skeleton" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 7
+script = ExtResource("1_ceu7g")
+MaxHealth = 100.0
+WanderingBehavior = SubResource("Resource_sb2t5")
+AggroBehavior = SubResource("Resource_87w4c")
+AttackBehavior = SubResource("Resource_5gv7q")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")

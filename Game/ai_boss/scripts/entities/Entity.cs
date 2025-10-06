@@ -17,17 +17,24 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	// ---- Movement properties ----
 	[ExportGroup("Movement Properties")]
-	[Export] public float BaseSpeed { get; private set; } = 200f;
-	
+	[Export] public float BaseSpeed { get; private set; } = 1000f;
+	[Export] public float MaxIdleTime { get; private set; } = 3f; // Max time to stay idle before wandering
 	private float _knockbackResistance = 0f;
-	[Export(PropertyHint.Range, "0.0,1.0,0.01")] public float KnockbackResistance 
-	{ 
+	[Export(PropertyHint.Range, "0.0,1.0,0.01")]
+	public float KnockbackResistance
+	{
 		get => _knockbackResistance;
 		private set => _knockbackResistance = Mathf.Clamp(value, 0f, 1f);
 	}
-	
+
 	public Vector2 FacingDirection { get; set; } = Vector2.Right;
 	protected sbyte _lastHorizontalFacing = 1;
+
+	// ---- Behaviour Strategies ----
+	[ExportGroup("AI Behaviours")]
+	[Export] public WanderBehaviour WanderingBehavior;
+	[Export] public AggroBehaviour AggroBehavior;
+	[Export] public AttackBehaviour AttackBehavior;
 
 	// ---- Visual properties ----
 	[ExportGroup("Visual Effects")]
@@ -37,7 +44,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	[Export] public Color DeadModulate { get; set; } = new Color(0.5f, 0.5f, 0.5f);
 	[Export] public float DamageFlashDuration { get; set; } = 0.1f;
 	protected float _damageFlashTimer = 0f;
-	
+
 	// ---- Death color transition ----
 	[Export] public float DeathColorTransitionDuration { get; set; } = 1.0f;
 	protected float _deathColorTimer = 0f;
@@ -49,6 +56,8 @@ public partial class Entity : CharacterBody2D, IEntity
 		Idle,
 		Wandering,
 		Aggro,
+		AttackPrepare,
+		AttackCharge,
 		Attacking,
 		Hit,
 		Dying,
@@ -60,20 +69,12 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	// ---- Timers ----
 	protected float _stateTimer = 0f;
-	protected float _hitStunDuration = 0.5f;
-	protected float _wanderTimer = 0f;
-	
-	[Export] public float PlayerNoticeDecay { get; private set; } = 2f;
+	protected float _hitStunDuration = 0.25f;
+	protected float _idleToWanderTimer = 0f;
 
 	// ---- AI Properties ----
 	protected Node2D _target;
 	protected Vector2 _lastKnownTargetPosition = Vector2.Zero;
-
-	// ---- Behaviour Strategies ----
-	[ExportGroup("AI Behaviours")]
-	[Export] public WanderBehaviour WanderingBehavior;
-	[Export] public AggroBehaviour AggroBehavior;
-	[Export] public AttackBehaviour AttackBehavior;
 
 	// ---- Signals ----
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, float maxHealth);
@@ -161,9 +162,9 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected virtual void UpdateTimers(float delta)
 	{
 		_stateTimer += delta;
-		_wanderTimer -= delta;
+		_idleToWanderTimer -= delta;
 		_damageFlashTimer -= delta;
-		
+
 		// Update death color transition
 		if (_isTransitioningToDeath)
 		{
@@ -173,8 +174,8 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	protected virtual void UpdateAI(float delta)
 	{
-		// Find target (usually player)
-		if (_target == null)
+		// Find target (usually player). If current target was freed, reacquire.
+		if (_target == null || !IsInstanceValid(_target))
 		{
 			_target = FindTarget();
 		}
@@ -205,7 +206,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				HandleWanderingTransitions();
 				break;
 			case EntityState.Aggro:
-				HandlePlayerNoticedTransitions();
+				HandleAggroTransitions();
 				break;
 			case EntityState.Attacking:
 				HandleAttackingTransitions();
@@ -223,14 +224,14 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	protected virtual void HandleIdleTransitions()
 	{
-		if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
+		if (AggroBehavior.CanSeeTarget(this))
 		{
 			TransitionToState(EntityState.Aggro);
 			return;
 		}
 
 		// Random wandering
-		if (_wanderTimer <= 0 && GD.Randf() < 0.3f)
+		if (_idleToWanderTimer <= 0 && GD.Randf() < MaxIdleTime)
 		{
 			TransitionToState(EntityState.Wandering);
 		}
@@ -238,31 +239,32 @@ public partial class Entity : CharacterBody2D, IEntity
 
 	protected virtual void HandleWanderingTransitions()
 	{
-		if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
+		if (AggroBehavior.CanSeeTarget(this))
 		{
 			TransitionToState(EntityState.Aggro);
 			return;
 		}
 
 		// Stop wandering after some time
-		if (WanderingBehavior != null && WanderingBehavior.ShouldStopWandering(this))
+		if (WanderingBehavior.ShouldStopWandering(this))
 		{
 			TransitionToState(EntityState.Idle);
 		}
 	}
 
-	protected virtual void HandlePlayerNoticedTransitions()
+	protected virtual void HandleAggroTransitions()
 	{
-		if (AggroBehavior != null && AggroBehavior.ShouldLoseTarget(this))
+		// Don't lose target immediately after being hit - give grace period
+		if (AggroBehavior.ShouldLoseTarget(this))
 		{
 			TransitionToState(EntityState.Idle);
 			return;
 		}
 
 		// Close enough to attack
-		if (AttackBehavior != null && AttackBehavior.IsInAttackRange(this) && AttackBehavior.CanAttack(this))
+		if (AttackBehavior.IsInAttackRange(this) && AttackBehavior.CanAttack(this))
 		{
-			TransitionToState(EntityState.Attacking);
+			TransitionToState(EntityState.AttackPrepare);
 		}
 	}
 
@@ -275,7 +277,10 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		if (_stateTimer >= _hitStunDuration)
 		{
-			if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
+			// If we have a valid target (set when hit), transition to Aggro even if outside detection range
+			if (_target != null && IsInstanceValid(_target))
+				TransitionToState(EntityState.Aggro);
+			else if (AggroBehavior.CanSeeTarget(this))
 				TransitionToState(EntityState.Aggro);
 			else
 				TransitionToState(EntityState.Idle);
@@ -301,7 +306,7 @@ public partial class Entity : CharacterBody2D, IEntity
 
 			case EntityState.Aggro:
 				Velocity = AggroBehavior.GetChaseVelocity(this, delta);
-				AggroBehavior.PerformPlayerNoticeBehavior(this);
+				AggroBehavior.PerformAggroBehaviour(this);
 				break;
 
 			case EntityState.Attacking:
@@ -336,17 +341,17 @@ public partial class Entity : CharacterBody2D, IEntity
 		switch (state)
 		{
 			case EntityState.Idle:
-				_wanderTimer = WanderingBehavior.WanderCooldown;
+				_idleToWanderTimer = WanderingBehavior.WanderCooldown;
 				break;
 
 			case EntityState.Wandering:
 				WanderingBehavior.OnEnterWander(this);
-				_wanderTimer = WanderingBehavior.WanderCooldown;
+				_idleToWanderTimer = WanderingBehavior.WanderCooldown;
 				break;
 
 			case EntityState.Aggro:
 				AggroBehavior.OnEnterNotice(this);
-				AggroBehavior.PerformPlayerNoticeBehavior(this);
+				AggroBehavior.PerformAggroBehaviour(this);
 				break;
 
 			case EntityState.Attacking:
@@ -367,7 +372,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				StartDeathColorTransition();
 				break;
 
-			case EntityState.Dead:				
+			case EntityState.Dead:
 				// Darken the sprite 
 				DarkenSprite();
 				break;
@@ -395,34 +400,51 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected virtual void UpdateAnimationIfNeeded()
 	{
 		if (_sprite == null) return;
-		
+
 		// Handle visual effects
 		UpdateVisualEffects();
-		
+
 		if (!IsAlive || _currentState == EntityState.Dead)
 		{
 			return;
 		}
 
 		bool stateChanged = _currentState != _previousState;
-		
+
 		// Update sprite facing - only update if we're in a state where movement affects facing
 		// Don't update facing during Hit, Dying, or Attacking states to preserve direction
-		if (_currentState != EntityState.Hit && _currentState != EntityState.Dying && _currentState != EntityState.Attacking)
+		switch (_currentState)
 		{
-			if (!Mathf.IsEqualApprox(Velocity.X, 0))
-			{
-				_sprite.FlipH = Velocity.X < 0;
-				_lastHorizontalFacing = (sbyte)(Velocity.X < 0 ? -1 : 1);
-			}
-			else
-			{
-				// For entities that don't move (like dummies), respect the FlipSpriteHorizontally setting
-				// Otherwise use the last horizontal facing direction
-				_sprite.FlipH = FlipSpriteHorizontally || _lastHorizontalFacing < 0;
-			}
+			case EntityState.Idle:
+			case EntityState.Wandering:
+			case EntityState.Aggro:
+				// These states allow facing updates
+				if (!Mathf.IsEqualApprox(Velocity.X, 0))
+				{
+					_sprite.FlipH = Velocity.X < 0;
+					_lastHorizontalFacing = (sbyte)(Velocity.X < 0 ? -1 : 1);
+				}
+				else
+				{
+					// When not moving, check if we have a facing direction set
+					if (!Mathf.IsEqualApprox(FacingDirection.X, 0))
+					{
+						// Use FacingDirection to determine sprite flip
+						_sprite.FlipH = FacingDirection.X < 0;
+						_lastHorizontalFacing = (sbyte)(FacingDirection.X < 0 ? -1 : 1);
+					}
+					else
+					{
+						// For entities that don't move (like dummies), respect the FlipSpriteHorizontally setting
+						// Otherwise use the last horizontal facing direction
+						_sprite.FlipH = FlipSpriteHorizontally || _lastHorizontalFacing < 0;
+					}
+				}
+				break;
+			default:
+				// Preserve current facing
+				break;
 		}
-		// During Hit, Dying, and Attacking states, preserve the current flip state
 
 		// Set animation based on state
 		string targetAnimation = GetAnimationForState(_currentState);
@@ -440,7 +462,9 @@ public partial class Entity : CharacterBody2D, IEntity
 		{
 			EntityState.Idle => "idle",
 			EntityState.Wandering => "walk",
-			EntityState.Aggro => "walk",
+			EntityState.Aggro => AggroBehavior.animationName,
+			EntityState.AttackPrepare => "attack_prepare",
+			EntityState.AttackCharge => "attack_charge",
 			EntityState.Attacking => "attack",
 			EntityState.Hit => "hit",
 			EntityState.Dying => "die",
@@ -455,10 +479,24 @@ public partial class Entity : CharacterBody2D, IEntity
 
 		switch (_currentState)
 		{
+			case EntityState.AttackPrepare:
+				if (animName == "attack_prepare")
+				{
+					TransitionToState(EntityState.AttackCharge);
+				}
+				break;
+
+			case EntityState.AttackCharge:
+				if (animName == "attack_charge")
+				{
+					TransitionToState(EntityState.Attacking);
+				}
+				break;
+
 			case EntityState.Attacking:
 				if (animName == "attack")
 				{
-					if (AggroBehavior != null && AggroBehavior.CanSeeTarget(this))
+					if (AggroBehavior.CanSeeTarget(this))
 						TransitionToState(EntityState.Aggro);
 					else
 						TransitionToState(EntityState.Idle);
@@ -484,7 +522,14 @@ public partial class Entity : CharacterBody2D, IEntity
 
 		// Check if damage is lethal
 		bool isLethalDamage = CurrentHealth <= 0;
-		
+
+		// Set the attacker as target when hit (aggro on hit regardless of detection range)
+		if (attacker != null && !isLethalDamage)
+		{
+			_target = attacker;
+			_lastKnownTargetPosition = attacker.GlobalPosition;
+		}
+
 		// Only transition to Hit state if damage is not lethal
 		if (!isLethalDamage)
 		{
@@ -566,36 +611,36 @@ public partial class Entity : CharacterBody2D, IEntity
 		// gradually darken the sprite over time
 		_sprite.Modulate = OriginalModulate.Lerp(DeadModulate, 0.1f);
 	}
-	
+
 	protected virtual void ApplyDamageFlash()
 	{
 		if (_sprite == null) return;
-		
+
 		_sprite.Modulate = DamagedModulate;
 		_damageFlashTimer = DamageFlashDuration;
 	}
-	
+
 	protected virtual void StartDeathColorTransition()
 	{
 		if (_sprite == null) return;
-		
+
 		_isTransitioningToDeath = true;
 		_deathColorTimer = 0f;
 		// Clear damage flash to prevent flickering
 		_damageFlashTimer = 0f;
 	}
-	
+
 	protected virtual void UpdateVisualEffects()
 	{
 		if (_sprite == null) return;
-		
+
 		// Death transition takes priority over damage flash
 		if (_isTransitioningToDeath)
 		{
 			// Smoothly transition to death color
 			float progress = Mathf.Clamp(_deathColorTimer / DeathColorTransitionDuration, 0f, 1f);
 			_sprite.Modulate = OriginalModulate.Lerp(DeadModulate, progress);
-			
+
 			// Stop transition when complete
 			if (progress >= 1f)
 			{
@@ -614,21 +659,21 @@ public partial class Entity : CharacterBody2D, IEntity
 			_sprite.Modulate = OriginalModulate;
 		}
 	}
-	
+
 	// Immediately sets the sprite to the dead color without transition
 	public virtual void SetDeadColorImmediate()
 	{
 		if (_sprite == null) return;
-		
+
 		_sprite.Modulate = DeadModulate;
 		_isTransitioningToDeath = false;
 	}
-	
+
 	// Resets the sprite color to original
 	public virtual void ResetSpriteColor()
 	{
 		if (_sprite == null) return;
-		
+
 		_sprite.Modulate = OriginalModulate;
 		_isTransitioningToDeath = false;
 		_damageFlashTimer = 0f;
@@ -647,9 +692,10 @@ public partial class Entity : CharacterBody2D, IEntity
 			GD.PrintErr($"Entity {Name} does not have animation '{animationName}'");
 		}
 	}
-	
+
 	// ---- Public Getters for AI customization ----
 	public EntityState CurrentState => _currentState;
 	public Node2D Target => _target;
 	public float StateTimer => _stateTimer;
+	public NavigationAgent2D NavAgent => _navAgent;
 }

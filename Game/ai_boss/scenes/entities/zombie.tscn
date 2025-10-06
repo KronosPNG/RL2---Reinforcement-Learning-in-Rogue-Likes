@@ -1,6 +1,30 @@
-[gd_scene load_steps=36 format=3 uid="uid://bruty6dkmp88e"]
+[gd_scene load_steps=43 format=3 uid="uid://bruty6dkmp88e"]
 
+[ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_asks5"]
+[ext_resource type="Script" uid="uid://cdjmp2xwqotcq" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_47c00"]
 [ext_resource type="Texture2D" uid="uid://bgi2c4hgm5ymr" path="res://art/animations/zombie/zombie_sheet.png" id="2_bi20d"]
+[ext_resource type="Script" uid="uid://cx7pgor0cfm54" path="res://scripts/entities/Behaviours/Aggro/AggroFollowPlayer.cs" id="3_8iiss"]
+[ext_resource type="Script" uid="uid://bkbvhfotdpa6c" path="res://scripts/entities/Behaviours/Attacking/AttackInoffensive.cs" id="4_q0vya"]
+
+[sub_resource type="Resource" id="Resource_8iiss"]
+script = ExtResource("2_47c00")
+WanderMaxDuration = 1.5
+WanderCooldown = 3.0
+WanderSpeedMultiplier = 0.75
+metadata/_custom_type_script = "uid://cdjmp2xwqotcq"
+
+[sub_resource type="Resource" id="Resource_8xkb4"]
+script = ExtResource("3_8iiss")
+DetectionRange = 150.0
+ChaseSpeedModifier = 1.0
+AggroDecayTime = 3.5
+metadata/_custom_type_script = "uid://cx7pgor0cfm54"
+
+[sub_resource type="Resource" id="Resource_qs2ru"]
+script = ExtResource("4_q0vya")
+AttackRange = 0.0
+AttackCooldown = 0.0
+metadata/_custom_type_script = "uid://bkbvhfotdpa6c"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4vdrd"]
 atlas = ExtResource("2_bi20d")
@@ -261,12 +285,18 @@ size = Vector2(1.42857, 2.57143)
 [node name="Zombie" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 7
+script = ExtResource("1_asks5")
+MaxHealth = 100.0
+KnockbackResistance = 0.5
+WanderingBehavior = SubResource("Resource_8iiss")
+AggroBehavior = SubResource("Resource_8xkb4")
+AttackBehavior = SubResource("Resource_qs2ru")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")
-animation = &"die"
-frame = 8
-frame_progress = 1.0
+animation = &"idle"
+frame = 1
+frame_progress = 0.223318
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
 visible = false
@@ -286,3 +316,9 @@ shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="AttackExecutor" type="Node2D" parent="."]
+
+[node name="AttackArea" type="Area2D" parent="AttackExecutor"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackExecutor/AttackArea"]
