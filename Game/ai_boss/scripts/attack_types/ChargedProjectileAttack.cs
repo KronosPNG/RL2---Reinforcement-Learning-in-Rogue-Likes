@@ -48,15 +48,15 @@ public partial class ChargedProjectileAttack : ChargedAttack, IAttack, IChargeab
         ConfigureProjectileAttackForCharge(chargedDamage, chargeRatio);
 
         // Play attack animation first
-        if (weapon._anim != null)
+        if (weapon.Sprite != null)
         {
             // GD.Print("[ChargedProjectileAttack] Playing attack animation");
-            string animName = weapon._isCurrentAttackHeavy ? "heavy_attack" : "light_attack";
-            weapon._anim.Play(animName);
+            string animName = weapon.IsCurrentAttackHeavy ? "heavy_attack" : "light_attack";
+            weapon.Sprite.Play(animName);
         }
 
         // Wait for windup time like normal attacks do
-        float windup = weapon._isCurrentAttackHeavy ? weapon.HeavyAttackConfig.Windup : weapon.LightAttackConfig.Windup;
+        float windup = weapon.IsCurrentAttackHeavy ? weapon.HeavyAttackConfig.Windup : weapon.LightAttackConfig.Windup;
         await weapon.ToSignal(weapon.GetTree().CreateTimer(windup), "timeout");
 
         // Execute the projectile attack using composition
@@ -67,7 +67,7 @@ public partial class ChargedProjectileAttack : ChargedAttack, IAttack, IChargeab
         // Restore original values after execution
         RestoreOriginalValues();
 
-        weapon.CloseHitWindow(weapon._isCurrentAttackHeavy);
+        weapon.CloseHitWindow(weapon.IsCurrentAttackHeavy);
     }
     
     private void RestoreOriginalValues()

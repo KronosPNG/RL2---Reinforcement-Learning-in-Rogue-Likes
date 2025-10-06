@@ -11,16 +11,16 @@ public partial class ChargedMeleeAttack : ChargedAttack, IAttack, IChargeable
         if (MeleeAttack == null)
         {
             GD.PrintErr("ChargedMeleeAttack: MeleeAttack is null!");
-            weapon.ResetWeaponState(weapon._isCurrentAttackHeavy);
+            weapon.ResetWeaponState(weapon.IsCurrentAttackHeavy);
             return;
         }
 
         // Play attack animation first
-        if (weapon._anim != null)
+        if (weapon.Sprite != null)
         {
             // GD.Print("[ChargedMeleeAttack] Playing attack animation");
-            string animName = weapon._isCurrentAttackHeavy ? "heavy_attack" : "light_attack";
-            weapon._anim.Play(animName);
+            string animName = weapon.IsCurrentAttackHeavy ? "heavy_attack" : "light_attack";
+            weapon.Sprite.Play(animName);
         }
 
         // Store original damage and temporarily set charged damage
@@ -47,7 +47,7 @@ public partial class ChargedMeleeAttack : ChargedAttack, IAttack, IChargeable
         base.Interrupt(weapon);
         MeleeAttack?.Interrupt(weapon);
         // Ensure weapon state is reset when interrupted
-        weapon.ResetWeaponState(weapon._isCurrentAttackHeavy);
+        weapon.ResetWeaponState(weapon.IsCurrentAttackHeavy);
     }
 
 }

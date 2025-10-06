@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_rs3f0"]
 [ext_resource type="Texture2D" uid="uid://c6pcpe0mr10b6" path="res://art/animations/weapons/bow-Sheet.png" id="2_pevdf"]
 [ext_resource type="PackedScene" uid="uid://dufefxrpx60dr" path="res://scenes/weapons/projectiles/arrow.tscn" id="2_rs3f0"]
-[ext_resource type="Script" uid="uid://behghmgcgacq5" path="res://scripts/attack_types/ProjectileAttack.cs" id="2_wr7d4"]
-[ext_resource type="Script" uid="uid://yslsc0gfiae4" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_cwr1y"]
+[ext_resource type="Script" uid="uid://d3c176vks5jg6" path="res://scripts/attack_types/ProjectileAttack.cs" id="2_wr7d4"]
+[ext_resource type="Script" uid="uid://dwplos1b2bkmp" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_cwr1y"]
 [ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="6_0hpek"]
 
 [sub_resource type="Resource" id="Resource_cwr1y"]
@@ -21,6 +21,7 @@ Damage = 5.0
 Cooldown = 0.0
 Windup = 0.0
 Active = 0.0
+Knockback = 0.0
 metadata/_custom_type_script = "uid://behghmgcgacq5"
 
 [sub_resource type="Resource" id="Resource_hl64m"]
@@ -42,11 +43,13 @@ MinChargeDamagePercentage = 0.1
 MaxChargeDamagePercentage = 1.0
 RequiresMinCharge = true
 ChargeAnimation = "charge"
+FullyChargedAnimation = "fully_charged"
 IdleAnimation = "idle"
 Damage = 35.0
 Cooldown = 0.0
 Windup = 0.0
 Active = 0.0
+Knockback = 0.0
 metadata/_custom_type_script = "uid://yslsc0gfiae4"
 
 [sub_resource type="Resource" id="Resource_rs3f0"]
@@ -63,6 +66,7 @@ Damage = 25.0
 Cooldown = 0.0
 Windup = 0.25
 Active = 0.0
+Knockback = 0.0
 metadata/_custom_type_script = "uid://behghmgcgacq5"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jug75"]

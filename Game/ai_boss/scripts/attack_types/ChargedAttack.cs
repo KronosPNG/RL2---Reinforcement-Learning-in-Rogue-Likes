@@ -47,9 +47,9 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
         _isFullyCharged = false; // Reset fully charged state
 
 
-        if (weapon._anim != null && !string.IsNullOrEmpty(ChargeAnimation))
+        if (weapon.Sprite != null && !string.IsNullOrEmpty(ChargeAnimation))
         {
-            weapon._anim.Play(ChargeAnimation);
+            weapon.Sprite.Play(ChargeAnimation);
         }
 
         // Spawn charge effect
@@ -76,9 +76,9 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
             if (!_isFullyCharged && previousChargeTime < MaxChargeTime)
             {
                 _isFullyCharged = true;
-                if (weapon._anim != null && !string.IsNullOrEmpty(FullyChargedAnimation))
+                if (weapon.Sprite != null && !string.IsNullOrEmpty(FullyChargedAnimation))
                 {
-                    weapon._anim.Play(FullyChargedAnimation);
+                    weapon.Sprite.Play(FullyChargedAnimation);
                 }
             }
         }
@@ -130,9 +130,9 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
     public override void Interrupt(Weapon weapon)
     {
         // Return to idle animation
-        if (weapon._anim != null)
+        if (weapon.Sprite != null)
         {
-            weapon._anim.Play(IdleAnimation);
+            weapon.Sprite.Play(IdleAnimation);
         }
 
         StopCharging(weapon);

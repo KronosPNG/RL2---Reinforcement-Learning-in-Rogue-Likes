@@ -112,18 +112,16 @@ public partial class Projectile : RigidBody2D
 			EmitSignal(nameof(ProjectileHit), node2d, Damage);
 		}
 
-		// Try to apply damage
-		if (body.HasMethod("ApplyDamage"))
-		{
-			GD.Print($"Applying damage to {body.Name}");
-			body.Call("ApplyDamage", Damage, this, Knockback);
-		}
-		else if (body.HasMethod("TakeDamage"))
-		{
-			body.Call("TakeDamage", Damage, this);
-		}
-
-		GD.Print($"Projectile hit {body.Name} for {Damage} damage.");
+	// Try to apply damage
+	if (body.HasMethod("ApplyDamage"))
+	{
+		GD.Print($"Applying damage to {body.Name}");
+		body.Call("ApplyDamage", Damage, ProjectileOwner, Knockback);
+	}
+	else if (body.HasMethod("TakeDamage"))
+	{
+		body.Call("TakeDamage", Damage, ProjectileOwner);
+	}		GD.Print($"Projectile hit {body.Name} for {Damage} damage.");
 
 		// Destroy projectile on hit if allowed
 		if (DestroyOnHit)

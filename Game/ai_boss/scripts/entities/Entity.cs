@@ -7,6 +7,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected CollisionShape2D _collisionShape;
 	protected Area2D _hitArea;
 	protected NavigationAgent2D _navAgent;
+	public WeaponEntity Weapon { get; set; }
 
 	// ---- Health properties ----
 	[ExportGroup("Health Properties")]
@@ -105,6 +106,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		_collisionShape = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_navAgent = GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
+		Weapon = GetNodeOrNull<WeaponEntity>("Weapon");
 	}
 
 	protected virtual void InitializeBehaviours()
@@ -529,7 +531,7 @@ public partial class Entity : CharacterBody2D, IEntity
 			_target = attacker;
 			_lastKnownTargetPosition = attacker.GlobalPosition;
 		}
-
+		
 		// Only transition to Hit state if damage is not lethal
 		if (!isLethalDamage)
 		{

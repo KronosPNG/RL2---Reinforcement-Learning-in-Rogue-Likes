@@ -92,10 +92,10 @@ public partial class Pedestal : StaticBody2D
 		// Try to get item info through different interfaces
 		if (tempItem is IPedestalItem pedestalItem)
 		{
-			_itemName = pedestalItem.GetItemName();
-			_itemDescription = pedestalItem.GetItemDescription();
+			_itemName = pedestalItem.WeaponName;
+			_itemDescription = pedestalItem.Description;
 			
-			var displaySprite = pedestalItem.GetDisplaySprite();
+			var displaySprite = pedestalItem.PedestalDisplaySprite;
 			if (displaySprite != null && _itemSprite != null)
 			{
 				// Copy sprite frames and animation

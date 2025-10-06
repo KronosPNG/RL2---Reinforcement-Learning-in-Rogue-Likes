@@ -36,15 +36,15 @@ public partial class CrescentMeleeAttack : AttackBase, IAttack
 		float startAngle = centerAngle - half;
 		float endAngle = centerAngle + half;
 
-		if (weapon._hitArea != null) weapon._hitArea.Monitoring = true;
+		if (weapon.HitArea != null) weapon.HitArea.Monitoring = true;
 		GenerateHitBox(weapon, originLocal, startAngle, endAngle, facingLeft);
 	
 	}
 
 	public override void Interrupt(Weapon weapon)
 	{
-		weapon._hitArea.Monitoring = false;
-		weapon._hitAreaShape.Polygon = [];
+		weapon.HitArea.Monitoring = false;
+		weapon.HitAreaShape.Polygon = [];
 		weapon.CloseHitWindow(false);
 
 	}
@@ -52,7 +52,7 @@ public partial class CrescentMeleeAttack : AttackBase, IAttack
 	protected virtual void GenerateHitBox(Weapon weapon, Vector2 originLocal, float startAngle, float endAngle, bool facingLeft)
 	{
 		Vector2[] poly = BuildCrescentPolygon(originLocal, InnerRadius, OuterRadius, startAngle, endAngle, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
-		weapon._hitAreaShape.Polygon = poly;
+		weapon.HitAreaShape.Polygon = poly;
 	}
 
 	// Returns a Vector2[] polygon representing a ring-sector (crescent).
