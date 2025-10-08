@@ -1,11 +1,12 @@
-[gd_scene load_steps=49 format=3 uid="uid://bruty6dkmp88e"]
+[gd_scene load_steps=51 format=3 uid="uid://bruty6dkmp88e"]
 
 [ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_asks5"]
 [ext_resource type="Script" uid="uid://cdjmp2xwqotcq" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_47c00"]
 [ext_resource type="Texture2D" uid="uid://bgi2c4hgm5ymr" path="res://art/animations/zombie/zombie_sheet.png" id="2_bi20d"]
 [ext_resource type="Script" uid="uid://cx7pgor0cfm54" path="res://scripts/entities/Behaviours/Aggro/AggroFollowPlayer.cs" id="3_8iiss"]
-[ext_resource type="Script" uid="uid://c8yj7cv0euu2n" path="res://scripts/entities/Behaviours/Attacking/AttackMelee.cs" id="4_q0vya"]
+[ext_resource type="Script" uid="uid://j5vc1qwuofvc" path="res://scripts/entities/Behaviours/Attacking/AttackInRange.cs" id="4_8xkb4"]
 [ext_resource type="Script" uid="uid://crpbd0mlja4gs" path="res://scripts/entities/WeaponEntity.cs" id="6_q0vya"]
+[ext_resource type="Script" uid="uid://d2kuottbfxm87" path="res://scripts/attack_types/CrescentMeleeAttack.cs" id="7_attack"]
 
 [sub_resource type="Resource" id="Resource_8iiss"]
 script = ExtResource("2_47c00")
@@ -22,10 +23,9 @@ AggroDecayTime = 3.5
 metadata/_custom_type_script = "uid://cx7pgor0cfm54"
 
 [sub_resource type="Resource" id="Resource_qs2ru"]
-script = ExtResource("4_q0vya")
-AttackRange = 15.0
-AttackCooldown = 1.0
-metadata/_custom_type_script = "uid://c8yj7cv0euu2n"
+script = ExtResource("4_8xkb4")
+AttackRange = 17.5
+metadata/_custom_type_script = "uid://j5vc1qwuofvc"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q0vya"]
 atlas = ExtResource("2_bi20d")
@@ -202,18 +202,6 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_b0fnr")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_rv1jy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_bvivf")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_5va6l")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_b0fnr")
 }],
 "loop": false,
 "name": &"attack_charge",
@@ -335,14 +323,27 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_khxps"]
-size = Vector2(1.14286, 2.28571)
+size = Vector2(0.857145, 1.42857)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj17u"]
-size = Vector2(1.42857, 2.57143)
+size = Vector2(1.14286, 2.28571)
+
+[sub_resource type="Resource" id="Resource_y3gxn"]
+script = ExtResource("7_attack")
+InnerRadius = 0.0
+OuterRadius = 17.5
+AngleDeg = 120.0
+ArcCenterOffsetDeg = 0.0
+Damage = 10.0
+Cooldown = 2.0
+Windup = 0.0
+Active = 0.5
+Knockback = 100.0
+metadata/_custom_type_script = "uid://d2kuottbfxm87"
 
 [node name="Zombie" type="CharacterBody2D"]
 collision_layer = 2
-collision_mask = 7
+collision_mask = 5
 script = ExtResource("1_asks5")
 MaxHealth = 100.0
 KnockbackResistance = 0.5
@@ -353,12 +354,12 @@ AttackBehavior = SubResource("Resource_qs2ru")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")
 animation = &"attack_charge"
-frame = 7
+frame = 3
 frame_progress = 1.0
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
 visible = false
-position = Vector2(-1.90735e-06, 1.43051e-06)
+position = Vector2(-1.00001, 2)
 scale = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_khxps")
 
@@ -369,7 +370,7 @@ collision_mask = 16
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
 visible = false
-position = Vector2(3.27825e-07, -9.36644e-08)
+position = Vector2(1.70299e-08, -1.10694e-07)
 shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
@@ -377,9 +378,10 @@ debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
 [node name="Weapon" type="Node2D" parent="."]
 script = ExtResource("6_q0vya")
+AttackConfig = SubResource("Resource_y3gxn")
 
 [node name="AttackArea" type="Area2D" parent="Weapon"]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Weapon/AttackArea"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea"]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Weapon"]

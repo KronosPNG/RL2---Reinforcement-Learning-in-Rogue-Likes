@@ -142,13 +142,13 @@ public partial class ChargedProjectileAttack : ChargedAttack, IAttack, IChargeab
     }
     
     // Implement IShootable interface by delegating to the exported projectile attack
-    public void SpawnProjectile(Weapon weapon, Vector2 spawnPosition, Vector2 baseDirection, int projectileIndex)
+    public void SpawnProjectile(WeaponBase weapon, Vector2 spawnPosition, Vector2 baseDirection, int projectileIndex)
     {
         ProjectileAttack?.SpawnProjectile(weapon, spawnPosition, baseDirection, projectileIndex);
     }
     
     // Override Interrupt to handle both charging and projectile cleanup
-    public override void Interrupt(Weapon weapon)
+    public override void Interrupt(WeaponBase weapon)
     {
         base.Interrupt(weapon); // Handle charging interruption
         ProjectileAttack?.Interrupt(weapon); // Handle projectile interruption if needed

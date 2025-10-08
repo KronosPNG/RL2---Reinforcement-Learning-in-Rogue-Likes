@@ -235,7 +235,6 @@ size = Vector2(6, 12)
 
 [node name="Bean" type="CharacterBody2D" groups=["Player"]]
 collision_layer = 4
-collision_mask = 3
 script = ExtResource("1_vdqyq")
 BaseSpeed = 100.0
 DodgeSpeed = 300.0

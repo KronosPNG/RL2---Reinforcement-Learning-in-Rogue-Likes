@@ -1,11 +1,10 @@
 using Godot;
 
 [GlobalClass]
-public partial class AttackMelee : AttackBehaviour
+public partial class AttackInRange : AttackBehaviour
 {
 	public override bool CanAttack(Entity entity)
 	{
-		GD.Print($"[AttackMelee] CanAttack check for entity {entity.Name}");
 		return IsInAttackRange(entity);
 	}
 
@@ -26,6 +25,10 @@ public partial class AttackMelee : AttackBehaviour
 
 	public override void PerformAttack(Entity entity)
 	{
-		entity.Weapon.Attack();
+		if (entity.Weapon.CanStartAttack())
+		{
+			GD.Print("AttackInRange: PerformAttack() called");
+			entity.Weapon.Attack();
+		}
 	}
 }

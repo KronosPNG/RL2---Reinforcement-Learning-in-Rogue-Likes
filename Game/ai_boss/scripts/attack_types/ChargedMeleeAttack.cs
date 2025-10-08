@@ -11,7 +11,7 @@ public partial class ChargedMeleeAttack : ChargedAttack, IAttack, IChargeable
         if (MeleeAttack == null)
         {
             GD.PrintErr("ChargedMeleeAttack: MeleeAttack is null!");
-            weapon.ResetWeaponState(weapon.IsCurrentAttackHeavy);
+            weapon.ResetWeaponState();
             return;
         }
 
@@ -42,12 +42,15 @@ public partial class ChargedMeleeAttack : ChargedAttack, IAttack, IChargeable
         Interrupt(weapon);
     }
 
-    public override void Interrupt(Weapon weapon)
+    public override void Interrupt(WeaponBase weapon)
     {
         base.Interrupt(weapon);
-        MeleeAttack?.Interrupt(weapon);
-        // Ensure weapon state is reset when interrupted
-        weapon.ResetWeaponState(weapon.IsCurrentAttackHeavy);
+        if (weapon is Weapon playerWeapon)
+        {
+            MeleeAttack?.Interrupt(weapon);
+            // Ensure weapon state is reset when interrupted
+            playerWeapon.ResetWeaponState();
+        }
     }
 
 }

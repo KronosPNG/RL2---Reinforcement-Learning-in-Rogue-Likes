@@ -10,12 +10,12 @@ public partial class SweepingCrescentMeleeAttack : CrescentMeleeAttack, IAttack
 	[Export] public float SweepStepDelay = 0.016f; // Delay between steps for attack sweep
 	private bool _isSweeping = false;
 
-	public override void Execute(Weapon weapon, Vector2 target, bool facingLeft)
+	public override void Execute(WeaponBase weapon, Vector2 target, bool facingLeft)
 	{
 		base.Execute(weapon, target, facingLeft);
 	}
 
-	public override void Interrupt(Weapon weapon)
+	public override void Interrupt(WeaponBase weapon)
 	{
 		base.Interrupt(weapon);
 		_isSweeping = false;
@@ -29,7 +29,7 @@ public partial class SweepingCrescentMeleeAttack : CrescentMeleeAttack, IAttack
 		return end;
 	}
 
-	protected override void GenerateHitBox(Weapon weapon, Vector2 originLocal, float startAngle, float endAngle, bool facingLeft)
+	protected override void GenerateHitBox(WeaponBase weapon, Vector2 originLocal, float startAngle, float endAngle, bool facingLeft)
 	{
 		bool effectiveSweepFromStart = SweepFromStartEdge ^ facingLeft;
 
@@ -38,7 +38,7 @@ public partial class SweepingCrescentMeleeAttack : CrescentMeleeAttack, IAttack
 
 	// Creates a "growing" ring sector to simulate sweeping motion
 	private async System.Threading.Tasks.Task SweepCrescent(
-		Weapon weapon,
+		WeaponBase weapon,
 		Vector2 originLocal,
 		float startAngle,
 		float endAngle,

@@ -12,9 +12,8 @@ public partial class CrescentMeleeAttack : AttackBase, IAttack
 	[Export] public float ArcCenterOffsetDeg = 0; // Center offset for  attack arc
 
 
-	public override void Execute(Weapon weapon, Vector2 target, bool facingLeft)
+	public override void Execute(WeaponBase weapon, Vector2 target, bool facingLeft)
 	{
-
 		Vector2 originLocal = Vector2.Zero;
 
 		// use the saved aim direction (global) captured when attack started
@@ -41,15 +40,15 @@ public partial class CrescentMeleeAttack : AttackBase, IAttack
 	
 	}
 
-	public override void Interrupt(Weapon weapon)
+	public override void Interrupt(WeaponBase weapon)
 	{
 		weapon.HitArea.Monitoring = false;
 		weapon.HitAreaShape.Polygon = [];
-		weapon.CloseHitWindow(false);
+		weapon.CloseHitWindow();
 
 	}
 
-	protected virtual void GenerateHitBox(Weapon weapon, Vector2 originLocal, float startAngle, float endAngle, bool facingLeft)
+	protected virtual void GenerateHitBox(WeaponBase weapon, Vector2 originLocal, float startAngle, float endAngle, bool facingLeft)
 	{
 		Vector2[] poly = BuildCrescentPolygon(originLocal, InnerRadius, OuterRadius, startAngle, endAngle, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
 		weapon.HitAreaShape.Polygon = poly;

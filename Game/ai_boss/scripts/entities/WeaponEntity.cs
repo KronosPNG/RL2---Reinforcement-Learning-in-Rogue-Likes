@@ -11,11 +11,35 @@ public partial class WeaponEntity : WeaponBase
 
 	// ---- Timers ----
 	protected float _attackCooldownTimer;
+	protected float _activeTimer = 0f;
+	protected bool _isAttackActive = false;
 
 	public override void _Ready()
 	{
 		base._Ready();
 		OwnerCharacter = GetParent<Entity>();
+		
+		// Override base class node initialization to match Entity weapon structure
+		// In entity weapons, the HitArea is called "AttackArea" and uses CollisionPolygon2D
+		HitArea = GetNodeOrNull<Area2D>("AttackArea");
+		HitAreaShape = GetNodeOrNull<CollisionPolygon2D>("AttackArea/CollisionPolygon2D");
+		Sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+		
+		if (HitArea == null)
+			GD.PrintErr($"[WeaponEntity] AttackArea node not found in weapon");
+			
+		if (HitAreaShape == null)
+			GD.PrintErr($"[WeaponEntity] CollisionPolygon2D not found in weapon/AttackArea");
+
+		if (Sprite == null)
+			GD.PrintErr($"[WeaponEntity] Sprite node not found in weapon");
+			
+		// Connect hit area signals
+		if (HitArea != null)
+		{
+			HitArea.Monitoring = false;
+			HitArea.BodyEntered += OnBodyEntered;
+		}
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -24,6 +48,18 @@ public partial class WeaponEntity : WeaponBase
 
 		if (_attackCooldownTimer > 0)
 			_attackCooldownTimer = Math.Max(0, _attackCooldownTimer - (float)delta);
+		
+		// Handle active attack window
+		if (_isAttackActive)
+		{
+			_activeTimer -= (float)delta;
+			if (_activeTimer <= 0)
+			{
+				GD.Print("WeaponEntity: Active window expired, closing");
+				_isAttackActive = false;
+				AttackConfig.Interrupt(this);
+			}
+		}
 	}
 
 	public void Attack()
@@ -31,21 +67,27 @@ public partial class WeaponEntity : WeaponBase
 		if (!CanStartAttack())
 			return;
 
-		_ = StartAttackSequence();
+		StartAttack();
 	}
 
-	protected override async System.Threading.Tasks.Task StartAttackSequence()
+	protected override System.Threading.Tasks.Task StartAttackSequence()
 	{
-		State = WeaponState.Windup;  
-		EmitSignal(nameof(AttackStarted), "EntityAttack");
+		// Not used - keeping for base class compatibility
+		return System.Threading.Tasks.Task.CompletedTask;
+	}
 
-		float windup = AttackConfig.Windup;
-		await ToSignal(GetTree().CreateTimer(windup), "timeout");
-
-		if (State == WeaponState.Windup)
-		{
-			OpenHitWindow();
-		}
+	private void StartAttack()
+	{
+		_attackCooldownTimer = AttackConfig.Cooldown;
+		GD.Print("WeaponEntity: StartAttack() called");
+		
+		// Start the attack immediately (windup is handled by Entity animations)
+		OpenHitWindow();
+		
+		// Set up timer for active window
+		_activeTimer = AttackConfig.Active;
+		_isAttackActive = true;
+		GD.Print($"WeaponEntity: Active window started, duration = {_activeTimer}");
 	}
 
 	public override void OpenHitWindow()
@@ -53,34 +95,33 @@ public partial class WeaponEntity : WeaponBase
 		if (State == WeaponState.Active)
 			return;
 
+		GD.Print("WeaponEntity: OpenHitWindow() called");
+
 		State = WeaponState.Active;
 		bool facingLeft = FacingLeft;
 
-		// AttackConfig.Execute(this, OwnerCharacter.Target.GlobalPosition, facingLeft);
-		GD.Print($"[WeaponEntity] Executing attack towards target at {OwnerCharacter.Target.GlobalPosition}, facingLeft={facingLeft}");
-
-		float activeTime = AttackConfig.Active;
-		_ = AutoInterrupt(activeTime);
+		AttackConfig.Execute(this, OwnerCharacter.Target.GlobalPosition, facingLeft);
 	}
 
 	public override void CloseHitWindow()
 	{
+		GD.Print("WeaponEntity: CloseHitWindow() called");
 		ResetWeaponState();
 	}
 
 	public override void ResetWeaponState()
 	{
+		GD.Print("WeaponEntity: ResetWeaponState() called");
 		State = WeaponState.Ready;
+		_isAttackActive = false;
+		_activeTimer = 0f;
 		EmitSignal(nameof(AttackEnded), "EntityAttack");
-
 	}
 
-	protected override async System.Threading.Tasks.Task AutoInterrupt(float secs)
+	protected override System.Threading.Tasks.Task AutoInterrupt(float secs)
 	{
-		await ToSignal(GetTree().CreateTimer(secs), "timeout");
-		// AttackConfig.Interrupt(this);
-
-		GD.Print($"[WeaponEntity] Interrupting attack");
+		// Not used - timer handled in _PhysicsProcess
+		return System.Threading.Tasks.Task.CompletedTask;
 	}
 
 	public override bool CanStartAttack()
@@ -96,6 +137,12 @@ public partial class WeaponEntity : WeaponBase
 
 	protected override Vector2 GetAimDirection()
 	{
+		if (OwnerCharacter?.Target == null || !IsInstanceValid(OwnerCharacter.Target))
+		{
+			GD.PrintErr("WeaponEntity: GetAimDirection() - No valid target!");
+			return Vector2.Right; // Default direction
+		}
+		
 		Vector2 direction = OwnerCharacter.Target.GlobalPosition - GlobalPosition;
 		direction = direction.Normalized();
 		return direction;

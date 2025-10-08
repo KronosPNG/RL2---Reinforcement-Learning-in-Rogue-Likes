@@ -1,10 +1,13 @@
-[gd_scene load_steps=58 format=3 uid="uid://c2e1s6ljjv0p"]
+[gd_scene load_steps=62 format=3 uid="uid://c2e1s6ljjv0p"]
 
 [ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_ceu7g"]
 [ext_resource type="Script" uid="uid://cdjmp2xwqotcq" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_a53x7"]
 [ext_resource type="Texture2D" uid="uid://sxwmc72wj5r3" path="res://art/animations/skeleton/skeleton_sheet.png" id="2_ceu7g"]
 [ext_resource type="Script" uid="uid://beqi3c4w10k6l" path="res://scripts/entities/Behaviours/Aggro/AggroKeepDistance.cs" id="3_ed2xj"]
-[ext_resource type="Script" uid="uid://bkbvhfotdpa6c" path="res://scripts/entities/Behaviours/Attacking/AttackInoffensive.cs" id="4_jsnsc"]
+[ext_resource type="Script" uid="uid://j5vc1qwuofvc" path="res://scripts/entities/Behaviours/Attacking/AttackInRange.cs" id="4_sb2t5"]
+[ext_resource type="Script" uid="uid://crpbd0mlja4gs" path="res://scripts/entities/WeaponEntity.cs" id="6_jsnsc"]
+[ext_resource type="Script" uid="uid://d3c176vks5jg6" path="res://scripts/attack_types/ProjectileAttack.cs" id="7_jsnsc"]
+[ext_resource type="PackedScene" uid="uid://bebq38eunlmnr" path="res://scenes/weapons/projectiles/evil_missile.tscn" id="7_sb2t5"]
 
 [sub_resource type="Resource" id="Resource_sb2t5"]
 script = ExtResource("2_a53x7")
@@ -26,51 +29,10 @@ ChaseSpeedModifier = 1.0
 AggroDecayTime = 2.0
 metadata/_custom_type_script = "uid://beqi3c4w10k6l"
 
-[sub_resource type="Resource" id="Resource_5gv7q"]
-script = ExtResource("4_jsnsc")
-AttackRange = 0.0
-AttackCooldown = 0.0
-metadata/_custom_type_script = "uid://bkbvhfotdpa6c"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_m1fgu"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(0, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_r3082"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(16, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_a53x7"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(32, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ed2xj"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(48, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jsnsc"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(64, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_sb2t5"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(80, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_87w4c"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(96, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_5gv7q"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(112, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_mr1eg"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(128, 64, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ptmnq"]
-atlas = ExtResource("2_ceu7g")
-region = Rect2(144, 64, 16, 16)
+[sub_resource type="Resource" id="Resource_mr1eg"]
+script = ExtResource("4_sb2t5")
+AttackRange = 150.0
+metadata/_custom_type_script = "uid://j5vc1qwuofvc"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k2w82"]
 atlas = ExtResource("2_ceu7g")
@@ -83,6 +45,46 @@ region = Rect2(176, 64, 16, 16)
 [sub_resource type="AtlasTexture" id="AtlasTexture_yimc4"]
 atlas = ExtResource("2_ceu7g")
 region = Rect2(192, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jsnsc"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(48, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sb2t5"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(64, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_87w4c"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(80, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5gv7q"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(96, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mr1eg"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(112, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ptmnq"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(128, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hch8d"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(144, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ffnbr"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(0, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lxqv4"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(16, 64, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n88ye"]
+atlas = ExtResource("2_ceu7g")
+region = Rect2(32, 64, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aixiy"]
 atlas = ExtResource("2_ceu7g")
@@ -220,17 +222,19 @@ region = Rect2(192, 32, 16, 16)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_m1fgu")
+"texture": SubResource("AtlasTexture_k2w82")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_r3082")
+"texture": SubResource("AtlasTexture_mg0ka")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_a53x7")
+"texture": SubResource("AtlasTexture_yimc4")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 7.0
 }, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ed2xj")
-}, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_jsnsc")
 }, {
@@ -250,17 +254,25 @@ animations = [{
 "texture": SubResource("AtlasTexture_ptmnq")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k2w82")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_mg0ka")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yimc4")
+"texture": SubResource("AtlasTexture_hch8d")
 }],
 "loop": false,
-"name": &"attack",
+"name": &"attack_charge",
 "speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ffnbr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lxqv4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n88ye")
+}],
+"loop": false,
+"name": &"attack_prepare",
+"speed": 6.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -393,18 +405,35 @@ size = Vector2(1.14286, 2.28571)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj17u"]
 size = Vector2(1.42857, 2.57143)
 
+[sub_resource type="Resource" id="Resource_5gv7q"]
+script = ExtResource("7_jsnsc")
+ProjectileScene = ExtResource("7_sb2t5")
+ProjectileSpeed = 200.0
+ProjectileLifetime = 10.0
+ProjectileCount = 1
+SpreadAngleDeg = 0.0
+SpawnDistanceFromPlayer = 0.0
+DestroyOnHit = true
+DestroyOnWallHit = true
+Damage = 15.0
+Cooldown = 2.0
+Windup = 0.25
+Active = 0.5
+Knockback = 0.0
+metadata/_custom_type_script = "uid://d3c176vks5jg6"
+
 [node name="Skeleton" type="CharacterBody2D"]
 collision_layer = 2
-collision_mask = 7
+collision_mask = 5
 script = ExtResource("1_ceu7g")
 MaxHealth = 100.0
 WanderingBehavior = SubResource("Resource_sb2t5")
 AggroBehavior = SubResource("Resource_87w4c")
-AttackBehavior = SubResource("Resource_5gv7q")
+AttackBehavior = SubResource("Resource_mr1eg")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")
-animation = &"walk"
+animation = &"attack_prepare"
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
 visible = false
@@ -424,3 +453,13 @@ shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="Weapon" type="Node2D" parent="."]
+script = ExtResource("6_jsnsc")
+AttackConfig = SubResource("Resource_5gv7q")
+
+[node name="AttackArea" type="Area2D" parent="Weapon"]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Weapon"]

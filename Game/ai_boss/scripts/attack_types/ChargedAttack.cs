@@ -92,8 +92,15 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
         return _isCharging && (!RequiresMinCharge || _currentChargeTime >= MinChargeTime);
     }
 
-    public override void Execute(Weapon weapon, Vector2 target, bool facingLeft)
+    public override void Execute(WeaponBase weapon, Vector2 target, bool facingLeft)
     {   
+        // ChargedAttack requires a Weapon (player-specific) for execution
+        if (weapon is not Weapon playerWeapon)
+        {
+            GD.PrintErr("[ChargedAttack] ChargedAttack requires a Weapon, not a WeaponBase");
+            return;
+        }
+
         // GD.Print("[ChargedAttack] Execute called");
         
         if (!_isCharging)
@@ -115,10 +122,10 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
 
         // GD.Print($"[ChargedAttack] Executing charged attack with {chargedDamage} damage after {_currentChargeTime} seconds of charging.");
         // Clean up charging effects
-        StopCharging(weapon);
+        StopCharging(playerWeapon);
 
         // Execute the actual attack with charged damage
-        ExecuteChargedAttack(weapon, target, facingLeft, chargedDamage);
+        ExecuteChargedAttack(playerWeapon, target, facingLeft, chargedDamage);
 
     }
 
@@ -127,16 +134,26 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
         return;
     }
 
-    public override void Interrupt(Weapon weapon)
+    public override void Interrupt(WeaponBase weapon)
     {
-        // Return to idle animation
-        if (weapon.Sprite != null)
+        // ChargedAttack requires a Weapon for interruption (to reset state properly)
+        if (weapon is not Weapon playerWeapon)
         {
-            weapon.Sprite.Play(IdleAnimation);
+            // Fallback: just stop charging without resetting weapon state
+            _isCharging = false;
+            _currentChargeTime = 0f;
+            _isFullyCharged = false;
+            return;
         }
 
-        StopCharging(weapon);
-        weapon.ResetWeaponState(false);
+        // Return to idle animation
+        if (playerWeapon.Sprite != null)
+        {
+            playerWeapon.Sprite.Play(IdleAnimation);
+        }
+
+        StopCharging(playerWeapon);
+        playerWeapon.ResetWeaponState();
     }
 
     private void StopCharging(Weapon weapon)

@@ -41,6 +41,7 @@ public partial class Entity : CharacterBody2D, IEntity
 	[ExportGroup("Visual Effects")]
 	protected Color OriginalModulate;
 	[Export] public bool FlipSpriteHorizontally = false;
+	[Export] public bool IsUnflippable = false;
 	[Export] public Color DamagedModulate { get; set; } = new Color(1, 0.75f, 0.75f);
 	[Export] public Color DeadModulate { get; set; } = new Color(0.5f, 0.5f, 0.5f);
 	[Export] public float DamageFlashDuration { get; set; } = 0.1f;
@@ -95,6 +96,9 @@ public partial class Entity : CharacterBody2D, IEntity
 		{
 			_sprite.FlipH = true;
 		}
+
+		// Prevent player from pushing this entity
+		MotionMode = MotionModeEnum.Floating;
 
 		CurrentHealth = MaxHealth;
 		TransitionToState(EntityState.Idle);
@@ -264,8 +268,9 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 
 		// Close enough to attack
-		if (AttackBehavior.IsInAttackRange(this) && AttackBehavior.CanAttack(this))
+		if (AttackBehavior.CanAttack(this) && Weapon.CanStartAttack())
 		{
+			GD.Print("Entity: HandleAggroTransitions() - CanAttack is true");
 			TransitionToState(EntityState.AttackPrepare);
 		}
 	}
@@ -312,6 +317,8 @@ public partial class Entity : CharacterBody2D, IEntity
 				break;
 
 			case EntityState.Attacking:
+			case EntityState.AttackPrepare:
+			case EntityState.AttackCharge:
 				Velocity = AttackBehavior.GetAttackVelocity(this, delta);
 				break;
 
@@ -357,6 +364,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				break;
 
 			case EntityState.Attacking:
+				GD.Print("Entity: Entered Attacking state");
 				AttackBehavior.OnEnterAttack(this);
 				AttackBehavior.PerformAttack(this);
 				break;
@@ -423,7 +431,7 @@ public partial class Entity : CharacterBody2D, IEntity
 				// These states allow facing updates
 				if (!Mathf.IsEqualApprox(Velocity.X, 0))
 				{
-					_sprite.FlipH = Velocity.X < 0;
+					FlipEntity(Velocity.X < 0);
 					_lastHorizontalFacing = (sbyte)(Velocity.X < 0 ? -1 : 1);
 				}
 				else
@@ -432,14 +440,14 @@ public partial class Entity : CharacterBody2D, IEntity
 					if (!Mathf.IsEqualApprox(FacingDirection.X, 0))
 					{
 						// Use FacingDirection to determine sprite flip
-						_sprite.FlipH = FacingDirection.X < 0;
+						FlipEntity(FacingDirection.X < 0);
 						_lastHorizontalFacing = (sbyte)(FacingDirection.X < 0 ? -1 : 1);
 					}
 					else
 					{
 						// For entities that don't move (like dummies), respect the FlipSpriteHorizontally setting
 						// Otherwise use the last horizontal facing direction
-						_sprite.FlipH = FlipSpriteHorizontally || _lastHorizontalFacing < 0;
+						FlipEntity(FlipSpriteHorizontally || _lastHorizontalFacing < 0);
 					}
 				}
 				break;
@@ -478,12 +486,14 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected virtual void OnAnimationFinished()
 	{
 		string animName = _sprite.Animation;
+		GD.Print($"Entity: OnAnimationFinished() - Animation: {animName}, State: {_currentState}");
 
 		switch (_currentState)
 		{
 			case EntityState.AttackPrepare:
 				if (animName == "attack_prepare")
 				{
+					GD.Print("Entity: Transitioning AttackPrepare -> AttackCharge");
 					TransitionToState(EntityState.AttackCharge);
 				}
 				break;
@@ -491,6 +501,7 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.AttackCharge:
 				if (animName == "attack_charge")
 				{
+					GD.Print("Entity: Transitioning AttackCharge -> Attacking");
 					TransitionToState(EntityState.Attacking);
 				}
 				break;
@@ -498,6 +509,7 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.Attacking:
 				if (animName == "attack")
 				{
+					GD.Print("Entity: Attack animation finished, transitioning back...");
 					if (AggroBehavior.CanSeeTarget(this))
 						TransitionToState(EntityState.Aggro);
 					else
@@ -531,7 +543,7 @@ public partial class Entity : CharacterBody2D, IEntity
 			_target = attacker;
 			_lastKnownTargetPosition = attacker.GlobalPosition;
 		}
-		
+
 		// Only transition to Hit state if damage is not lethal
 		if (!isLethalDamage)
 		{
@@ -693,6 +705,33 @@ public partial class Entity : CharacterBody2D, IEntity
 		{
 			GD.PrintErr($"Entity {Name} does not have animation '{animationName}'");
 		}
+	}
+
+	public void FlipEntity(bool flip)
+	{
+		if (IsUnflippable) return;
+
+		_sprite.FlipH = flip;
+		
+		// Flip the hit area and collision shape from the entity's origin
+		var hitAreaPos = _hitArea.Position;
+		var hitAreaScale = _hitArea.Scale;
+		
+		hitAreaPos.X = flip ? -Mathf.Abs(hitAreaPos.X) : Mathf.Abs(hitAreaPos.X);
+		hitAreaScale.X = flip ? -Mathf.Abs(hitAreaScale.X) : Mathf.Abs(hitAreaScale.X);
+		
+		_hitArea.Position = hitAreaPos;
+		_hitArea.Scale = hitAreaScale;
+
+		var collisionPos = _collisionShape.Position;
+		var collisionScale = _collisionShape.Scale;
+		
+		collisionPos.X = flip ? -Mathf.Abs(collisionPos.X) : Mathf.Abs(collisionPos.X);
+		collisionScale.X = flip ? -Mathf.Abs(collisionScale.X) : Mathf.Abs(collisionScale.X);
+		
+		_collisionShape.Position = collisionPos;
+		_collisionShape.Scale = collisionScale;
+		
 	}
 
 	// ---- Public Getters for AI customization ----
