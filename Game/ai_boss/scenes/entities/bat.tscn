@@ -357,7 +357,6 @@ collision_mask = 16
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
 visible = false
 position = Vector2(0.214286, 0.285714)
-scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
@@ -368,6 +367,8 @@ script = ExtResource("6_04rvg")
 AttackConfig = SubResource("Resource_y3gxn")
 
 [node name="AttackArea" type="Area2D" parent="Weapon"]
+collision_layer = 2
+collision_mask = 4
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea"]
 

@@ -27,7 +27,7 @@ public partial class AttackInRange : AttackBehaviour
 	{
 		if (entity.Weapon.CanStartAttack())
 		{
-			GD.Print("AttackInRange: PerformAttack() called");
+			// GD.Print("AttackInRange: PerformAttack() called");
 			entity.Weapon.Attack();
 		}
 	}

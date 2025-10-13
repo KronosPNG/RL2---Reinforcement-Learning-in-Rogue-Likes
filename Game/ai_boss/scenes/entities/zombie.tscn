@@ -381,6 +381,8 @@ script = ExtResource("6_q0vya")
 AttackConfig = SubResource("Resource_y3gxn")
 
 [node name="AttackArea" type="Area2D" parent="Weapon"]
+collision_layer = 2
+collision_mask = 4
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea"]
 

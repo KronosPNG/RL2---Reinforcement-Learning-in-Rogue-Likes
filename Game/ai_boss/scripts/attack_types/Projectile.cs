@@ -33,7 +33,7 @@ public partial class Projectile : RigidBody2D
 
 		if (_hitArea != null)
 		{
-			GD.Print("Projectile: HitArea found");
+			// GD.Print("Projectile: HitArea found");
 			_hitArea.BodyEntered += OnBodyEntered;
 			_hitArea.AreaEntered += OnAreaEntered;
 		}
@@ -99,7 +99,7 @@ public partial class Projectile : RigidBody2D
 
 	private void OnBodyEntered(Node body)
 	{
-		GD.Print($"Projectile hit detected on body: {body.Name}");
+		// GD.Print($"Projectile hit detected on body: {body.Name}");
 		// Handle hits with physics bodies (enemies, destructibles, etc.)
 		if (body == ProjectileOwner) return; // Don't hit the owner
 		if (_alreadyHit.Contains(body)) return;
@@ -115,26 +115,24 @@ public partial class Projectile : RigidBody2D
 	// Try to apply damage
 	if (body.HasMethod("ApplyDamage"))
 	{
-		GD.Print($"Applying damage to {body.Name}");
+		// GD.Print($"Applying damage to {body.Name}");
 		body.Call("ApplyDamage", Damage, ProjectileOwner, Knockback);
 	}
-	else if (body.HasMethod("TakeDamage"))
-	{
-		body.Call("TakeDamage", Damage, ProjectileOwner);
-	}		GD.Print($"Projectile hit {body.Name} for {Damage} damage.");
+
+	// GD.Print($"Projectile hit {body.Name} for {Damage} damage.");
 
 		// Destroy projectile on hit if allowed
-		if (DestroyOnHit)
-		{
-			GD.Print("Destroying projectile on hit.");
-			DestroyProjectile();
-		}
+	if (DestroyOnHit)
+	{
+		// GD.Print("Destroying projectile on hit.");
+		DestroyProjectile();
+	}
 			
 	}
 
 	private void OnAreaEntered(Area2D area)
 	{
-		GD.Print($"Projectile hit detected on area: {area.Name}");
+		// GD.Print($"Projectile hit detected on area: {area.Name}");
 		Node body = area.GetParent();
 
 		OnBodyEntered(body);
@@ -144,7 +142,7 @@ public partial class Projectile : RigidBody2D
 	{
 		if (body == ProjectileOwner) return; // Don't hit the owner4
 
-		GD.Print($"Projectile collision detected with body: {body.Name}");
+		// GD.Print($"Projectile collision detected with body: {body.Name}");
 		
 		if (DestroyOnWallHit)
 		{

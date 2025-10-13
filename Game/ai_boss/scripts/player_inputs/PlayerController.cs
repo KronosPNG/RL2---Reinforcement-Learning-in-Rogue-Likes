@@ -5,24 +5,31 @@ public partial class PlayerController : CharacterBody2D
 {
 	//---- Node References ----
 	private AnimatedSprite2D _sprite;
-	public Weapon _equippedWeapon;
-	public PackedScene _equippedWeaponScene; // Store the PackedScene for weapon swapping
+	public Weapon EquippedWeapon;
+	public Armor EquippedArmor;
+	public PackedScene EquippedWeaponScene; // Store the PackedScene for weapon swapping
+	public PackedScene EquippedArmorScene; // Store the PackedScene for armor swapping
 	private Node2D _handNode;
 
+	// ---- Signals ----
+	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
+	[Signal] public delegate void PlayerDiedEventHandler();
+
 	//---- Character Data ----
-	[Export] public float DamageReduction { get; set; } = 0f;
+	public float DamageReduction { get; set; } = 0f;
 	[Export] public byte Health { get; set; } = 100;
+	public float CurrentHealth { get; private set; } = 100f;
 	private const byte MaxHealth = 100;
 
 	//---- Movement Data ----
 	[Export] public float BaseSpeed { get; set; } = 500f; // normal speed
-	[Export] public float SpeedModifier { get; set; } = 1f; // speed modifier
+	public float SpeedModifier { get; set; } = 1f; // speed modifier
 	[Export] public float DodgeSpeed { get; set; } = 1500f; // speed during dodge
 	[Export] public float ChargeMoveModifier { get; set; } = .5f; // speed modifier during charge
 	private Vector2 _dodgeDirection = Vector2.Zero;
 
 	// direction leniency
-	[Export]public float DodgeInputLeniency { get; set; } = 0.05f; // seconds to wait for input
+	[Export] public float DodgeInputLeniency { get; set; } = 0.05f; // seconds to wait for input
 	private double _dodgeInputTimer = 0; // timer for input leniency for dodging
 
 	// facing direction
@@ -30,11 +37,14 @@ public partial class PlayerController : CharacterBody2D
 	private sbyte _lastHorizontalFacing = 1; // 1 = right, -1 = left
 
 	//---- Player State ----
-	private enum PlayerState { Idle, Walking, DodgePrep, Dodge, Attacking, Charging }
+	private enum PlayerState { Idle, Walking, DodgePrep, Dodge, Attacking, Charging, Hit, Dead }
 	private PlayerState _state = PlayerState.Idle;
 	private PlayerState _prevState = PlayerState.Idle; // for detecting state changes
 	private bool _isChargingAttack = false;
 	private bool _isHeavyCharge = false;
+	private float _knockbackResistance = 0f;
+
+
 
 
 	public override void _Ready()
@@ -186,7 +196,7 @@ public partial class PlayerController : CharacterBody2D
 		if (Input.IsActionJustPressed("dodge"))
 		{
 			// GD.Print("Dodge input while charging - cancelling charge");
-			_equippedWeapon.CancelCharge();
+			EquippedWeapon.CancelCharge();
 			_isChargingAttack = false;
 			_dodgeInputTimer = DodgeInputLeniency;
 			TransitionToState(PlayerState.DodgePrep);
@@ -224,9 +234,9 @@ public partial class PlayerController : CharacterBody2D
 
 	private void HandleAttackInput(bool isHeavy)
 	{
-		if (!_equippedWeapon.CanStartAttack(isHeavy)) return;
+		if (!EquippedWeapon.CanStartAttack(isHeavy)) return;
 
-		if (_equippedWeapon.HasChargeableAttack(isHeavy))
+		if (EquippedWeapon.HasChargeableAttack(isHeavy))
 		{
 			StartChargingAttack(isHeavy);
 		}
@@ -251,12 +261,12 @@ public partial class PlayerController : CharacterBody2D
 		if (shouldContinueCharging)
 		{
 			// Continue charging - weapon handles the charging logic
-			_equippedWeapon.UpdateCharge((float)GetProcessDeltaTime());
+			EquippedWeapon.UpdateCharge((float)GetProcessDeltaTime());
 		}
 		else
 		{
 			// Button released - execute or cancel the charged attack
-			if (_equippedWeapon.CanReleaseCharge())
+			if (EquippedWeapon.CanReleaseCharge())
 			{
 				TransitionToState(PlayerState.Attacking);
 				ExecuteChargedAttack(_isHeavyCharge);
@@ -264,7 +274,7 @@ public partial class PlayerController : CharacterBody2D
 			else
 			{
 				// Charge was too short, cancel and return to appropriate state
-				_equippedWeapon.CancelCharge();
+				EquippedWeapon.CancelCharge();
 				Vector2 currentInput = ReadDirection();
 				TransitionToState(currentInput.Length() > 0 ? PlayerState.Walking : PlayerState.Idle);
 			}
@@ -276,15 +286,15 @@ public partial class PlayerController : CharacterBody2D
 		_isChargingAttack = true;
 		_isHeavyCharge = isHeavy;
 		TransitionToState(PlayerState.Charging);
-		_equippedWeapon.StartCharge(GetGlobalMousePosition(), isHeavy);
+		EquippedWeapon.StartCharge(GetGlobalMousePosition(), isHeavy);
 	}
 
 	private void ExecuteChargedAttack(bool isHeavy)
 	{
 		if (isHeavy)
-			_equippedWeapon.ExecuteChargedHeavy(GetGlobalMousePosition());
+			EquippedWeapon.ExecuteChargedHeavy(GetGlobalMousePosition());
 		else
-			_equippedWeapon.ExecuteChargedLight(GetGlobalMousePosition());
+			EquippedWeapon.ExecuteChargedLight(GetGlobalMousePosition());
 	}
 
 	private void TransitionToState(PlayerState next)
@@ -339,7 +349,7 @@ public partial class PlayerController : CharacterBody2D
 				break;
 
 			case PlayerState.Attacking:
-				// allow movement while attacking
+			// allow movement while attacking
 			case PlayerState.Walking:
 				// move using input vector, speed and modifier
 				Velocity = input * BaseSpeed * SpeedModifier;
@@ -347,7 +357,7 @@ public partial class PlayerController : CharacterBody2D
 				break;
 
 			case PlayerState.DodgePrep:
-				// stop movement while preparing to dodge
+			// stop movement while preparing to dodge
 			case PlayerState.Idle:
 				// stop movement
 				Velocity = Vector2.Zero;
@@ -383,7 +393,7 @@ public partial class PlayerController : CharacterBody2D
 		// Set animation based on state
 		string targetAnimation;
 
-		if(_state == PlayerState.Charging)
+		if (_state == PlayerState.Charging)
 		{
 			if (IsMoving)
 			{
@@ -398,14 +408,14 @@ public partial class PlayerController : CharacterBody2D
 		{
 			targetAnimation = GetAnimationForState(_state);
 		}
-		
+
 
 		if (stateChanged || _sprite.Animation != targetAnimation)
 		{
 			if (_sprite.SpriteFrames.HasAnimation(targetAnimation))
 				_sprite.Play(targetAnimation);
 		}
-			
+
 		_prevState = _state;
 	}
 
@@ -443,39 +453,39 @@ public partial class PlayerController : CharacterBody2D
 	public void EquipWeapon(PackedScene weaponScene)
 	{
 		// If we reach this point, we have a new weapon to equip
-		if (_equippedWeapon != null)
+		if (EquippedWeapon != null)
 		{
 			// Disconnect signals
-			_equippedWeapon.AttackStarted -= OnWeaponAttackStarted;
-			_equippedWeapon.AttackEnded -= OnWeaponAttackEnded;
+			EquippedWeapon.AttackStarted -= OnWeaponAttackStarted;
+			EquippedWeapon.AttackEnded -= OnWeaponAttackEnded;
 
-			_equippedWeapon.Unequip();
-			_equippedWeapon.QueueFree();
-			_equippedWeapon = null;
+			EquippedWeapon.Unequip();
+			EquippedWeapon.QueueFree();
+			EquippedWeapon = null;
 		}
 
 		if (weaponScene == null)
 		{
-			_equippedWeaponScene = null;
+			EquippedWeaponScene = null;
 			return;
 		}
 
 		// Store the PackedScene reference
-		_equippedWeaponScene = weaponScene;
+		EquippedWeaponScene = weaponScene;
 
 		var weaponInstance = weaponScene.Instantiate() as Weapon;
 		if (weaponInstance == null) return;
 
 		_handNode.AddChild(weaponInstance);
 
-		CallDeferred(nameof(CallEquipDeferred), weaponInstance);
+		CallDeferred(nameof(CallEquipWeaponDeferred), weaponInstance);
 	}
 
 	// Called when equipping a new weapon
-	private void CallEquipDeferred(Weapon weapon)
+	private void CallEquipWeaponDeferred(Weapon weapon)
 	{
 		weapon.Equip(this);
-		_equippedWeapon = weapon;
+		EquippedWeapon = weapon;
 
 		// Connect to weapon signals
 		weapon.AttackStarted += OnWeaponAttackStarted;
@@ -484,12 +494,12 @@ public partial class PlayerController : CharacterBody2D
 
 	private void OnLightAttack()
 	{
-		_equippedWeapon.AttackLight(GetGlobalMousePosition());
+		EquippedWeapon.AttackLight(GetGlobalMousePosition());
 	}
 
 	private void OnHeavyAttack()
 	{
-		_equippedWeapon.AttackHeavy(GetGlobalMousePosition());
+		EquippedWeapon.AttackHeavy(GetGlobalMousePosition());
 	}
 
 	// --- Weapon Signal Handlers ---------------
@@ -521,6 +531,78 @@ public partial class PlayerController : CharacterBody2D
 		}
 	}
 
-	// ---- Getters ----
-	public PackedScene GetCurrentWeaponScene() => _equippedWeaponScene;
+	// ---- Armor ----
+
+	public void EquipArmor(PackedScene armorScene)
+	{
+		// If we reach this point, we have a new armor to equip
+		if (EquippedArmor != null)
+		{
+			EquippedArmor.Unequip();
+			EquippedArmor.QueueFree();
+			EquippedArmor = null;
+		}
+
+		if (armorScene == null)
+		{
+			EquippedArmorScene = null;
+			return;
+		}
+
+		// Store the PackedScene reference
+		EquippedArmorScene = armorScene;
+
+		var armorInstance = armorScene.Instantiate() as Armor;
+		if (armorInstance == null) return;
+
+		AddChild(armorInstance);
+
+		CallDeferred(nameof(CallEquipArmorDeferred), armorInstance);
+	}
+
+	public void CallEquipArmorDeferred(Armor armor)
+	{
+		armor.Equip(this);
+		EquippedArmor = armor;
+	}
+
+	// ---- Damage & Health ----
+
+	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
+	{
+		GD.Print($"Player took {amount} damage from {attacker.Name}");
+		CurrentHealth -= amount;
+
+		// Check if damage is lethal
+		bool isLethalDamage = CurrentHealth <= 0;
+
+		// Only transition to Hit state if damage is not lethal
+		if (!isLethalDamage)
+		{
+			TransitionToState(PlayerState.Hit);
+		}
+
+		// Apply knockback or other effects based on the attacker
+		Vector2 knockbackDir = (GlobalPosition - attacker.GlobalPosition).Normalized();
+		Velocity += knockbackDir * (1 - _knockbackResistance) * knockbackStrength;
+		MoveAndSlide();
+
+		// Emit health changed signal
+		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+
+		if (isLethalDamage)
+		{
+			CurrentHealth = 0;
+			Die();
+		}
+	}
+	
+	public void Die()
+	{
+		if (_state == PlayerState.Dead) return;
+
+		CurrentHealth = 0;
+		TransitionToState(PlayerState.Dead);
+		EmitSignal(SignalName.PlayerDied);
+	}
 }

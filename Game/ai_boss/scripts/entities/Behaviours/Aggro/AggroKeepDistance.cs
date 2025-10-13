@@ -43,12 +43,12 @@ public partial class AggroKeepDistance : AggroBehaviour
 		if (distance > PreferredDistance + DistanceTolerance)
 		{
 			// Too far - move closer
-			velocity = direction * entity.BaseSpeed * delta;
+			velocity = direction * entity.BaseSpeed * ChaseSpeedModifier * delta;
 		}
 		else if (distance < PreferredDistance - DistanceTolerance)
 		{
 			// Too close - move away
-			velocity = -direction * entity.BaseSpeed * delta;
+			velocity = -direction * ChaseSpeedModifier * entity.BaseSpeed * delta;
 		}
 		else if (EnableStrafing)
 		{

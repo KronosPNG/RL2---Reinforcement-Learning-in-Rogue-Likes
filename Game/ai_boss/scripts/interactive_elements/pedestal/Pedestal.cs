@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 public enum PedestalType
@@ -28,6 +29,15 @@ public partial class Pedestal : StaticBody2D
 	private string _itemName = "";
 	private string _itemDescription = "";
 	private float _time = 0f;
+	
+	public enum PedestalItemType {
+		Weapon,
+		Armor,
+		Consumable
+	}
+
+	public PedestalItemType AllowedItemType {get; private set; }
+
 
 	public override void _Ready()
 	{
@@ -40,7 +50,7 @@ public partial class Pedestal : StaticBody2D
 
 		if (_itemSprite == null)
 			GD.PrintErr("ItemPedestal: Missing ItemSprite (AnimatedSprite2D)");
-			
+
 		if (_interactArea == null)
 			GD.PrintErr("ItemPedestal: Missing InteractArea (Area2D)");
 
@@ -203,8 +213,11 @@ public partial class Pedestal : StaticBody2D
 
 	private void HandleWeaponSwap(PlayerController player)
 	{
+		if (AllowedItemType != PedestalItemType.Weapon)
+			return;
+
 		// Get player's current weapon scene
-		PackedScene playerWeaponScene = player._equippedWeaponScene;
+		PackedScene playerWeaponScene = player.EquippedWeaponScene;
 
 		// Equip this pedestal's weapon to the player
 		player.EquipWeapon(ItemScene);
@@ -215,30 +228,32 @@ public partial class Pedestal : StaticBody2D
 
 	private void HandleArmorSwap(PlayerController player)
 	{
-		// You'd implement armor swapping here
-		// This depends on how you structure your armor system
-		
-		// For now, just a placeholder:
-		GD.Print("Armor swapping not implemented yet");
-		
-		// Example structure:
-		// var playerArmor = player.GetEquippedArmor(armorType);
-		// player.EquipArmor(ItemScene);
-		// SetItem(playerArmor?.GetScene());
+		if (AllowedItemType != PedestalItemType.Armor)
+			return;
+
+		// Get player's current armor scene
+		PackedScene playerArmorScene = player.EquippedArmorScene;
+
+		// Equip this pedestal's armor to the player
+		player.EquipArmor(ItemScene);
+
+		// Put player's old armor on this pedestal (or make it empty)
+		SetItem(playerArmorScene);
 	}
 
 	private void HandleConsumableSwap(PlayerController player)
 	{
-		// Add to player inventory instead of swapping
-		// You'd implement inventory system here
-		
-		GD.Print($"Player picked up consumable: {_itemName}");
-		
-		// Example:
-		// player.AddToInventory(ItemScene);
-		
-		// Clear the pedestal after pickup
-		SetItem(null);
+		if (AllowedItemType != PedestalItemType.Consumable)
+			return;
+
+		// Get player's current consumable scene
+		// PackedScene playerConsumableScene = player.EquippedConsumableScene;
+
+		// Equip this pedestal's consumable to the player
+		// player.EquipConsumable(ItemScene);
+
+		// Put player's old consumable on this pedestal (or make it empty)
+		// SetItem(playerConsumableScene);
 	}
 
 	private void ClearItemDisplay()

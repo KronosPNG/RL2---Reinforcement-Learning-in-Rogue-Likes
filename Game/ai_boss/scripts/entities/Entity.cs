@@ -42,10 +42,8 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected Color OriginalModulate;
 	[Export] public bool FlipSpriteHorizontally = false;
 	[Export] public bool IsUnflippable = false;
-	[Export] public Color DamagedModulate { get; set; } = new Color(1, 0.75f, 0.75f);
-	[Export] public Color DeadModulate { get; set; } = new Color(0.5f, 0.5f, 0.5f);
-	[Export] public float DamageFlashDuration { get; set; } = 0.1f;
-	protected float _damageFlashTimer = 0f;
+	[Export] public VisualDamageFlash _damageEffect = new VisualDamageFlash();
+	[Export] public VisualDeathDecolouring _deathEffect = new VisualDeathDecolouring();
 
 	// ---- Death color transition ----
 	[Export] public float DeathColorTransitionDuration { get; set; } = 1.0f;
@@ -88,6 +86,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		InitializeNodes();
 		InitializeBehaviours();
 		InitializeEntity();
+		InitializeVisuals();
 
 		if (_sprite != null)
 			_sprite.AnimationFinished += OnAnimationFinished;
@@ -131,6 +130,15 @@ public partial class Entity : CharacterBody2D, IEntity
 		OriginalModulate = _sprite.Modulate;
 	}
 
+	protected virtual void InitializeVisuals()
+	{
+		if (_sprite != null)
+		{
+			_damageEffect.InitializeVisuals(_sprite);
+			_deathEffect.InitializeVisuals(_sprite);
+		}
+	}
+
 	// ---- Public methods to change behaviours at runtime ----
 	public void SetWanderBehaviour(WanderBehaviour behaviour)
 	{
@@ -169,12 +177,12 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		_stateTimer += delta;
 		_idleToWanderTimer -= delta;
-		_damageFlashTimer -= delta;
+		_damageEffect.UpdateDamageTimer(_sprite, delta);
 
 		// Update death color transition
 		if (_isTransitioningToDeath)
 		{
-			_deathColorTimer += delta;
+			_deathEffect.UpdateDeathTimer(delta);
 		}
 	}
 
@@ -294,10 +302,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 	}
 
-	protected virtual void HandleDyingTransitions()
-	{
-		// Death animation will handle transition to Dead via OnAnimationFinished
-	}
+	protected virtual void HandleDyingTransitions(){}
 
 	protected virtual void ApplyMovementByState(float delta)
 	{
@@ -372,19 +377,17 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.Hit:
 				_sprite.Play(GetAnimationForState(state));
 				// Apply damage flash effect
-				ApplyDamageFlash();
+				_damageEffect.ApplyDamageEffect(_sprite);
 				break;
 
 			case EntityState.Dying:
 				_hitArea.SetDeferred("monitoring", false);
 				_collisionShape.SetDeferred("disabled", true);
-				// Start death color transition
-				StartDeathColorTransition();
 				break;
 
 			case EntityState.Dead:
 				// Darken the sprite 
-				DarkenSprite();
+				_deathEffect.ApplyDeathEffect(_sprite);
 				break;
 		}
 	}
@@ -404,15 +407,17 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.Attacking:
 				AttackBehavior.OnExitAttack(this);
 				break;
+
+			case EntityState.Hit:
+				// Clear damage flash effect
+				_damageEffect.ClearDamageEffect(_sprite);
+				break;
 		}
 	}
 
 	protected virtual void UpdateAnimationIfNeeded()
 	{
 		if (_sprite == null) return;
-
-		// Handle visual effects
-		UpdateVisualEffects();
 
 		if (!IsAlive || _currentState == EntityState.Dead)
 		{
@@ -618,79 +623,6 @@ public partial class Entity : CharacterBody2D, IEntity
 	public void ShowDamageNumber(float damage)
 	{
 		throw new System.NotImplementedException();
-	}
-
-	protected void DarkenSprite()
-	{
-		// gradually darken the sprite over time
-		_sprite.Modulate = OriginalModulate.Lerp(DeadModulate, 0.1f);
-	}
-
-	protected virtual void ApplyDamageFlash()
-	{
-		if (_sprite == null) return;
-
-		_sprite.Modulate = DamagedModulate;
-		_damageFlashTimer = DamageFlashDuration;
-	}
-
-	protected virtual void StartDeathColorTransition()
-	{
-		if (_sprite == null) return;
-
-		_isTransitioningToDeath = true;
-		_deathColorTimer = 0f;
-		// Clear damage flash to prevent flickering
-		_damageFlashTimer = 0f;
-	}
-
-	protected virtual void UpdateVisualEffects()
-	{
-		if (_sprite == null) return;
-
-		// Death transition takes priority over damage flash
-		if (_isTransitioningToDeath)
-		{
-			// Smoothly transition to death color
-			float progress = Mathf.Clamp(_deathColorTimer / DeathColorTransitionDuration, 0f, 1f);
-			_sprite.Modulate = OriginalModulate.Lerp(DeadModulate, progress);
-
-			// Stop transition when complete
-			if (progress >= 1f)
-			{
-				_isTransitioningToDeath = false;
-			}
-		}
-		// Handle damage flash only if not dying
-		else if (_damageFlashTimer > 0f && _currentState != EntityState.Dying && _currentState != EntityState.Dead)
-		{
-			// Flash is active, keep damaged color
-			_sprite.Modulate = DamagedModulate;
-		}
-		else if (_currentState != EntityState.Hit && _currentState != EntityState.Dying && _currentState != EntityState.Dead)
-		{
-			// Return to original color when not damaged/dying
-			_sprite.Modulate = OriginalModulate;
-		}
-	}
-
-	// Immediately sets the sprite to the dead color without transition
-	public virtual void SetDeadColorImmediate()
-	{
-		if (_sprite == null) return;
-
-		_sprite.Modulate = DeadModulate;
-		_isTransitioningToDeath = false;
-	}
-
-	// Resets the sprite color to original
-	public virtual void ResetSpriteColor()
-	{
-		if (_sprite == null) return;
-
-		_sprite.Modulate = OriginalModulate;
-		_isTransitioningToDeath = false;
-		_damageFlashTimer = 0f;
 	}
 
 	public void PlayAnimation(string animationName)

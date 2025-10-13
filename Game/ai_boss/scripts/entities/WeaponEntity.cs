@@ -16,7 +16,6 @@ public partial class WeaponEntity : WeaponBase
 
 	public override void _Ready()
 	{
-		base._Ready();
 		OwnerCharacter = GetParent<Entity>();
 		
 		// Override base class node initialization to match Entity weapon structure
@@ -55,7 +54,7 @@ public partial class WeaponEntity : WeaponBase
 			_activeTimer -= (float)delta;
 			if (_activeTimer <= 0)
 			{
-				GD.Print("WeaponEntity: Active window expired, closing");
+				// GD.Print("WeaponEntity: Active window expired, closing");
 				_isAttackActive = false;
 				AttackConfig.Interrupt(this);
 			}
@@ -64,8 +63,12 @@ public partial class WeaponEntity : WeaponBase
 
 	public void Attack()
 	{
+		GD.Print($"WeaponEntity: Attack() called - CanStartAttack: {CanStartAttack()}, State: {State}, Cooldown: {_attackCooldownTimer}");
 		if (!CanStartAttack())
+		{
+			GD.Print($"WeaponEntity: Attack() blocked - State: {State}, Cooldown: {_attackCooldownTimer}");
 			return;
+		}
 
 		StartAttack();
 	}
@@ -87,7 +90,7 @@ public partial class WeaponEntity : WeaponBase
 		// Set up timer for active window
 		_activeTimer = AttackConfig.Active;
 		_isAttackActive = true;
-		GD.Print($"WeaponEntity: Active window started, duration = {_activeTimer}");
+		// GD.Print($"WeaponEntity: Active window started, duration = {_activeTimer}");
 	}
 
 	public override void OpenHitWindow()

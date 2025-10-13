@@ -33,12 +33,23 @@ public abstract partial class WeaponBase : Node2D
 		HitAreaShape = GetNodeOrNull<CollisionPolygon2D>("HitArea/CollisionPolygon2D");
 
 		if (Sprite == null)
-			GD.PrintErr($"[WeaponBase] Sprite node not found in weapon");
+		{
+			GD.PrintErr($"[WeaponBase] Sprite node not found in weapon: {Name}");
+			throw new System.Exception("Sprite node is required for WeaponBase");
+		}
+		
 		if (HitArea == null)
-			GD.PrintErr($"[WeaponBase] HitArea node not found in weapon");
-		if (HitAreaShape == null)
-			GD.PrintErr($"[WeaponBase] HitAreaShape node not found in weapon");
+		{
+			GD.PrintErr($"[WeaponBase] HitArea node not found in weapon: {Name}");
+			throw new System.Exception("HitArea node is required for WeaponBase");
+		}
 
+		if (HitAreaShape == null)
+		{
+			GD.PrintErr($"[WeaponBase] HitAreaShape node not found in weapon: {Name}");
+			throw new System.Exception("HitAreaShape node is required for WeaponBase");
+		}
+		
 		// Connect hit area signals
 		if (HitArea != null)
 		{

@@ -1,0 +1,48 @@
+using System;
+using Godot;
+
+[GlobalClass]
+public partial class VisualDamageFlash : Resource
+{
+    [Export] public Color DamagedModulate { get; set; } = new Color(1, 0.75f, 0.75f); // Light red color for damage flash
+    [Export] public float DamageFlashDuration { get; private set; } = 0.2f; // Duration of the damage flash effect in seconds
+
+    private Color _originalModulate;
+    public float Timer { get; private set; } = 0f;
+
+    public void InitializeVisuals(AnimatedSprite2D sprite)
+    {
+        _originalModulate = sprite.Modulate;
+    }
+
+    public void ClearDamageFlash(AnimatedSprite2D sprite)
+    {
+        sprite.Modulate = _originalModulate;
+        Timer = 0f;
+    }
+
+    public void UpdateDamageTimer(AnimatedSprite2D sprite, float delta)
+    {
+        Timer -= delta;
+    }
+
+    public void ApplyDamageEffect(AnimatedSprite2D sprite)
+    {
+        sprite.Modulate = DamagedModulate;
+    }
+
+    public void ClearDamageEffect(AnimatedSprite2D sprite)
+    {
+        sprite.Modulate = _originalModulate;
+    }
+
+    public void ResetTimer()
+    {
+        Timer = DamageFlashDuration;
+    }
+
+    public void EndTimer()
+    {
+        Timer = 0f;
+    }
+}
