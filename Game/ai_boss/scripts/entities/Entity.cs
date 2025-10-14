@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class Entity : CharacterBody2D, IEntity
+public partial class Entity : CharacterBody2D, IEntity, IDamageable
 {
 	// ---- Node references ----
 	protected AnimatedSprite2D _sprite;
@@ -42,8 +42,8 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected Color OriginalModulate;
 	[Export] public bool FlipSpriteHorizontally = false;
 	[Export] public bool IsUnflippable = false;
-	[Export] public VisualDamageFlash _damageEffect = new VisualDamageFlash();
-	[Export] public VisualDeathDecolouring _deathEffect = new VisualDeathDecolouring();
+	[Export] public VisualFlash _damageEffect = new();
+	[Export] public VisualFading _deathEffect = new();
 
 	// ---- Death color transition ----
 	[Export] public float DeathColorTransitionDuration { get; set; } = 1.0f;
@@ -77,9 +77,9 @@ public partial class Entity : CharacterBody2D, IEntity
 	protected Vector2 _lastKnownTargetPosition = Vector2.Zero;
 
 	// ---- Signals ----
-	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, float maxHealth);
-	[Signal] public delegate void DiedEventHandler();
-	[Signal] public delegate void StateChangedEventHandler(string newState);
+	[Signal] public delegate void EntityHealthChangedEventHandler(float currentHealth, float maxHealth);
+	[Signal] public delegate void EntityDiedEventHandler();
+	[Signal] public delegate void EntityStateChangedEventHandler(string newState);
 
 	public override void _Ready()
 	{
@@ -177,12 +177,12 @@ public partial class Entity : CharacterBody2D, IEntity
 	{
 		_stateTimer += delta;
 		_idleToWanderTimer -= delta;
-		_damageEffect.UpdateDamageTimer(_sprite, delta);
+		_damageEffect.UpdateTimer(delta);
 
 		// Update death color transition
 		if (_isTransitioningToDeath)
 		{
-			_deathEffect.UpdateDeathTimer(delta);
+			_deathEffect.UpdateTimer(delta);
 		}
 	}
 
@@ -347,7 +347,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		_stateTimer = 0f;
 		OnEnterState(newState);
 
-		EmitSignal(SignalName.StateChanged, newState.ToString());
+		EmitSignal(SignalName.EntityStateChanged, newState.ToString());
 	}
 
 	protected virtual void OnEnterState(EntityState state)
@@ -377,7 +377,7 @@ public partial class Entity : CharacterBody2D, IEntity
 			case EntityState.Hit:
 				_sprite.Play(GetAnimationForState(state));
 				// Apply damage flash effect
-				_damageEffect.ApplyDamageEffect(_sprite);
+				_damageEffect.PlayEffect(_sprite);
 				break;
 
 			case EntityState.Dying:
@@ -387,7 +387,7 @@ public partial class Entity : CharacterBody2D, IEntity
 
 			case EntityState.Dead:
 				// Darken the sprite 
-				_deathEffect.ApplyDeathEffect(_sprite);
+				_deathEffect.PlayEffect(_sprite);
 				break;
 		}
 	}
@@ -410,7 +410,7 @@ public partial class Entity : CharacterBody2D, IEntity
 
 			case EntityState.Hit:
 				// Clear damage flash effect
-				_damageEffect.ClearDamageEffect(_sprite);
+				_damageEffect.ClearEffect(_sprite);
 				break;
 		}
 	}
@@ -531,8 +531,6 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 	}
 
-	// ---- IEntity Implementation ----
-
 	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
 	{
 		if (!IsAlive) return;
@@ -564,7 +562,7 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 
 		// Emit health changed signal
-		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+		EmitSignal(SignalName.EntityHealthChanged, CurrentHealth, MaxHealth);
 
 		if (isLethalDamage)
 		{
@@ -573,14 +571,13 @@ public partial class Entity : CharacterBody2D, IEntity
 		}
 	}
 
-	public void ApplyStatusEffect(StatusEffectType effectType, float duration, float intensity = 1)
+	public void Heal(float amount)
 	{
-		throw new System.NotImplementedException();
-	}
-
-	public bool CanTakeDamageFrom(Node2D attacker)
-	{
-		throw new System.NotImplementedException();
+		if (IsAlive)
+		{
+			CurrentHealth += amount;
+			if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
+		}
 	}
 
 	public void Die()
@@ -591,18 +588,16 @@ public partial class Entity : CharacterBody2D, IEntity
 		_sprite.Play("die");
 	}
 
-	public bool HasStatusEffect(StatusEffectType effectType)
+	// ---- IEntity Implementation ----
+
+	public void ApplyStatusEffect(StatusEffectType effectType, float duration, float intensity = 1)
 	{
 		throw new System.NotImplementedException();
 	}
 
-	public void Heal(float amount)
+	public bool HasStatusEffect(StatusEffectType effectType)
 	{
-		if (IsAlive)
-		{
-			CurrentHealth += amount;
-			if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
-		}
+		throw new System.NotImplementedException();
 	}
 
 	public void PlayDeathEffect()

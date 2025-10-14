@@ -334,11 +334,11 @@ InnerRadius = 0.0
 OuterRadius = 17.5
 AngleDeg = 120.0
 ArcCenterOffsetDeg = 0.0
-Damage = 10.0
+Damage = 100.0
 Cooldown = 2.0
 Windup = 0.0
 Active = 0.5
-Knockback = 100.0
+Knockback = 500.0
 metadata/_custom_type_script = "uid://d2kuottbfxm87"
 
 [node name="Zombie" type="CharacterBody2D"]

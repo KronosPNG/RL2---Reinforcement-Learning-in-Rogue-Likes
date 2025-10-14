@@ -30,6 +30,7 @@ continuous_cd = 1
 script = ExtResource("1_di1w4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(4, 2.98023e-08)
 scale = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_di1w4")
@@ -40,6 +41,7 @@ collision_layer = 16
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
+visible = false
 position = Vector2(4, 0)
 shape = SubResource("RectangleShape2D_lwydh")
 debug_color = Color(0.682353, 0, 0.0745098, 0.419608)

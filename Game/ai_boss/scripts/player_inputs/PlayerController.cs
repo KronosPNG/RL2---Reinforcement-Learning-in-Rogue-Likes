@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class PlayerController : CharacterBody2D
+public partial class PlayerController : CharacterBody2D, IDamageable
 {
 	//---- Node References ----
 	private AnimatedSprite2D _sprite;
@@ -10,6 +10,7 @@ public partial class PlayerController : CharacterBody2D
 	public PackedScene EquippedWeaponScene; // Store the PackedScene for weapon swapping
 	public PackedScene EquippedArmorScene; // Store the PackedScene for armor swapping
 	private Node2D _handNode;
+	private CollisionShape2D _hitbox;
 
 	// ---- Signals ----
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
@@ -44,7 +45,13 @@ public partial class PlayerController : CharacterBody2D
 	private bool _isHeavyCharge = false;
 	private float _knockbackResistance = 0f;
 
+	// ---- Visual Effects ----
+	[Export] public VisualFlash _damageFlash;
+	[Export] public VisualFlash _dodgeFlash;
 
+	// ---- Timers ----
+	private float _stateTimer = 0f; // timer for tracking time in current state
+	private float _hitStunTimer = 0.5f; // timer for hit stun duration
 
 
 	public override void _Ready()
@@ -62,6 +69,22 @@ public partial class PlayerController : CharacterBody2D
 			GD.PrintErr("Bean: could not find Hand node");
 			return;
 		}
+
+		_hitbox = GetNodeOrNull<CollisionShape2D>("HitBox");
+		if (_hitbox == null)
+		{
+			GD.PrintErr("Bean: could not find Hitbox node");
+			return;
+		}
+
+		// Initialize visual effects
+		if (_damageFlash == null)
+			_damageFlash = new VisualFlash();
+		if (_dodgeFlash == null)
+			_dodgeFlash = new VisualFlash();
+			
+		_damageFlash.InitializeVisuals(_sprite);
+		_dodgeFlash.InitializeVisuals(_sprite);
 
 		_sprite.AnimationFinished += OnAnimationFinished; // Connect animation finished signal
 	}
@@ -126,18 +149,16 @@ public partial class PlayerController : CharacterBody2D
 				HandleDodgePrepTransitions();
 				break;
 
-			case PlayerState.Dodge:
-				// We leave dodge only when its animation finishes (handled in animation_finished)
-				// so no transitions here. AnimationFinished -> EndDodge => sets Idle/Walking next.
-				break;
-
-			case PlayerState.Attacking:
-				// We leave attacking only when the weapon signals attack ended
-				// This is handled by weapon signals connected in EquipWeapon
+			case PlayerState.Hit:
+				HandleHitTransitions();
 				break;
 
 			case PlayerState.Charging:
 				HandleChargingTransitions();
+				break;
+
+			default:
+				// Other states (Dodge, Attacking, Dead) have no transitions here
 				break;
 		}
 	}
@@ -200,6 +221,20 @@ public partial class PlayerController : CharacterBody2D
 			_isChargingAttack = false;
 			_dodgeInputTimer = DodgeInputLeniency;
 			TransitionToState(PlayerState.DodgePrep);
+		}
+	}
+
+	private void HandleHitTransitions()
+	{
+		_stateTimer += (float)GetProcessDeltaTime();
+		if (_stateTimer >= _hitStunTimer)
+		{
+			// decide whether to be walking or idle after hit stun
+			Vector2 currentInput = ReadDirection();
+			if (currentInput.Length() > 0)
+				TransitionToState(PlayerState.Walking);
+			else
+				TransitionToState(PlayerState.Idle);
 		}
 	}
 
@@ -313,28 +348,47 @@ public partial class PlayerController : CharacterBody2D
 		{
 			// play dodge animation; movement will be handled in ApplyMovementByState
 			case PlayerState.Dodge:
-				// Set the sprite's flip based on direction
-				_sprite.FlipH = _dodgeDirection.X < 0 || _lastHorizontalFacing < 0;
+				OnEnterStateDodge();
+				break;
+			case PlayerState.Hit:
 				_sprite.Play(GetAnimationForState(s));
+				_damageFlash.PlayEffect(_sprite);
 				break;
-			case PlayerState.Walking:
-				// animation will be set in UpdateAnimationIfNeeded()
-				break;
-			case PlayerState.Idle:
-				// animation set later
-				break;
-			case PlayerState.Attacking:
-				// animation will be triggered by weapon	
-				break;
-			case PlayerState.Charging:
-				// animation will be triggered by weapon
+
+			default:
 				break;
 		}
+	}
+	
+	private void OnEnterStateDodge()
+	{
+		// Set the sprite's flip based on direction
+		_sprite.FlipH = _dodgeDirection.X < 0 || _lastHorizontalFacing < 0;
+		_sprite.Play(GetAnimationForState(PlayerState.Dodge));
+		_dodgeFlash.PlayEffect(_sprite);
+		_hitbox.Disabled = true;
+		
 	}
 
 	private void OnExitState(PlayerState s)
 	{
-		return;
+		switch (s)
+		{
+			case PlayerState.Hit:
+				_damageFlash.ClearEffect(_sprite);
+				break;
+
+			case PlayerState.Dodge:
+				_dodgeFlash.ClearEffect(_sprite);
+				_hitbox.Disabled = false;
+				break;
+
+			default:
+				break;
+		}
+
+		// Reset state timer on any state exit
+		_stateTimer = 0f;
 	}
 
 	// --- Physics & movement ---------------------
@@ -428,6 +482,8 @@ public partial class PlayerController : CharacterBody2D
 			PlayerState.Idle => "idle",
 			PlayerState.Attacking => "attack",
 			PlayerState.Charging => "charge",
+			PlayerState.Hit => "hit",
+			PlayerState.Dead => "dead",
 			_ => null
 		};
 	}
@@ -605,4 +661,10 @@ public partial class PlayerController : CharacterBody2D
 		TransitionToState(PlayerState.Dead);
 		EmitSignal(SignalName.PlayerDied);
 	}
+
+	public void Heal(float amount)
+	{
+		throw new NotImplementedException();
+	}
+
 }

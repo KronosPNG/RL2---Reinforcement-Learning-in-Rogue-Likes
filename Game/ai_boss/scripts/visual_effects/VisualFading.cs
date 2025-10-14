@@ -1,7 +1,7 @@
 using Godot;
 
 [GlobalClass]
-public partial class VisualDeathDecolouring : Resource
+public partial class VisualFading : Resource, IVisual
 {
     [Export] public Color DeathModulate { get; set; } = new Color(0.5f, 0.5f, 0.5f); // Grey color for death decolouring
     [Export] public float DeathEffectDuration { get; set; } = 1.0f;
@@ -14,7 +14,7 @@ public partial class VisualDeathDecolouring : Resource
         _originalModulate = sprite.Modulate;
     }
 
-    public void ApplyDeathEffect(AnimatedSprite2D sprite)
+    public void PlayEffect(AnimatedSprite2D sprite)
     {
         // Use a tween so the effect runs reliably without needing per-frame updates from Entity.
         _startDeathColor = sprite.Modulate;
@@ -27,7 +27,7 @@ public partial class VisualDeathDecolouring : Resource
         tween.TweenProperty(sprite, "modulate", DeathModulate, DeathEffectDuration);
     }
 
-    public void UpdateDeathTimer(float delta)
+    public void UpdateTimer(float delta)
     {
         _deathEffectTimer += delta;
     }
@@ -41,7 +41,7 @@ public partial class VisualDeathDecolouring : Resource
 
         return progress >= 1f;
     }
-    public void ClearDeathDecolour(AnimatedSprite2D sprite)
+    public void ClearEffect(AnimatedSprite2D sprite)
     {
         sprite.Modulate = _originalModulate;
     }
