@@ -38,7 +38,7 @@ debug_color = Color(0.522613, 0.13251, 0.652217, 0.42)
 
 [node name="HitArea" type="Area2D" parent="."]
 collision_layer = 16
-collision_mask = 2
+collision_mask = 32
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
 visible = false

@@ -10,7 +10,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	public PackedScene EquippedWeaponScene; // Store the PackedScene for weapon swapping
 	public PackedScene EquippedArmorScene; // Store the PackedScene for armor swapping
 	private Node2D _handNode;
-	private CollisionShape2D _hitbox;
+	private CollisionShape2D _physicalCollision;
 
 	// ---- Signals ----
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
@@ -70,8 +70,8 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			return;
 		}
 
-		_hitbox = GetNodeOrNull<CollisionShape2D>("HitBox");
-		if (_hitbox == null)
+		_physicalCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
+		if (_physicalCollision == null)
 		{
 			GD.PrintErr("Bean: could not find Hitbox node");
 			return;
@@ -217,9 +217,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		if (Input.IsActionJustPressed("dodge"))
 		{
 			// GD.Print("Dodge input while charging - cancelling charge");
-			EquippedWeapon.CancelCharge();
-			_isChargingAttack = false;
-			_dodgeInputTimer = DodgeInputLeniency;
+			CancelChargingAttack();
 			TransitionToState(PlayerState.DodgePrep);
 		}
 	}
@@ -332,6 +330,15 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			EquippedWeapon.ExecuteChargedLight(GetGlobalMousePosition());
 	}
 
+	private void CancelChargingAttack()
+	{
+		if (_isChargingAttack)
+		{
+			EquippedWeapon.CancelCharge();
+			_isChargingAttack = false;
+		}
+	}
+
 	private void TransitionToState(PlayerState next)
 	{
 		if (_state == next) return;
@@ -351,8 +358,14 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				OnEnterStateDodge();
 				break;
 			case PlayerState.Hit:
+				CancelChargingAttack();
 				_sprite.Play(GetAnimationForState(s));
 				_damageFlash.PlayEffect(_sprite);
+				break;
+
+			case PlayerState.Dead:
+				CancelChargingAttack();
+				_physicalCollision.Disabled = true;
 				break;
 
 			default:
@@ -366,7 +379,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		_sprite.FlipH = _dodgeDirection.X < 0 || _lastHorizontalFacing < 0;
 		_sprite.Play(GetAnimationForState(PlayerState.Dodge));
 		_dodgeFlash.PlayEffect(_sprite);
-		_hitbox.Disabled = true;
+		_physicalCollision.Disabled = true;
 		
 	}
 
@@ -380,7 +393,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 			case PlayerState.Dodge:
 				_dodgeFlash.ClearEffect(_sprite);
-				_hitbox.Disabled = false;
+				_physicalCollision.Disabled = false;
 				break;
 
 			default:
@@ -656,7 +669,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	public void Die()
 	{
 		if (_state == PlayerState.Dead) return;
-
+		
 		CurrentHealth = 0;
 		TransitionToState(PlayerState.Dead);
 		EmitSignal(SignalName.PlayerDied);

@@ -351,8 +351,8 @@ shape = SubResource("RectangleShape2D_khxps")
 
 [node name="HitArea" type="Area2D" parent="."]
 scale = Vector2(7, 7)
-collision_layer = 2
-collision_mask = 16
+collision_layer = 32
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
 visible = false
@@ -368,7 +368,7 @@ AttackConfig = SubResource("Resource_y3gxn")
 
 [node name="AttackArea" type="Area2D" parent="Weapon"]
 collision_layer = 2
-collision_mask = 4
+collision_mask = 64
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea"]
 
