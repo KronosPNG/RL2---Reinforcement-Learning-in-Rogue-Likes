@@ -438,6 +438,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			}
 		}
 	}
+
 	public Vector2 GetDisplayScale()
 	{
 		// If we have a pedestal display sprite, use its configured scale

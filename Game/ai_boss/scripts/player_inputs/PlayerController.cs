@@ -11,6 +11,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	public PackedScene EquippedArmorScene; // Store the PackedScene for armor swapping
 	private Node2D _handNode;
 	private CollisionShape2D _physicalCollision;
+	private Area2D _hitboxArea;
 
 	// ---- Signals ----
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
@@ -28,6 +29,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	[Export] public float DodgeSpeed { get; set; } = 1500f; // speed during dodge
 	[Export] public float ChargeMoveModifier { get; set; } = .5f; // speed modifier during charge
 	private Vector2 _dodgeDirection = Vector2.Zero;
+
+	// Collision management for dodge
+	private uint _normalCollisionMask = 0; // Store original mask
+	private uint _normalCollisionLayer = 0; // Store original layer
 
 	// direction leniency
 	[Export] public float DodgeInputLeniency { get; set; } = 0.05f; // seconds to wait for input
@@ -73,7 +78,14 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		_physicalCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
 		if (_physicalCollision == null)
 		{
-			GD.PrintErr("Bean: could not find Hitbox node");
+			GD.PrintErr("Bean: could not find PhysicalCollision node");
+			return;
+		}
+
+		_hitboxArea = GetNodeOrNull<Area2D>("HitArea");
+		if (_hitboxArea == null)
+		{
+			GD.PrintErr("Bean: could not find HitArea node");
 			return;
 		}
 
@@ -87,6 +99,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		_dodgeFlash.InitializeVisuals(_sprite);
 
 		_sprite.AnimationFinished += OnAnimationFinished; // Connect animation finished signal
+		
+		// Store the original collision properties
+		_normalCollisionMask = CollisionMask;
+		_normalCollisionLayer = CollisionLayer;
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -365,7 +381,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 			case PlayerState.Dead:
 				CancelChargingAttack();
-				_physicalCollision.Disabled = true;
+				_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
 				break;
 
 			default:
@@ -379,8 +395,16 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		_sprite.FlipH = _dodgeDirection.X < 0 || _lastHorizontalFacing < 0;
 		_sprite.Play(GetAnimationForState(PlayerState.Dodge));
 		_dodgeFlash.PlayEffect(_sprite);
-		_physicalCollision.Disabled = true;
 		
+		// Make player invulnerable during dodge (can't be detected by enemy weapons)
+		_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+		
+		// Disable collision with enemies during dodge - remove Layer 2 from mask
+		CollisionMask = _normalCollisionMask & ~2u; // Remove Layer 2 (enemies)
+		
+		// Make player "ghost" - enemies can't collide with us either
+		// Remove Layer 3 so enemies (who check Layer 3) don't detect us
+		CollisionLayer = _normalCollisionLayer & ~4u; // Remove Layer 3 (4 = 2^2)
 	}
 
 	private void OnExitState(PlayerState s)
@@ -393,7 +417,13 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 			case PlayerState.Dodge:
 				_dodgeFlash.ClearEffect(_sprite);
-				_physicalCollision.Disabled = false;
+				
+				// Restore vulnerability after dodge
+				_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
+				
+				// Restore normal collision properties after dodge
+				CollisionMask = _normalCollisionMask;
+				CollisionLayer = _normalCollisionLayer;
 				break;
 
 			default:

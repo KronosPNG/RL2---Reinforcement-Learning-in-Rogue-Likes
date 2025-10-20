@@ -38,6 +38,7 @@ public partial class WeaponEntity : WeaponBase
 		{
 			HitArea.Monitoring = false;
 			HitArea.BodyEntered += OnBodyEntered;
+			HitArea.AreaEntered += OnAreaEntered;
 		}
 	}
 
@@ -168,4 +169,5 @@ public partial class WeaponEntity : WeaponBase
 			if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", AttackConfig.Damage, this.OwnerCharacter, AttackConfig.Knockback);
 		}
 	}
+
 }

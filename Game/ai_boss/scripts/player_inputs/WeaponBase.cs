@@ -55,6 +55,7 @@ public abstract partial class WeaponBase : Node2D
 		{
 			HitArea.Monitoring = false;
 			HitArea.BodyEntered += OnBodyEntered;
+			HitArea.AreaEntered += OnAreaEntered;
 		}
 	}
 
@@ -90,4 +91,31 @@ public abstract partial class WeaponBase : Node2D
 	}
 
 	protected abstract void OnBodyEntered(Node body);
+	protected void OnAreaEntered(Area2D area)
+	{
+		if (area == null) return;
+
+		// Try to get the entity that owns this Area2D
+		// Owner gives us the scene root (e.g., the Entity that owns this hurtbox)
+		Node2D targetEntity = null;
+		
+		if (area.Owner is Node2D ownerNode)
+		{
+			targetEntity = ownerNode;
+		}
+		// Fallback to parent if Owner is null (can happen with runtime-instantiated areas)
+		else if (area.GetParent() is Node2D parentNode)
+		{
+			targetEntity = parentNode;
+		}
+
+		if (targetEntity == null)
+		{
+			GD.Print($"Weapon: Area {area.Name} has no valid owner or parent to damage");
+			return;
+		}
+
+		// Reuse the same damage logic as BodyEntered
+		OnBodyEntered(targetEntity);
+	}
 }

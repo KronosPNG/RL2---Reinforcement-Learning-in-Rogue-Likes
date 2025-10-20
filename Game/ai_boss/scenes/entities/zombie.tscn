@@ -353,9 +353,7 @@ AttackBehavior = SubResource("Resource_qs2ru")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ruppt")
-animation = &"attack_charge"
-frame = 3
-frame_progress = 1.0
+animation = &"idle"
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
 visible = false

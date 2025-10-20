@@ -1,4 +1,4 @@
-[gd_scene load_steps=60 format=3 uid="uid://ckxxtcm5oi43l"]
+[gd_scene load_steps=59 format=3 uid="uid://ckxxtcm5oi43l"]
 
 [ext_resource type="Script" uid="uid://cx5a35bjt1j1" path="res://scripts/player_inputs/PlayerController.cs" id="1_vdqyq"]
 [ext_resource type="Texture2D" uid="uid://3a4xt78ppwt2" path="res://art/animations/bean_sprite_sheet.png" id="2_cphwl"]
@@ -403,9 +403,6 @@ animations = [{
 "speed": 10.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wxo2p"]
-size = Vector2(6, 12)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
 size = Vector2(6, 12)
 
@@ -453,10 +450,6 @@ metadata/_aseprite_wizard_config_ = {
 }
 metadata/_aseprite_wizard_source_file_hash_ = "e8f29a3492ff11e531f9e5072f607a06"
 
-[node name="HitBox" type="CollisionShape2D" parent="."]
-position = Vector2(0, 1)
-shape = SubResource("RectangleShape2D_wxo2p")
-
 [node name="Hand" type="Node2D" parent="."]
 
 [node name="HitArea" type="Area2D" parent="."]
@@ -466,6 +459,7 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_hurtbox")
+debug_color = Color(0.729564, 0.30582, 0.900709, 0.42)
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1.5)

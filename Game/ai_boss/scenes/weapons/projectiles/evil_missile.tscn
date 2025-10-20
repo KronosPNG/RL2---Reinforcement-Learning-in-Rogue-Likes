@@ -38,7 +38,7 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pqfyw"]
 size = Vector2(16, 12)
 
-[node name="MagicMissile" type="RigidBody2D"]
+[node name="EvilMissile" type="RigidBody2D"]
 collision_layer = 8
 continuous_cd = 1
 script = ExtResource("1_lxf1j")
