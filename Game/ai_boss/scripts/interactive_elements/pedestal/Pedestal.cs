@@ -54,6 +54,15 @@ public partial class Pedestal : StaticBody2D
 		if (_interactArea == null)
 			GD.PrintErr("ItemPedestal: Missing InteractArea (Area2D)");
 
+		// Initialize AllowedItemType based on PedestalType
+		AllowedItemType = PedestalType switch
+		{
+			PedestalType.Weapon => PedestalItemType.Weapon,
+			PedestalType.Armor => PedestalItemType.Armor,
+			PedestalType.Consumable => PedestalItemType.Consumable,
+			_ => PedestalItemType.Weapon
+		};
+
 		// Setup interaction area
 		if (_interactArea != null)
 		{
@@ -102,7 +111,7 @@ public partial class Pedestal : StaticBody2D
 		// Try to get item info through different interfaces
 		if (tempItem is IPedestalItem pedestalItem)
 		{
-			_itemName = pedestalItem.WeaponName;
+			_itemName = pedestalItem.ItemName;
 			_itemDescription = pedestalItem.Description;
 			
 			var displaySprite = pedestalItem.PedestalDisplaySprite;

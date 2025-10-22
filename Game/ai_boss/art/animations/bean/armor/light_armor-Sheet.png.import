@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxli5nldq3ih7"
-path="res://.godot/imported/pedestal.png-ba8dcc9c2a6d68e117f05ca9a7b9be55.ctex"
+uid="uid://bsymmrjabxj3x"
+path="res://.godot/imported/light_armor-Sheet.png-00595fae620d28b0e20fccb8c8c2f40a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/objects/pedestal.png"
-dest_files=["res://.godot/imported/pedestal.png-ba8dcc9c2a6d68e117f05ca9a7b9be55.ctex"]
+source_file="res://art/animations/bean/armor/light_armor-Sheet.png"
+dest_files=["res://.godot/imported/light_armor-Sheet.png-00595fae620d28b0e20fccb8c8c2f40a.ctex"]
 
 [params]
 

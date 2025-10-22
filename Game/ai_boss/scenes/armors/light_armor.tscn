@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3 uid="uid://btg3xrenbt0ao"]
+
+[ext_resource type="Script" uid="uid://c2j6mugls4yw3" path="res://scripts/player_inputs/Armor.cs" id="1_qarl8"]
+[ext_resource type="SpriteFrames" uid="uid://dupmbke43yk80" path="res://assets/sprite_frames/bean/armors/light_armor.tres" id="2_qarl8"]
+[ext_resource type="SpriteFrames" uid="uid://b3fpjxlrcrvgb" path="res://assets/sprite_frames/bean/helmets/hood.tres" id="3_a53hn"]
+[ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_go6vk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qarl8"]
+atlas = ExtResource("4_go6vk")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ivnlu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qarl8")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}]
+
+[node name="LightArmor" type="Node2D"]
+script = ExtResource("1_qarl8")
+ItemName = "Light Armor"
+Description = "A stealthy outfit that enhances the wearer's movement."
+KnockbackModifier = 1.2
+DamageModifier = 1.0
+SpeedModifier = 1.25
+BodySpriteFrames = ExtResource("2_qarl8")
+HelmetSpriteFrames = ExtResource("3_a53hn")
+PedestalDisplayScale = Vector2(1, 1)
+
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_ivnlu")

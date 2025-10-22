@@ -353,7 +353,6 @@ animations = [{
 
 [node name="Sword" type="Node2D"]
 script = ExtResource("1_58ehi")
-WeaponName = "Longsword"
 Description = "A well balanced two-handed melee weapon with good range."
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_s4ec8")

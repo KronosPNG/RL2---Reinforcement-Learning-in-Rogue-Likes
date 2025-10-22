@@ -16,7 +16,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	[Signal] public delegate void ChargeCancelledEventHandler(string attackName);
 
 	// ---- Non Mechanical Properties ----
-	[Export] public string WeaponName { get; set; } = "Unnamed Weapon";
+	[Export] public string ItemName { get; set; } = "Unnamed Weapon";
 	[Export] public string Description { get; set; } = "No Description";
 
 	//---- Pedestal Display ----
@@ -53,7 +53,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 		if (PedestalDisplaySprite == null)
 		{
-			GD.PrintErr("Sword: could not find PedestalDisplaySprite");
+			GD.PrintErr("Weapon: could not find PedestalDisplaySprite");
 			return;
 		}
 		else

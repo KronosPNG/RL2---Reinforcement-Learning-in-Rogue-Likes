@@ -168,7 +168,6 @@ animations = [{
 
 [node name="Dagger" type="Node2D"]
 script = ExtResource("1_j34lm")
-WeaponName = "Dagger"
 Description = "A short blade,  nimble and fast for quick attacks."
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_mhf5r")

@@ -4,7 +4,10 @@ using System;
 public partial class PlayerController : CharacterBody2D, IDamageable
 {
 	//---- Node References ----
-	private AnimatedSprite2D _sprite;
+	private Node2D _spriteContainer;
+	private AnimatedSprite2D _bodyBaseSprite;
+	private AnimatedSprite2D _bodyArmorSprite;
+	private AnimatedSprite2D _helmetArmorSprite;
 	public Weapon EquippedWeapon;
 	public Armor EquippedArmor;
 	public PackedScene EquippedWeaponScene; // Store the PackedScene for weapon swapping
@@ -18,14 +21,12 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	[Signal] public delegate void PlayerDiedEventHandler();
 
 	//---- Character Data ----
-	public float DamageReduction { get; set; } = 0f;
 	[Export] public byte Health { get; set; } = 100;
 	public float CurrentHealth { get; private set; } = 100f;
 	private const byte MaxHealth = 100;
 
 	//---- Movement Data ----
 	[Export] public float BaseSpeed { get; set; } = 500f; // normal speed
-	public float SpeedModifier { get; set; } = 1f; // speed modifier
 	[Export] public float DodgeSpeed { get; set; } = 1500f; // speed during dodge
 	[Export] public float ChargeMoveModifier { get; set; } = .5f; // speed modifier during charge
 	private Vector2 _dodgeDirection = Vector2.Zero;
@@ -48,7 +49,6 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private PlayerState _prevState = PlayerState.Idle; // for detecting state changes
 	private bool _isChargingAttack = false;
 	private bool _isHeavyCharge = false;
-	private float _knockbackResistance = 0f;
 
 	// ---- Visual Effects ----
 	[Export] public VisualFlash _damageFlash;
@@ -61,10 +61,15 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 	public override void _Ready()
 	{
-		_sprite = GetNodeOrNull<AnimatedSprite2D>("PlayerSprite");
-		if (_sprite == null)
+		// Initialize node references
+		_spriteContainer = GetNodeOrNull<Node2D>("BodyLayers");
+		_bodyBaseSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyBase");
+		_bodyArmorSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyArmor");
+		_helmetArmorSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/Helmet");
+
+		if (_spriteContainer == null || _bodyBaseSprite == null || _bodyArmorSprite == null || _helmetArmorSprite == null)
 		{
-			GD.PrintErr("Bean: could not find AnimatedSprite2D node 'PlayerSprite'");
+			GD.PrintErr("Bean: could not find one or more body sprite nodes");
 			return;
 		}
 
@@ -95,10 +100,12 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		if (_dodgeFlash == null)
 			_dodgeFlash = new VisualFlash();
 			
-		_damageFlash.InitializeVisuals(_sprite);
-		_dodgeFlash.InitializeVisuals(_sprite);
+		_damageFlash.InitializeVisuals(_bodyBaseSprite);
+		_dodgeFlash.InitializeVisuals(_bodyBaseSprite);
 
-		_sprite.AnimationFinished += OnAnimationFinished; // Connect animation finished signal
+		// Only connect the base sprite's animation finished signal to avoid multiple triggers
+		_bodyBaseSprite.AnimationFinished += OnAnimationFinished;
+		_bodyBaseSprite.FrameChanged += OnBaseFrameChanged;
 		
 		// Store the original collision properties
 		_normalCollisionMask = CollisionMask;
@@ -375,8 +382,8 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				break;
 			case PlayerState.Hit:
 				CancelChargingAttack();
-				_sprite.Play(GetAnimationForState(s));
-				_damageFlash.PlayEffect(_sprite);
+				PlayAnimation(GetAnimationForState(s));
+				_damageFlash.PlayEffect(_spriteContainer);
 				break;
 
 			case PlayerState.Dead:
@@ -392,10 +399,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private void OnEnterStateDodge()
 	{
 		// Set the sprite's flip based on direction
-		_sprite.FlipH = _dodgeDirection.X < 0 || _lastHorizontalFacing < 0;
-		_sprite.Play(GetAnimationForState(PlayerState.Dodge));
-		_dodgeFlash.PlayEffect(_sprite);
-		
+		FlipSprites(_dodgeDirection.X < 0 || _lastHorizontalFacing < 0);
+		PlayAnimation(GetAnimationForState(PlayerState.Dodge));
+		_dodgeFlash.PlayEffect(_spriteContainer);
+
 		// Make player invulnerable during dodge (can't be detected by enemy weapons)
 		_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 		
@@ -412,12 +419,12 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		switch (s)
 		{
 			case PlayerState.Hit:
-				_damageFlash.ClearEffect(_sprite);
+				_damageFlash.ClearEffect(_spriteContainer);
 				break;
 
 			case PlayerState.Dodge:
-				_dodgeFlash.ClearEffect(_sprite);
-				
+				_dodgeFlash.ClearEffect(_spriteContainer);
+
 				// Restore vulnerability after dodge
 				_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
 				
@@ -437,11 +444,13 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	// --- Physics & movement ---------------------
 	private void ApplyMovementByState(double delta, Vector2 input)
 	{
+		float armorSpeedModifier = EquippedArmor != null ? EquippedArmor.SpeedModifier : 1f;
+
 		switch (_state)
 		{
 			case PlayerState.Dodge:
 				// move using dodge vector & speed
-				Velocity = _dodgeDirection * DodgeSpeed;
+				Velocity = _dodgeDirection * DodgeSpeed * armorSpeedModifier;
 				MoveAndSlide();
 				break;
 
@@ -449,7 +458,8 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			// allow movement while attacking
 			case PlayerState.Walking:
 				// move using input vector, speed and modifier
-				Velocity = input * BaseSpeed * SpeedModifier;
+				// Velocity = input * BaseSpeed * EquippedArmor.SpeedModifier;
+				Velocity = input * BaseSpeed * armorSpeedModifier;
 				MoveAndSlide();
 				break;
 
@@ -463,7 +473,8 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 			case PlayerState.Charging:
 				// allow movement while charging (at reduced speed or full speed)
-				Velocity = input * BaseSpeed * ChargeMoveModifier;
+				// Velocity = input * BaseSpeed * ChargeMoveModifier * EquippedArmor.SpeedModifier;
+				Velocity = input * BaseSpeed * ChargeMoveModifier * armorSpeedModifier;
 				MoveAndSlide();
 				break;
 		}
@@ -485,7 +496,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		bool IsMoving = !Mathf.IsEqualApprox(Velocity.Length(), 0);
 
 		// Update sprite facing
-		_sprite.FlipH = _lastHorizontalFacing < 0;
+		FlipSprites(_lastHorizontalFacing < 0);
 
 		// Set animation based on state
 		string targetAnimation;
@@ -507,10 +518,9 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		}
 
 
-		if (stateChanged || _sprite.Animation != targetAnimation)
+		if (stateChanged || _bodyBaseSprite.Animation != targetAnimation)
 		{
-			if (_sprite.SpriteFrames.HasAnimation(targetAnimation))
-				_sprite.Play(targetAnimation);
+			PlayAnimation(targetAnimation);
 		}
 
 		_prevState = _state;
@@ -527,15 +537,54 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			PlayerState.Charging => "charge",
 			PlayerState.Hit => "hit",
 			PlayerState.Dead => "dead",
-			_ => null
+			PlayerState.DodgePrep => "idle", 
+			_ => "idle" // Default to idle for any unhandled state
 		};
+	}
+
+	private void PlayAnimation(string animationName)
+	{
+		// Play on base sprite first
+		_bodyBaseSprite.Play(animationName);
+		_bodyArmorSprite.Play(animationName);
+		_helmetArmorSprite.Play(animationName);
+	}
+	
+	private void SyncArmorFrames()
+	{
+		string animation = _bodyBaseSprite.Animation;
+		int frame = _bodyBaseSprite.Frame;	
+
+		_bodyArmorSprite.Animation = animation;
+		_bodyArmorSprite.Frame = frame;
+		
+		_helmetArmorSprite.Animation = animation;
+		_helmetArmorSprite.Frame = frame;
+	}
+
+	private void FlipSprites(bool flip)
+	{
+		_spriteContainer.Scale = new Vector2(
+			flip ? -1 : 1, 
+			1
+		);
+	}
+
+	// Sync armor sprites to base sprite every frame change
+	private void OnBaseFrameChanged()
+	{
+		_bodyArmorSprite.Animation = _bodyBaseSprite.Animation;
+		_bodyArmorSprite.Frame = _bodyBaseSprite.Frame;
+
+		_helmetArmorSprite.Animation = _bodyBaseSprite.Animation;
+		_helmetArmorSprite.Frame = _bodyBaseSprite.Frame;
 	}
 
 	// Called by AnimatedSprite2D when any animation completes
 	private void OnAnimationFinished()
 	{
 		// Get the name of the finished animation
-		var animName = _sprite.Animation;
+		var animName = _bodyBaseSprite.Animation;
 		// If dodge finished, end dodge and transit to Idle/Walking based on current input
 		if (animName == GetAnimationForState(PlayerState.Dodge) && _state == PlayerState.Dodge)
 		{
@@ -634,6 +683,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 	public void EquipArmor(PackedScene armorScene)
 	{
+		GD.Print("Equipping new armor");
 		// If we reach this point, we have a new armor to equip
 		if (EquippedArmor != null)
 		{
@@ -654,23 +704,40 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		var armorInstance = armorScene.Instantiate() as Armor;
 		if (armorInstance == null) return;
 
-		AddChild(armorInstance);
-
 		CallDeferred(nameof(CallEquipArmorDeferred), armorInstance);
 	}
 
 	public void CallEquipArmorDeferred(Armor armor)
 	{
+		AddChild(armor);
 		armor.Equip(this);
 		EquippedArmor = armor;
+		SyncArmorFrames();
+	}
+
+	// ---- Visuals ----
+	public void UpdateArmorVisuals(Armor armor)
+	{	
+		if (armor != null)
+		{
+			_bodyArmorSprite.SpriteFrames = armor.BodySpriteFrames;
+			_helmetArmorSprite.SpriteFrames = armor.HelmetSpriteFrames;
+		}
+		else
+		{
+			_bodyArmorSprite.SpriteFrames = null;
+			_helmetArmorSprite.SpriteFrames = null;
+		}
 	}
 
 	// ---- Damage & Health ----
 
 	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
 	{
-		GD.Print($"Player took {amount} damage from {attacker.Name}");
+		amount *= EquippedArmor.DamageModifier; // apply damage reduction
+
 		CurrentHealth -= amount;
+		GD.Print($"Player took {amount} damage from {attacker.Name}");
 
 		// Check if damage is lethal
 		bool isLethalDamage = CurrentHealth <= 0;
@@ -683,7 +750,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 		// Apply knockback or other effects based on the attacker
 		Vector2 knockbackDir = (GlobalPosition - attacker.GlobalPosition).Normalized();
-		Velocity += knockbackDir * (1 - _knockbackResistance) * knockbackStrength;
+		Velocity += knockbackDir * EquippedArmor.KnockbackModifier * knockbackStrength;
 		MoveAndSlide();
 
 		// Emit health changed signal

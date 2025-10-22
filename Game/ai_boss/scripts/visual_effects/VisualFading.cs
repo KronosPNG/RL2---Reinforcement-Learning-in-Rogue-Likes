@@ -27,6 +27,17 @@ public partial class VisualFading : Resource, IVisual
         tween.TweenProperty(sprite, "modulate", DeathModulate, DeathEffectDuration);
     }
 
+    public void PlayEffect(Node2D spriteContainer)
+    {
+        foreach (var child in spriteContainer.GetChildren())
+        {
+            if (child is AnimatedSprite2D sprite)
+            {
+                PlayEffect(sprite);
+            }
+        }
+    }
+
     public void UpdateTimer(float delta)
     {
         _deathEffectTimer += delta;
@@ -41,9 +52,34 @@ public partial class VisualFading : Resource, IVisual
 
         return progress >= 1f;
     }
+
+    public bool UpdateEffect(Node2D spriteContainer)
+    {
+        bool allDone = true;
+        foreach (var child in spriteContainer.GetChildren())
+        {
+            if (child is AnimatedSprite2D sprite)
+            {
+                allDone &= UpdateEffect(sprite);
+            }
+        }
+        return allDone;
+    }
+
     public void ClearEffect(AnimatedSprite2D sprite)
     {
         sprite.Modulate = _originalModulate;
+    }
+
+    public void ClearEffect(Node2D spriteContainer)
+    {
+        foreach (var child in spriteContainer.GetChildren())
+        {
+            if (child is AnimatedSprite2D sprite)
+            {
+                ClearEffect(sprite);
+            }
+        }
     }
 
     public void ResetTimer()
