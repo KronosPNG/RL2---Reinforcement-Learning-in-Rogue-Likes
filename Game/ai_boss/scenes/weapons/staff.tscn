@@ -21,7 +21,7 @@ DestroyOnWallHit = true
 Damage = 20.0
 Cooldown = 0.0
 Windup = 0.25
-Active = 0.0
+Active = 1.0
 Knockback = 0.0
 metadata/_custom_type_script = "uid://behghmgcgacq5"
 
@@ -409,7 +409,6 @@ animations = [{
 
 [node name="Staff" type="Node2D"]
 script = ExtResource("1_lakth")
-WeaponName = "Staff"
 Description = ""
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_rh371")

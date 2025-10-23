@@ -48,7 +48,7 @@ IdleAnimation = "idle"
 Damage = 35.0
 Cooldown = 0.0
 Windup = 0.0
-Active = 0.0
+Active = 0.75
 Knockback = 0.0
 metadata/_custom_type_script = "uid://yslsc0gfiae4"
 
@@ -310,7 +310,6 @@ animations = [{
 
 [node name="Bow" type="Node2D"]
 script = ExtResource("1_rs3f0")
-WeaponName = "Bow"
 Description = ""
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_hl64m")

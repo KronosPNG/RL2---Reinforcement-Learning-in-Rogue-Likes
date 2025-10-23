@@ -26,8 +26,8 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private const byte MaxHealth = 100;
 
 	//---- Movement Data ----
-	[Export] public float BaseSpeed { get; set; } = 500f; // normal speed
-	[Export] public float DodgeSpeed { get; set; } = 1500f; // speed during dodge
+	[Export] public float BaseSpeed { get; set; } = 100f; // normal speed
+	[Export] public float DodgeSpeed { get; set; } = 250f; // speed during dodge
 	[Export] public float ChargeMoveModifier { get; set; } = .5f; // speed modifier during charge
 	private Vector2 _dodgeDirection = Vector2.Zero;
 
@@ -56,7 +56,9 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 	// ---- Timers ----
 	private float _stateTimer = 0f; // timer for tracking time in current state
-	private float _hitStunTimer = 0.5f; // timer for hit stun duration
+	private float _hitStunDuration = 0.5f; // time for hit stun duration
+	private float _invulnerabilityTimer = 0f; // timer for invulnerability after hit
+	[Export] public float InvulnerabilityDuration = 1f; // time for invulnerability after hit
 
 
 	public override void _Ready()
@@ -131,6 +133,18 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 		// Update animation if needed (state or facing changed)
 		UpdateAnimationIfNeeded();
+
+		// Hit invulnerability timer update
+		if (_invulnerabilityTimer > 0)
+		{
+			_invulnerabilityTimer -= (float)delta;
+			if (_invulnerabilityTimer <= 0)
+			{
+				_invulnerabilityTimer = 0;
+				_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
+				// End of invulnerability - can add visual effect here if desired	
+			}
+		}
 	}
 
 	private Vector2 ReadDirection()
@@ -248,7 +262,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private void HandleHitTransitions()
 	{
 		_stateTimer += (float)GetProcessDeltaTime();
-		if (_stateTimer >= _hitStunTimer)
+		if (_stateTimer >= _hitStunDuration)
 		{
 			// decide whether to be walking or idle after hit stun
 			Vector2 currentInput = ReadDirection();
@@ -269,6 +283,8 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			case PlayerState.DodgePrep:
 			case PlayerState.Dodge:
 			case PlayerState.Attacking:
+			case PlayerState.Hit:
+			case PlayerState.Dead:
 				return;
 
 			case PlayerState.Charging:
@@ -387,10 +403,19 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				break;
 
 			case PlayerState.Dead:
+				// Stop physics processing
+				
 				CancelChargingAttack();
-				_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
-				break;
+				_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
+				EquippedWeapon.SetPhysicsProcess(false);
+				_handNode.Visible = false;
+				SetPhysicsProcess(false);
+				
+				PlayAnimation(GetAnimationForState(s));
+		
+				break;
+				
 			default:
 				break;
 		}
@@ -462,7 +487,11 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				Velocity = input * BaseSpeed * armorSpeedModifier;
 				MoveAndSlide();
 				break;
-
+				
+			case PlayerState.Dead:
+			// no movement when dead
+			case PlayerState.Hit:
+			// stop movement while in hit stun
 			case PlayerState.DodgePrep:
 			// stop movement while preparing to dodge
 			case PlayerState.Idle:
@@ -717,7 +746,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 	// ---- Visuals ----
 	public void UpdateArmorVisuals(Armor armor)
-	{	
+	{
 		if (armor != null)
 		{
 			_bodyArmorSprite.SpriteFrames = armor.BodySpriteFrames;
@@ -731,9 +760,16 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	}
 
 	// ---- Damage & Health ----
+	public bool IsInvulnerable()
+	{
+		return _invulnerabilityTimer > 0 || _state == PlayerState.Dodge;
+	}
 
 	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
 	{
+		_invulnerabilityTimer = InvulnerabilityDuration;
+		_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+
 		amount *= EquippedArmor.DamageModifier; // apply damage reduction
 
 		CurrentHealth -= amount;

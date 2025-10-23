@@ -37,6 +37,7 @@ shape = SubResource("RectangleShape2D_di1w4")
 debug_color = Color(0.522613, 0.13251, 0.652217, 0.42)
 
 [node name="HitArea" type="Area2D" parent="."]
+visible = false
 collision_layer = 16
 collision_mask = 32
 

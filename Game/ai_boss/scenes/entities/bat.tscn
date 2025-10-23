@@ -367,6 +367,7 @@ script = ExtResource("6_04rvg")
 AttackConfig = SubResource("Resource_y3gxn")
 
 [node name="AttackArea" type="Area2D" parent="Weapon"]
+visible = false
 collision_layer = 2
 collision_mask = 64
 

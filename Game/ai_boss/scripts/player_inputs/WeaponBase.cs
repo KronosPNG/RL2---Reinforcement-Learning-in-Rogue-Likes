@@ -18,7 +18,7 @@ public abstract partial class WeaponBase : Node2D
 	
 
 	// ---- States ----
-	public WeaponState State { get; protected set; } = WeaponState.Ready; // ✅ Private setter, public getter
+	public WeaponState State { get; protected set; } = WeaponState.Ready;
 	// facing direction of the mouse relative to the entity
 	public bool FacingLeft { get; protected set; } = false;
 	// Attack currently being charged, if any
@@ -62,7 +62,6 @@ public abstract partial class WeaponBase : Node2D
 	public override void _PhysicsProcess(double delta)
 	{
 		Vector2 direction = GetAimDirection();
-
 		AdjustSpriteRotation(direction);
 	}
 

@@ -68,7 +68,12 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 	public override void _PhysicsProcess(double delta)
 	{
-		base._PhysicsProcess(delta);
+		Vector2 direction = GetAimDirection();
+		
+		if(State != WeaponState.Active)
+		{
+			AdjustSpriteRotation(direction);
+		}
 
 		if (_lightCooldownTimer > 0)
 			_lightCooldownTimer = Math.Max(0, _lightCooldownTimer - (float)delta);
@@ -281,6 +286,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		// Execute the charged attack
 		bool facingAtStart = FacingLeft;
 
+		State = WeaponState.Active;
 		// GD.Print($"[Weapon]Executing charged attack: isHeavy={_isCurrentAttackHeavy}, target={_pendingHitTarget}, facingLeft={facingAtStart}");
 		_currentChargingAttack.Execute(this, PendingHitTarget, facingAtStart);
 

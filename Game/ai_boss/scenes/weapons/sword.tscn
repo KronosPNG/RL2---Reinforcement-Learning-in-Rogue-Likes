@@ -18,7 +18,7 @@ ArcCenterOffsetDeg = 0.0
 Damage = 35.0
 Cooldown = 0.15
 Windup = 0.0
-Active = 0.25
+Active = 0.5
 Knockback = 0.0
 metadata/_custom_type_script = "uid://cpybuc7cg7rl5"
 
@@ -365,6 +365,7 @@ animation = &"idle"
 [node name="Pivot" type="Node2D" parent="."]
 
 [node name="HitArea" type="Area2D" parent="."]
+visible = false
 collision_layer = 16
 collision_mask = 32
 
