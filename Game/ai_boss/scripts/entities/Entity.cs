@@ -590,27 +590,12 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 
 	// ---- IEntity Implementation ----
 
-	public void ApplyStatusEffect(StatusEffectType effectType, float duration, float intensity = 1)
-	{
-		throw new System.NotImplementedException();
-	}
-
-	public bool HasStatusEffect(StatusEffectType effectType)
-	{
-		throw new System.NotImplementedException();
-	}
-
 	public void PlayDeathEffect()
 	{
 		throw new System.NotImplementedException();
 	}
 
 	public void PlayHitEffect(Vector2 hitPosition)
-	{
-		throw new System.NotImplementedException();
-	}
-
-	public void RemoveStatusEffect(StatusEffectType effectType)
 	{
 		throw new System.NotImplementedException();
 	}

@@ -21,7 +21,7 @@ DestroyOnWallHit = true
 Damage = 20.0
 Cooldown = 0.0
 Windup = 0.25
-Active = 1.0
+Active = 0.5
 Knockback = 0.0
 metadata/_custom_type_script = "uid://behghmgcgacq5"
 

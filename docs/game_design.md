@@ -49,14 +49,6 @@ A compact 2D roguelike-inspired game designed to test adaptive boss AI. The play
 * **Light:** speed **+10%**, **0%** damage reduction.
 * **Medium:** speed **±0%**, **10%** damage reduction.
 * **Heavy:** speed **−15%**, **25%** damage reduction.
-* **Status protection:** Medium reduces status durations by **10%**; Heavy by **25%**.
-
-### Elements & Status Effects
-
-* **Fire → Burned:** damage‑over‑time for **3.0s**, ticking every 0.5s for **0.5% Max HP** per tick (**\~3% total**). Re‑application **refreshes** duration.
-* **Ice → Frozen:** **−40%** move speed for **2.5s**; re‑application **refreshes** duration (no stacking).
-* **Physical:** no status by default.
-
 ### Equipment & Inventory Rules
 
 * **Weapons:** Longsword (starter), Dagger, Bow, Magic Staff — **1 equipped**; Weapon Room allows **swap**.
@@ -77,7 +69,6 @@ A compact 2D roguelike-inspired game designed to test adaptive boss AI. The play
 
 * No ammo/mana systems in MVP; **cooldowns** regulate attack/ability frequency.
 * Hitstun/knockback: light knockback on heavy/charged hits (tunable).
-* Damage application supports elemental flags to trigger Burn/Frozen.
 
 ---
 
@@ -145,11 +136,6 @@ F
     * Secondary attack: explosion, very high damage, very low speed, area damage, higher cooldown.
 
 * **Armor:** modifies movement speed and defense.
-
-* **Status Effects:**
-
-  * Burned → DoT (damage over time for 3–5s).
-  * Frozen → 40% slower movement for 2–3s.
 
 ---
 

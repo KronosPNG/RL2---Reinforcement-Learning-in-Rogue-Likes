@@ -10,8 +10,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private AnimatedSprite2D _helmetArmorSprite;
 	public Weapon EquippedWeapon;
 	public Armor EquippedArmor;
+	public Consumable EquippedConsumable;
 	public PackedScene EquippedWeaponScene; // Store the PackedScene for weapon swapping
 	public PackedScene EquippedArmorScene; // Store the PackedScene for armor swapping
+	public PackedScene EquippedConsumableScene; // Store the PackedScene for consumable swapping
 	private Node2D _handNode;
 	private CollisionShape2D _physicalCollision;
 	private Area2D _hitboxArea;
@@ -44,11 +46,12 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private sbyte _lastHorizontalFacing = 1; // 1 = right, -1 = left
 
 	//---- Player State ----
-	private enum PlayerState { Idle, Walking, DodgePrep, Dodge, Attacking, Charging, Hit, Dead }
+	private enum PlayerState { Idle, Walking, DodgePrep, Dodge, Attacking, Charging, Hit, Dead, ConsumableUse, ConsumableCharging }
 	private PlayerState _state = PlayerState.Idle;
 	private PlayerState _prevState = PlayerState.Idle; // for detecting state changes
 	private bool _isChargingAttack = false;
 	private bool _isHeavyCharge = false;
+	private bool _isChargingConsumable = false;
 
 	// ---- Visual Effects ----
 	[Export] public VisualFlash _damageFlash;
@@ -59,6 +62,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private float _hitStunDuration = 0.5f; // time for hit stun duration
 	private float _invulnerabilityTimer = 0f; // timer for invulnerability after hit
 	[Export] public float InvulnerabilityDuration = 1f; // time for invulnerability after hit
+	private float _effectTimer = 0f; // timer for tracking effect durations
 
 
 	public override void _Ready()
@@ -133,6 +137,9 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 		// Update animation if needed (state or facing changed)
 		UpdateAnimationIfNeeded();
+
+		// Update any active effects (e.g., regeneration)
+		UpdateEffects(delta);
 
 		// Hit invulnerability timer update
 		if (_invulnerabilityTimer > 0)
@@ -810,7 +817,20 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 	public void Heal(float amount)
 	{
-		throw new NotImplementedException();
+		CurrentHealth += amount;
+		if (CurrentHealth > MaxHealth)
+			CurrentHealth = MaxHealth;
+
+		GD.Print($"Player healed {amount} health.");
+
+		// Emit health changed signal
+		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+	}
+
+	// ---- Effects Update ----
+	private void UpdateEffects(double delta)
+	{
+		return;
 	}
 
 }
