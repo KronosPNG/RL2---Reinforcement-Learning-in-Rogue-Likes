@@ -413,6 +413,7 @@ Description = ""
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_rh371")
 HeavyAttackConfig = SubResource("Resource_hiblv")
+EnableLightAutoswing = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_jvvga")

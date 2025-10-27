@@ -357,6 +357,7 @@ Description = "A well balanced two-handed melee weapon with good range."
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_s4ec8")
 HeavyAttackConfig = SubResource("Resource_w46s4")
+EnableLightAutoswing = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_jvvga")

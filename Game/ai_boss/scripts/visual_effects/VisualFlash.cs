@@ -4,8 +4,8 @@ using Godot;
 [GlobalClass]
 public partial class VisualFlash : Resource, IVisual
 {
-    [Export] public Color DamagedModulate { get; set; } = new Color(1, 0.75f, 0.75f); // Light red color for damage flash
-    [Export] public float DamageFlashDuration { get; private set; } = 0.2f; // Duration of the damage flash effect in seconds
+    [Export] public Color FlashModulate { get; set; } = new Color(1, 0.75f, 0.75f); // Light red color for damage flash
+    [Export] public float FlashDuration { get; private set; } = 0.2f; // Duration of the damage flash effect in seconds
 
     private Color _originalModulate;
     public float Timer { get; private set; } = 0f;
@@ -22,7 +22,7 @@ public partial class VisualFlash : Resource, IVisual
 
     public void PlayEffect(AnimatedSprite2D sprite)
     {
-        sprite.Modulate = DamagedModulate;
+        sprite.Modulate = FlashModulate;
     }
 
     public void PlayEffect(Node2D spriteContainer)
@@ -54,7 +54,7 @@ public partial class VisualFlash : Resource, IVisual
 
     public void ResetTimer()
     {
-        Timer = DamageFlashDuration;
+        Timer = FlashDuration;
     }
 
     public void EndTimer()

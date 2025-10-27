@@ -26,6 +26,10 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	//---- Attack Configuration ----
 	[Export] public AttackBase LightAttackConfig { get; set; }
 	[Export] public AttackBase HeavyAttackConfig { get; set; }
+	
+	//---- Autoswing Configuration ----
+	[Export] public bool EnableLightAutoswing { get; set; } = false;
+	[Export] public bool EnableHeavyAutoswing { get; set; } = false;
 
 	// ----- States -----
 	// Track which attack is currently in progress (used by OpenHitWindow and CloseHitWindow)

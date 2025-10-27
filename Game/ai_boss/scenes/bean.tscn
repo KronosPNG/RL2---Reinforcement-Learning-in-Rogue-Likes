@@ -8,14 +8,14 @@
 
 [sub_resource type="Resource" id="Resource_mjp81"]
 script = ExtResource("2_rfort")
-DamagedModulate = Color(1, 0.75, 0.75, 1)
-DamageFlashDuration = 0.2
+FlashModulate = Color(1, 0.75, 0.75, 1)
+FlashDuration = 0.2
 metadata/_custom_type_script = "uid://cqvn6c4vnbkj6"
 
 [sub_resource type="Resource" id="Resource_0bndg"]
 script = ExtResource("2_rfort")
-DamagedModulate = Color(0.617455, 0.617455, 0.617455, 1)
-DamageFlashDuration = 0.2
+FlashModulate = Color(0.8, 0.8, 0.8, 1)
+FlashDuration = 0.2
 metadata/_custom_type_script = "uid://cqvn6c4vnbkj6"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rfort"]

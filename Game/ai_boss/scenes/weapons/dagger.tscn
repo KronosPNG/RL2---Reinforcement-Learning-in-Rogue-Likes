@@ -172,6 +172,7 @@ Description = "A short blade,  nimble and fast for quick attacks."
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_mhf5r")
 HeavyAttackConfig = SubResource("Resource_siec8")
+EnableLightAutoswing = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_jvvga")

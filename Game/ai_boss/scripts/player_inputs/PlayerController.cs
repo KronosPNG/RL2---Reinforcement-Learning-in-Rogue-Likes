@@ -659,15 +659,23 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		// Only update visuals when state changed OR we need to update facing while walking/idle
 		bool stateChanged = _state != _prevState;
 
-		// If we are in dodge or attacking, don't let other animations override
-		if (_state == PlayerState.Dodge || _state == PlayerState.Attacking)
+		// If we are in dodge, don't let other animations override
+		if (_state == PlayerState.Dodge)
 		{
 			_prevState = _state; // just update prev state to avoid repeated checks
 			return;
 		}
 
-		// Update sprite facing
+		// Update sprite facing (even during attacks for autoswing)
 		FlipSprites(_lastHorizontalFacing < 0);
+
+		// Don't override weapon attack animations with player animations
+		// The weapon controls the sprite during attacking state
+		if (_state == PlayerState.Attacking)
+		{
+			_prevState = _state;
+			return;
+		}
 
 		// Set animation based on state
 		string targetAnimation = GetAnimationForState(_state);
@@ -768,6 +776,13 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			EquippedWeapon = null;
 		}
 
+		// If we were attacking or charging when switching weapons, reset to appropriate state
+		if (_state == PlayerState.Attacking || _state == PlayerState.Charging)
+		{
+			Vector2 currentInput = ReadDirection();
+			TransitionToState(currentInput.Length() > 0 ? PlayerState.Walking : PlayerState.Idle);
+		}
+
 		if (weaponScene == null)
 		{
 			EquippedWeaponScene = null;
@@ -818,20 +833,45 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 	private void OnWeaponAttackEnded(string attackName)
 	{
-		// Weapon attack has ended, return to appropriate state
+		// Weapon attack has ended, check for autoswing before transitioning state
 		if (_state == PlayerState.Attacking)
 		{
+			// Check if we should autoswing
+			bool isLightAttack = attackName == "light";
+			bool isHeavyAttack = attackName == "heavy";
+			
+			bool shouldAutoswing = false;
+			
+			if (isLightAttack && EquippedWeapon.EnableLightAutoswing && Input.IsActionPressed("light_attack"))
+			{
+				shouldAutoswing = true;
+			}
+			else if (isHeavyAttack && EquippedWeapon.EnableHeavyAutoswing && Input.IsActionPressed("heavy_attack"))
+			{
+				shouldAutoswing = true;
+			}
+			
+			if (shouldAutoswing)
+			{
+				// Trigger another attack immediately
+				if (isLightAttack)
+					OnLightAttack();
+				else if (isHeavyAttack)
+					OnHeavyAttack();
+				// Stay in Attacking state
+				return;
+			}
+			
+			// No autoswing, return to appropriate state
 			Vector2 currentInput = ReadDirection();
 			if (currentInput.Length() > 0)
 			{
 				TransitionToState(PlayerState.Walking);
 			}
-
 			else
 			{
 				TransitionToState(PlayerState.Idle);
 			}
-
 		}
 	}
 
