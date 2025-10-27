@@ -20,7 +20,7 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Shirt" type="Node2D"]
+[node name="HeavyArmor" type="Node2D"]
 script = ExtResource("1_ed4n3")
 ItemName = "Heavy Armor"
 Description = "A well-forged heavy iron armor that grants great protection at the cost of movement"

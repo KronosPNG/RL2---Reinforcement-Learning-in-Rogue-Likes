@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class PlayerController : CharacterBody2D, IDamageable
 {
@@ -59,10 +60,13 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 	// ---- Timers ----
 	private float _stateTimer = 0f; // timer for tracking time in current state
-	private float _hitStunDuration = 0.5f; // time for hit stun duration
+	[Export] public float HitStunDuration = 0.25f; // time for hit stun duration
 	private float _invulnerabilityTimer = 0f; // timer for invulnerability after hit
 	[Export] public float InvulnerabilityDuration = 1f; // time for invulnerability after hit
 	private float _effectTimer = 0f; // timer for tracking effect durations
+
+	// ---- Active Consumable Effects ----
+	private List<ConsumableEffectBase> _activeEffects = new List<ConsumableEffectBase>();
 
 
 	public override void _Ready()
@@ -131,6 +135,9 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 		// Handle combat input (only when not dodging)
 		HandleCombatInput();
+
+		// Handle consumable input
+		HandleConsumableInput();
 
 		// Apply physics based on state (movement independent of animation)
 		ApplyMovementByState(delta, inputDir);
@@ -201,6 +208,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				HandleChargingTransitions();
 				break;
 
+			case PlayerState.ConsumableCharging:
+				HandleConsumableChargingTransitions();
+				break;
+
 			default:
 				// Other states (Dodge, Attacking, Dead) have no transitions here
 				break;
@@ -266,10 +277,20 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		}
 	}
 
+	private void HandleConsumableChargingTransitions()
+	{
+		// Allow dodging while charging consumable - this cancels the charge
+		if (Input.IsActionJustPressed("dodge"))
+		{
+			CancelChargingConsumable();
+			TransitionToState(PlayerState.DodgePrep);
+		}
+	}
+
 	private void HandleHitTransitions()
 	{
 		_stateTimer += (float)GetProcessDeltaTime();
-		if (_stateTimer >= _hitStunDuration)
+		if (_stateTimer >= HitStunDuration)
 		{
 			// decide whether to be walking or idle after hit stun
 			Vector2 currentInput = ReadDirection();
@@ -385,6 +406,97 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		}
 	}
 
+	// --- Consumable Input Handling -------------
+	private void HandleConsumableInput()
+	{
+		switch (_state)
+		{
+			// Don't allow consumable use while dodging, in dodge prep, attacking, or dead
+			case PlayerState.DodgePrep:
+			case PlayerState.Dodge:
+			case PlayerState.Attacking:
+			case PlayerState.Charging:
+			case PlayerState.Hit:
+			case PlayerState.Dead:
+			case PlayerState.ConsumableUse:
+				return;
+
+			case PlayerState.ConsumableCharging:
+				HandleConsumableChargingInput();
+				return;
+		}
+
+		// Check if consumable is equipped
+		if (EquippedConsumable == null) return;
+
+		// Handle consumable use input
+		if (Input.IsActionJustPressed("consumable_use"))
+		{
+			if (EquippedConsumable.HasChargeableEffect())
+			{
+				StartChargingConsumable();
+			}
+			else
+			{
+				UseConsumable();
+			}
+		}
+	}
+	private void HandleConsumableChargingInput()
+	{
+		bool consumablePressed = Input.IsActionPressed("consumable_use");
+
+		if (!consumablePressed)
+		{
+			// Button released - execute or cancel the charged consumable
+			if (EquippedConsumable.CanReleaseCharge())
+			{
+				TransitionToState(PlayerState.ConsumableUse);
+				EquippedConsumable.ExecuteCharged();
+			}
+			else
+			{
+				// Charge was too short, cancel animation and return to appropriate state
+				EquippedConsumable.CancelCharge();
+				_isChargingConsumable = false;
+				Vector2 currentInput = ReadDirection();
+				TransitionToState(currentInput.Length() > 0 ? PlayerState.Walking : PlayerState.Idle);
+			}
+		}
+	}
+
+	private void StartChargingConsumable()
+	{
+		_isChargingConsumable = true;
+		TransitionToState(PlayerState.ConsumableCharging);
+		EquippedConsumable.StartCharging();
+	}
+
+	private void UseConsumable()
+	{
+		TransitionToState(PlayerState.ConsumableUse);
+		EquippedConsumable.Use();
+	}
+
+	private void CancelChargingConsumable()
+	{
+		if (EquippedConsumable == null) return;
+
+		// Cancel charging state
+		if (_isChargingConsumable)
+		{
+			EquippedConsumable.CancelCharge();
+			_isChargingConsumable = false;
+		}
+
+		// Also interrupt any active consumable use (windup or active effect)
+		if (EquippedConsumable.State == ConsumableState.Windup || 
+			EquippedConsumable.State == ConsumableState.InUse)
+		{
+			EquippedConsumable.InterruptUse();
+		}
+	}
+
 	private void TransitionToState(PlayerState next)
 	{
 		if (_state == next) return;
@@ -401,10 +513,12 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		{
 			// play dodge animation; movement will be handled in ApplyMovementByState
 			case PlayerState.Dodge:
+			_handNode.Visible = false;
 				OnEnterStateDodge();
 				break;
 			case PlayerState.Hit:
 				CancelChargingAttack();
+				CancelChargingConsumable();
 				PlayAnimation(GetAnimationForState(s));
 				_damageFlash.PlayEffect(_spriteContainer);
 				break;
@@ -413,6 +527,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				// Stop physics processing
 				
 				CancelChargingAttack();
+				CancelChargingConsumable();
 				_hitboxArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
 				EquippedWeapon.SetPhysicsProcess(false);
@@ -420,7 +535,12 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				SetPhysicsProcess(false);
 				
 				PlayAnimation(GetAnimationForState(s));
-		
+
+				break;
+
+			case PlayerState.ConsumableUse:
+			case PlayerState.ConsumableCharging:
+				_handNode.Visible = false;
 				break;
 				
 			default:
@@ -430,6 +550,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	
 	private void OnEnterStateDodge()
 	{
+		// Cancel any active charging states
+		CancelChargingAttack();
+		CancelChargingConsumable();
+		
 		// Set the sprite's flip based on direction
 		FlipSprites(_dodgeDirection.X < 0 || _lastHorizontalFacing < 0);
 		PlayAnimation(GetAnimationForState(PlayerState.Dodge));
@@ -455,6 +579,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				break;
 
 			case PlayerState.Dodge:
+				_handNode.Visible = true;
 				_dodgeFlash.ClearEffect(_spriteContainer);
 
 				// Restore vulnerability after dodge
@@ -463,6 +588,11 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				// Restore normal collision properties after dodge
 				CollisionMask = _normalCollisionMask;
 				CollisionLayer = _normalCollisionLayer;
+				break;
+			
+			case PlayerState.ConsumableUse:
+			case PlayerState.ConsumableCharging:
+				_handNode.Visible = true;
 				break;
 
 			default:
@@ -486,6 +616,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				MoveAndSlide();
 				break;
 
+			case PlayerState.ConsumableUse:
 			case PlayerState.Attacking:
 			// allow movement while attacking
 			case PlayerState.Walking:
@@ -494,7 +625,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				Velocity = input * BaseSpeed * armorSpeedModifier;
 				MoveAndSlide();
 				break;
-				
+
 			case PlayerState.Dead:
 			// no movement when dead
 			case PlayerState.Hit:
@@ -508,12 +639,18 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 				break;
 
 			case PlayerState.Charging:
-				// allow movement while charging (at reduced speed or full speed)
-				// Velocity = input * BaseSpeed * ChargeMoveModifier * EquippedArmor.SpeedModifier;
+			case PlayerState.ConsumableCharging: // Allow movement while charging consumable
+												 // allow movement while charging (at reduced speed or full speed)
+												 // Velocity = input * BaseSpeed * ChargeMoveModifier * EquippedArmor.SpeedModifier;
 				Velocity = input * BaseSpeed * ChargeMoveModifier * armorSpeedModifier;
 				MoveAndSlide();
 				break;
 		}
+	}
+
+	private bool IsMoving()
+	{
+		return !Mathf.IsEqualApprox(Velocity.Length(), 0);
 	}
 
 	// --- Animation ------------------------------
@@ -529,30 +666,11 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			return;
 		}
 
-		bool IsMoving = !Mathf.IsEqualApprox(Velocity.Length(), 0);
-
 		// Update sprite facing
 		FlipSprites(_lastHorizontalFacing < 0);
 
 		// Set animation based on state
-		string targetAnimation;
-
-		if (_state == PlayerState.Charging)
-		{
-			if (IsMoving)
-			{
-				targetAnimation = "charge_walking";
-			}
-			else
-			{
-				targetAnimation = "charge_idle";
-			}
-		}
-		else
-		{
-			targetAnimation = GetAnimationForState(_state);
-		}
-
+		string targetAnimation = GetAnimationForState(_state);
 
 		if (stateChanged || _bodyBaseSprite.Animation != targetAnimation)
 		{
@@ -570,7 +688,9 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			PlayerState.Walking => "walking",
 			PlayerState.Idle => "idle",
 			PlayerState.Attacking => "attack",
-			PlayerState.Charging => "charge",
+			PlayerState.Charging => IsMoving() ? "charge_walking" : "charge_idle",
+			PlayerState.ConsumableCharging => IsMoving() ? "charge_walking" : "charge_idle",
+			PlayerState.ConsumableUse => IsMoving() ? "walking" : "idle",
 			PlayerState.Hit => "hit",
 			PlayerState.Dead => "dead",
 			PlayerState.DodgePrep => "idle", 
@@ -723,6 +843,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		// If we reach this point, we have a new armor to equip
 		if (EquippedArmor != null)
 		{
+			// Disconnect signals
+			EquippedArmor.Equipped -= OnArmorEquipped;
+			EquippedArmor.Unequipped -= OnArmorUnequipped;
+
 			EquippedArmor.Unequip();
 			EquippedArmor.QueueFree();
 			EquippedArmor = null;
@@ -749,6 +873,23 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		armor.Equip(this);
 		EquippedArmor = armor;
 		SyncArmorFrames();
+
+		// Connect to armor signals
+		armor.Equipped += OnArmorEquipped;
+		armor.Unequipped += OnArmorUnequipped;
+	}
+
+	// --- Armor Signal Handlers ----------------
+	private void OnArmorEquipped()
+	{
+		GD.Print($"[PlayerController] Armor equipped: {EquippedArmor.ItemName}");
+		// Can add visual/audio feedback here
+	}
+
+	private void OnArmorUnequipped()
+	{
+		GD.Print($"[PlayerController] Armor unequipped");
+		// Can add visual/audio feedback here
 	}
 
 	// ---- Visuals ----
@@ -763,6 +904,73 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		{
 			_bodyArmorSprite.SpriteFrames = null;
 			_helmetArmorSprite.SpriteFrames = null;
+		}
+	}
+
+	// ---- Consumable ----
+	public void EquipConsumable(PackedScene consumableScene)
+	{
+		GD.Print("Equipping new consumable");
+		// If we have an existing consumable, unequip it
+		if (EquippedConsumable != null)
+		{
+			// Disconnect signals
+			EquippedConsumable.ConsumableUsed -= OnConsumableUsed;
+			EquippedConsumable.ConsumableCompleted -= OnConsumableCompleted;
+
+			EquippedConsumable.Unequip();
+			EquippedConsumable.QueueFree();
+			EquippedConsumable = null;
+		}
+
+		if (consumableScene == null)
+		{
+			EquippedConsumableScene = null;
+			return;
+		}
+
+		// Store the PackedScene reference
+		EquippedConsumableScene = consumableScene;
+
+		var consumableInstance = consumableScene.Instantiate() as Consumable;
+		if (consumableInstance == null) return;
+
+		CallDeferred(nameof(CallEquipConsumableDeferred), consumableInstance);
+	}
+
+	private void CallEquipConsumableDeferred(Consumable consumable)
+	{
+		AddChild(consumable);
+		consumable.Equip(this);
+		EquippedConsumable = consumable;
+
+		// Connect to consumable signals
+		consumable.ConsumableUsed += OnConsumableUsed;
+		consumable.ConsumableCompleted += OnConsumableCompleted;
+	}
+
+	// --- Consumable Signal Handlers -----------
+	private void OnConsumableUsed(string consumableName)
+	{
+		// Consumable has been used
+		GD.Print($"[PlayerController] Consumable used: {consumableName}");
+	}
+
+	private void OnConsumableCompleted(string consumableName)
+	{
+		// Consumable effect has completed, return to appropriate state
+		if (_state == PlayerState.ConsumableUse || _state == PlayerState.ConsumableCharging)
+		{
+			_isChargingConsumable = false;
+			Vector2 currentInput = ReadDirection();
+			if (currentInput.Length() > 0)
+			{
+				TransitionToState(PlayerState.Walking);
+			}
+			else
+			{
+				TransitionToState(PlayerState.Idle);
+			}
 		}
 	}
 
@@ -830,7 +1038,36 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	// ---- Effects Update ----
 	private void UpdateEffects(double delta)
 	{
-		return;
+		// Process all active effects
+		for (int i = _activeEffects.Count - 1; i >= 0; i--)
+		{
+			var effect = _activeEffects[i];
+			effect.Update(null, this, (float)delta); // Pass null for consumable since effect is now on player
+		}
+	}
+
+	// Add a consumable effect to the player's active effects
+	public void AddActiveEffect(ConsumableEffectBase effect)
+	{
+		if (effect == null)
+		{
+			GD.PrintErr("[PlayerController] Cannot add null effect");
+			return;
+		}
+
+		_activeEffects.Add(effect);
+		GD.Print($"[PlayerController] Added active effect: {effect.GetType().Name}");
+	}
+
+	// Remove a consumable effect from the player's active effects
+	public void RemoveActiveEffect(ConsumableEffectBase effect)
+	{
+		if (effect == null) return;
+
+		if (_activeEffects.Remove(effect))
+		{
+			GD.Print($"[PlayerController] Removed active effect: {effect.GetType().Name}");
+		}
 	}
 
 }

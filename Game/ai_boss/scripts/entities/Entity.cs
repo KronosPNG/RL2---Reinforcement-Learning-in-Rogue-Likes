@@ -278,7 +278,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 		// Close enough to attack
 		if (AttackBehavior.CanAttack(this) && Weapon.CanStartAttack())
 		{
-			GD.Print("Entity: HandleAggroTransitions() - CanAttack is true");
+			// GD.Print("Entity: HandleAggroTransitions() - CanAttack is true");
 			TransitionToState(EntityState.AttackPrepare);
 		}
 	}
@@ -369,7 +369,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 				break;
 
 			case EntityState.Attacking:
-				GD.Print("Entity: Entered Attacking state");
+				// GD.Print("Entity: Entered Attacking state");
 				AttackBehavior.OnEnterAttack(this);
 				AttackBehavior.PerformAttack(this);
 				break;
@@ -491,14 +491,14 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 	protected virtual void OnAnimationFinished()
 	{
 		string animName = _sprite.Animation;
-		GD.Print($"Entity: OnAnimationFinished() - Animation: {animName}, State: {_currentState}");
+		// GD.Print($"Entity: OnAnimationFinished() - Animation: {animName}, State: {_currentState}");
 
 		switch (_currentState)
 		{
 			case EntityState.AttackPrepare:
 				if (animName == "attack_prepare")
 				{
-					GD.Print("Entity: Transitioning AttackPrepare -> AttackCharge");
+					// GD.Print("Entity: Transitioning AttackPrepare -> AttackCharge");
 					TransitionToState(EntityState.AttackCharge);
 				}
 				break;
@@ -506,7 +506,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 			case EntityState.AttackCharge:
 				if (animName == "attack_charge")
 				{
-					GD.Print("Entity: Transitioning AttackCharge -> Attacking");
+					// GD.Print("Entity: Transitioning AttackCharge -> Attacking");
 					TransitionToState(EntityState.Attacking);
 				}
 				break;
@@ -514,7 +514,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 			case EntityState.Attacking:
 				if (animName == "attack")
 				{
-					GD.Print("Entity: Attack animation finished, transitioning back...");
+					// GD.Print("Entity: Attack animation finished, transitioning back...");
 					if (AggroBehavior.CanSeeTarget(this))
 						TransitionToState(EntityState.Aggro);
 					else
@@ -582,7 +582,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 
 	public void Die()
 	{
-		GD.Print($"Entity {Name} has died.");
+		// GD.Print($"Entity {Name} has died.");
 		TransitionToState(EntityState.Dying);
 		CurrentHealth = 0;
 		_sprite.Play("die");

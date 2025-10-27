@@ -4,6 +4,12 @@ public partial class Armor : Node2D, IPedestalItem
 {
     public PlayerController OwnerCharacter { get; protected set; }
 
+    // ---- Signals ----
+    [Signal] public delegate void EquippedEventHandler();
+    [Signal] public delegate void UnequippedEventHandler();
+    [Signal] public delegate void DamageReducedEventHandler(float originalDamage, float reducedDamage);
+    [Signal] public delegate void KnockbackReducedEventHandler(float originalKnockback, float reducedKnockback);
+
     [Export] public string ItemName { get; set; } = "Unnamed Armor";
     [Export] public string Description { get; set; } = "No description available.";
 
@@ -52,6 +58,7 @@ public partial class Armor : Node2D, IPedestalItem
         GD.Print("Armor equipped to player.");
 
         player.UpdateArmorVisuals(this);
+        EmitSignal(SignalName.Equipped);
     }
 
     public void Unequip()
@@ -62,6 +69,7 @@ public partial class Armor : Node2D, IPedestalItem
             GD.Print("Armor unequipped from player.");
             OwnerCharacter.UpdateArmorVisuals(null);
             OwnerCharacter = null;
+            EmitSignal(SignalName.Unequipped);
         }
 
     }

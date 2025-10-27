@@ -256,13 +256,13 @@ public partial class Pedestal : StaticBody2D
 			return;
 
 		// Get player's current consumable scene
-		// PackedScene playerConsumableScene = player.EquippedConsumableScene;
+		PackedScene playerConsumableScene = player.EquippedConsumableScene;
 
 		// Equip this pedestal's consumable to the player
-		// player.EquipConsumable(ItemScene);
+		player.EquipConsumable(ItemScene);
 
 		// Put player's old consumable on this pedestal (or make it empty)
-		// SetItem(playerConsumableScene);
+		SetItem(playerConsumableScene);
 	}
 
 	private void ClearItemDisplay()

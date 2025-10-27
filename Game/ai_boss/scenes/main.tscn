@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=4 uid="uid://1nf46nrhiyd1"]
+[gd_scene load_steps=18 format=4 uid="uid://1nf46nrhiyd1"]
 
 [ext_resource type="Script" uid="uid://ue8mbbs06g27" path="res://scripts/Main.cs" id="1_jyhfs"]
 [ext_resource type="TileSet" uid="uid://cncwrtmglwj0e" path="res://assets/tileset/main_tileset.tres" id="2_0wfyh"]
@@ -7,13 +7,15 @@
 [ext_resource type="PackedScene" uid="uid://3ck2mhc1l2m0" path="res://scenes/weapons/bow.tscn" id="6_choun"]
 [ext_resource type="PackedScene" uid="uid://rf3kky6lb4ed" path="res://scenes/weapons/staff.tscn" id="6_tipki"]
 [ext_resource type="PackedScene" uid="uid://d02snf7r66hnm" path="res://scenes/entities/dummy.tscn" id="7_o6xl0"]
-[ext_resource type="PackedScene" uid="uid://c2e1s6ljjv0p" path="res://scenes/entities/skeleton.tscn" id="8_85g3d"]
 [ext_resource type="Script" uid="uid://sujx2e5tb2vm" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="9_85g3d"]
-[ext_resource type="PackedScene" uid="uid://bruty6dkmp88e" path="res://scenes/entities/zombie.tscn" id="9_choun"]
 [ext_resource type="PackedScene" uid="uid://ckplssewdsp2l" path="res://scenes/objects/armor_pedestal.tscn" id="9_ya4ey"]
 [ext_resource type="PackedScene" uid="uid://btg3xrenbt0ao" path="res://scenes/armors/light_armor.tscn" id="10_a8y0u"]
 [ext_resource type="PackedScene" uid="uid://bw7r4ui3km6jf" path="res://scenes/armors/medium_armor.tscn" id="11_jkv2x"]
+[ext_resource type="PackedScene" uid="uid://cr1lvpxgwegk8" path="res://scenes/objects/consumable_pedestal.tscn" id="11_muem4"]
+[ext_resource type="PackedScene" uid="uid://2jfgq8rtprvv" path="res://scenes/consumables/potion.tscn" id="12_dp3eg"]
 [ext_resource type="PackedScene" uid="uid://um62s86wrvvn" path="res://scenes/armors/heavy_armor.tscn" id="12_jbj1t"]
+[ext_resource type="PackedScene" uid="uid://bextv0e8jevx8" path="res://scenes/consumables/medkit.tscn" id="13_0ld40"]
+[ext_resource type="PackedScene" uid="uid://c2e1s6ljjv0p" path="res://scenes/entities/skeleton.tscn" id="16_jbj1t"]
 
 [sub_resource type="Resource" id="Resource_choun"]
 script = ExtResource("9_85g3d")
@@ -70,13 +72,18 @@ ItemScene = ExtResource("11_jkv2x")
 position = Vector2(-64, 48)
 ItemScene = ExtResource("12_jbj1t")
 
+[node name="ConsumablePedestal2" parent="SortSceneElements" instance=ExtResource("11_muem4")]
+position = Vector2(-128, -16)
+ItemScene = ExtResource("12_dp3eg")
+
+[node name="ConsumablePedestal" parent="SortSceneElements" instance=ExtResource("11_muem4")]
+position = Vector2(-128, 16)
+ItemScene = ExtResource("13_0ld40")
+
 [node name="Dummy" parent="SortSceneElements" instance=ExtResource("7_o6xl0")]
 position = Vector2(150, -2)
 AggroBehavior = SubResource("Resource_choun")
 FlipSpriteHorizontally = true
 
-[node name="Zombie" parent="." instance=ExtResource("9_choun")]
-position = Vector2(44, -54)
-
-[node name="Skeleton" parent="." instance=ExtResource("8_85g3d")]
-position = Vector2(148, -64)
+[node name="Skeleton" parent="." instance=ExtResource("16_jbj1t")]
+position = Vector2(44, 14)

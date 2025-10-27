@@ -64,10 +64,10 @@ public partial class WeaponEntity : WeaponBase
 
 	public void Attack()
 	{
-		GD.Print($"WeaponEntity: Attack() called - CanStartAttack: {CanStartAttack()}, State: {State}, Cooldown: {_attackCooldownTimer}");
+		// GD.Print($"WeaponEntity: Attack() called - CanStartAttack: {CanStartAttack()}, State: {State}, Cooldown: {_attackCooldownTimer}");
 		if (!CanStartAttack())
 		{
-			GD.Print($"WeaponEntity: Attack() blocked - State: {State}, Cooldown: {_attackCooldownTimer}");
+			// GD.Print($"WeaponEntity: Attack() blocked - State: {State}, Cooldown: {_attackCooldownTimer}");
 			return;
 		}
 
@@ -83,7 +83,7 @@ public partial class WeaponEntity : WeaponBase
 	private void StartAttack()
 	{
 		_attackCooldownTimer = AttackConfig.Cooldown;
-		GD.Print("WeaponEntity: StartAttack() called");
+		// GD.Print("WeaponEntity: StartAttack() called");
 		
 		// Start the attack immediately (windup is handled by Entity animations)
 		OpenHitWindow();
@@ -99,7 +99,7 @@ public partial class WeaponEntity : WeaponBase
 		if (State == WeaponState.Active)
 			return;
 
-		GD.Print("WeaponEntity: OpenHitWindow() called");
+		// GD.Print("WeaponEntity: OpenHitWindow() called");
 
 		State = WeaponState.Active;
 		bool facingLeft = FacingLeft;
@@ -109,13 +109,13 @@ public partial class WeaponEntity : WeaponBase
 
 	public override void CloseHitWindow()
 	{
-		GD.Print("WeaponEntity: CloseHitWindow() called");
+		// GD.Print("WeaponEntity: CloseHitWindow() called");
 		ResetWeaponState();
 	}
 
 	public override void ResetWeaponState()
 	{
-		GD.Print("WeaponEntity: ResetWeaponState() called");
+		// GD.Print("WeaponEntity: ResetWeaponState() called");
 		State = WeaponState.Ready;
 		_isAttackActive = false;
 		_activeTimer = 0f;

@@ -439,6 +439,7 @@ collision_mask = 3
 script = ExtResource("1_vdqyq")
 _damageFlash = SubResource("Resource_mjp81")
 _dodgeFlash = SubResource("Resource_0bndg")
+InvulnerabilityDuration = 1.5
 
 [node name="BodyLayers" type="Node2D" parent="."]
 
