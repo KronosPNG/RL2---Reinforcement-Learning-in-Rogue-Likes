@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://bw7r4ui3km6jf"]
 
-[ext_resource type="Script" uid="uid://c2j6mugls4yw3" path="res://scripts/player_inputs/Armor.cs" id="1_f15m2"]
+[ext_resource type="Script" uid="uid://cmwrcflub0swv" path="res://scripts/player_inputs/Armor.cs" id="1_f15m2"]
 [ext_resource type="SpriteFrames" uid="uid://qhanrdx03e4j" path="res://assets/sprite_frames/bean/armors/medium_armor.tres" id="2_f15m2"]
 [ext_resource type="SpriteFrames" uid="uid://b366kuqnji7qh" path="res://assets/sprite_frames/bean/helmets/no_helmet.tres" id="3_ouyie"]
 [ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_k01wy"]

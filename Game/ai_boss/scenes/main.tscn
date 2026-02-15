@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://3ck2mhc1l2m0" path="res://scenes/weapons/bow.tscn" id="6_choun"]
 [ext_resource type="PackedScene" uid="uid://rf3kky6lb4ed" path="res://scenes/weapons/staff.tscn" id="6_tipki"]
 [ext_resource type="PackedScene" uid="uid://d02snf7r66hnm" path="res://scenes/entities/dummy.tscn" id="7_o6xl0"]
-[ext_resource type="Script" uid="uid://sujx2e5tb2vm" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="9_85g3d"]
+[ext_resource type="Script" uid="uid://boer6woa07gwb" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="9_85g3d"]
 [ext_resource type="PackedScene" uid="uid://ckplssewdsp2l" path="res://scenes/objects/armor_pedestal.tscn" id="9_ya4ey"]
 [ext_resource type="PackedScene" uid="uid://btg3xrenbt0ao" path="res://scenes/armors/light_armor.tscn" id="10_a8y0u"]
 [ext_resource type="PackedScene" uid="uid://bw7r4ui3km6jf" path="res://scenes/armors/medium_armor.tscn" id="11_jkv2x"]
@@ -48,6 +48,9 @@ collision_visibility_mode = 2
 [node name="SortSceneElements" type="Node2D" parent="."]
 y_sort_enabled = true
 
+[node name="Skeleton" parent="SortSceneElements" instance=ExtResource("16_jbj1t")]
+position = Vector2(44, 14)
+
 [node name="Pedestal" parent="SortSceneElements" instance=ExtResource("4_tefeu")]
 position = Vector2(-128, -48)
 ItemScene = ExtResource("6_choun")
@@ -84,6 +87,3 @@ ItemScene = ExtResource("13_0ld40")
 position = Vector2(150, -2)
 AggroBehavior = SubResource("Resource_choun")
 FlipSpriteHorizontally = true
-
-[node name="Skeleton" parent="." instance=ExtResource("16_jbj1t")]
-position = Vector2(44, 14)
