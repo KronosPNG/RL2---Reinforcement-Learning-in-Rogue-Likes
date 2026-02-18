@@ -4,7 +4,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 {
 	// ---- Node references ----
 	protected AnimatedSprite2D _sprite;
-	protected CollisionShape2D _collisionShape;
+	protected CollisionShape2D _wallCollision;
 	protected Area2D _hitArea;
 	protected NavigationAgent2D _navAgent;
 	public WeaponEntity Weapon { get; set; }
@@ -106,7 +106,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 	protected virtual void InitializeNodes()
 	{
 		_sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
-		_collisionShape = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
+		_wallCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_navAgent = GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
 		Weapon = GetNodeOrNull<WeaponEntity>("Weapon");
@@ -382,7 +382,7 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 
 			case EntityState.Dying:
 				_hitArea.SetDeferred("monitoring", false);
-				_collisionShape.SetDeferred("disabled", true);
+				_wallCollision.SetDeferred("disabled", true);
 				break;
 
 			case EntityState.Dead:
@@ -635,14 +635,14 @@ public partial class Entity : CharacterBody2D, IEntity, IDamageable
 		_hitArea.Position = hitAreaPos;
 		_hitArea.Scale = hitAreaScale;
 
-		var collisionPos = _collisionShape.Position;
-		var collisionScale = _collisionShape.Scale;
+		var collisionPos = _wallCollision.Position;
+		var collisionScale = _wallCollision.Scale;
 		
 		collisionPos.X = flip ? -Mathf.Abs(collisionPos.X) : Mathf.Abs(collisionPos.X);
 		collisionScale.X = flip ? -Mathf.Abs(collisionScale.X) : Mathf.Abs(collisionScale.X);
 		
-		_collisionShape.Position = collisionPos;
-		_collisionShape.Scale = collisionScale;
+		_wallCollision.Position = collisionPos;
+		_wallCollision.Scale = collisionScale;
 		
 	}
 

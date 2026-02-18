@@ -1,12 +1,12 @@
 [gd_scene load_steps=51 format=3 uid="uid://bruty6dkmp88e"]
 
-[ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_asks5"]
-[ext_resource type="Script" uid="uid://cdjmp2xwqotcq" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_47c00"]
+[ext_resource type="Script" uid="uid://bj8cxq0tpcj1j" path="res://scripts/entities/Entity.cs" id="1_asks5"]
+[ext_resource type="Script" uid="uid://c80x63tgn1erh" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_47c00"]
 [ext_resource type="Texture2D" uid="uid://bgi2c4hgm5ymr" path="res://art/animations/zombie/zombie_sheet.png" id="2_bi20d"]
-[ext_resource type="Script" uid="uid://cx7pgor0cfm54" path="res://scripts/entities/Behaviours/Aggro/AggroFollowPlayer.cs" id="3_8iiss"]
-[ext_resource type="Script" uid="uid://j5vc1qwuofvc" path="res://scripts/entities/Behaviours/Attacking/AttackInRange.cs" id="4_8xkb4"]
-[ext_resource type="Script" uid="uid://crpbd0mlja4gs" path="res://scripts/entities/WeaponEntity.cs" id="6_q0vya"]
-[ext_resource type="Script" uid="uid://d2kuottbfxm87" path="res://scripts/attack_types/CrescentMeleeAttack.cs" id="7_attack"]
+[ext_resource type="Script" uid="uid://ctgi8tsifumv7" path="res://scripts/entities/Behaviours/Aggro/AggroFollowPlayer.cs" id="3_8iiss"]
+[ext_resource type="Script" uid="uid://cikyiik7o7fjj" path="res://scripts/entities/Behaviours/Attacking/AttackInRange.cs" id="4_8xkb4"]
+[ext_resource type="Script" uid="uid://b2ma64c08f8cq" path="res://scripts/entities/WeaponEntity.cs" id="6_q0vya"]
+[ext_resource type="Script" uid="uid://di2v6trtuujfe" path="res://scripts/attack_types/CrescentMeleeAttack.cs" id="7_attack"]
 
 [sub_resource type="Resource" id="Resource_8iiss"]
 script = ExtResource("2_47c00")

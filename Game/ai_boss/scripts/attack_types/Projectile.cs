@@ -20,22 +20,22 @@ public partial class Projectile : RigidBody2D
 	public bool DestroyOnWallHit = true;
 	
 	// Node references
-	private Area2D _hitArea;
-	private CollisionShape2D _hitShape; // wall collision
+	private Area2D _enemyCollision;
+	private CollisionShape2D _wallCollision; // wall collision
 	private AnimatedSprite2D _sprite;
 
 	public override void _Ready()
 	{
 		// Get node references
-		_hitArea = GetNodeOrNull<Area2D>("HitArea");
-		_hitShape = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+		_enemyCollision = GetNodeOrNull<Area2D>("HitArea");
+		_wallCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
 		_sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
 
-		if (_hitArea != null)
+		if (_enemyCollision != null)
 		{
 			// GD.Print("Projectile: HitArea found");
-			_hitArea.BodyEntered += OnBodyEntered;
-			_hitArea.AreaEntered += OnAreaEntered;
+			_enemyCollision.BodyEntered += OnBodyEntered;
+			_enemyCollision.AreaEntered += OnAreaEntered;
 		}
 
 		// Set up physics
@@ -152,7 +152,7 @@ public partial class Projectile : RigidBody2D
 		{
 			// stop the projectile on collision with walls/obstacles
 			LinearVelocity = Vector2.Zero;
-			_hitArea.Monitoring = false; // Disable further hit detection
+			_enemyCollision.Monitoring = false; // Disable further hit detection
 		}
 		
 	}

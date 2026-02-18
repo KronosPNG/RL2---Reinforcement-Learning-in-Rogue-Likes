@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://1nf46nrhiyd1"]
+[gd_scene load_steps=17 format=4 uid="uid://1nf46nrhiyd1"]
 
 [ext_resource type="Script" uid="uid://ue8mbbs06g27" path="res://scripts/Main.cs" id="1_jyhfs"]
 [ext_resource type="TileSet" uid="uid://cncwrtmglwj0e" path="res://assets/tileset/main_tileset.tres" id="2_0wfyh"]
@@ -15,7 +15,6 @@
 [ext_resource type="PackedScene" uid="uid://2jfgq8rtprvv" path="res://scenes/consumables/potion.tscn" id="12_dp3eg"]
 [ext_resource type="PackedScene" uid="uid://um62s86wrvvn" path="res://scenes/armors/heavy_armor.tscn" id="12_jbj1t"]
 [ext_resource type="PackedScene" uid="uid://bextv0e8jevx8" path="res://scenes/consumables/medkit.tscn" id="13_0ld40"]
-[ext_resource type="PackedScene" uid="uid://c2e1s6ljjv0p" path="res://scenes/entities/skeleton.tscn" id="16_jbj1t"]
 
 [sub_resource type="Resource" id="Resource_choun"]
 script = ExtResource("9_85g3d")
@@ -47,9 +46,6 @@ collision_visibility_mode = 2
 
 [node name="SortSceneElements" type="Node2D" parent="."]
 y_sort_enabled = true
-
-[node name="Skeleton" parent="SortSceneElements" instance=ExtResource("16_jbj1t")]
-position = Vector2(44, 14)
 
 [node name="Pedestal" parent="SortSceneElements" instance=ExtResource("4_tefeu")]
 position = Vector2(-128, -48)

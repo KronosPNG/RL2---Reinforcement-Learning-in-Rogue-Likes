@@ -25,6 +25,7 @@ animations = [{
 radius = 14.0357
 
 [node name="ArmorPedestal" type="StaticBody2D"]
+z_index = 1
 collision_mask = 14
 script = ExtResource("1_mrpr1")
 PedestalType = 1

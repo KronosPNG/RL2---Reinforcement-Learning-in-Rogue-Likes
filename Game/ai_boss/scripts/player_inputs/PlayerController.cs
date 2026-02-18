@@ -43,8 +43,9 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private double _dodgeInputTimer = 0; // timer for input leniency for dodging
 
 	// facing direction
-	private Vector2 _facing = Vector2.Right; // default facing direction
+	private Vector2 _facing = Vector2.Right; // default facing direction-
 	private sbyte _lastHorizontalFacing = 1; // 1 = right, -1 = left
+	private sbyte _lastVerticalFacing = 0; // 1 = down, -1 = up, 0 = no vertical facing
 
 	//---- Player State ----
 	private enum PlayerState { Idle, Walking, DodgePrep, Dodge, Attacking, Charging, Hit, Dead, ConsumableUse, ConsumableCharging }
@@ -171,8 +172,34 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	{
 		_facing = inputDir;
 
-		if (!Mathf.IsEqualApprox(_facing.X, 0))
-			_lastHorizontalFacing = (sbyte)Mathf.Sign(_facing.X);
+		if (!Mathf.IsEqualApprox(_facing.X, 0) || !Mathf.IsEqualApprox(_facing.Y, 0))
+        {
+            _lastHorizontalFacing = (sbyte)Mathf.Sign(_facing.X);
+			_lastVerticalFacing = (sbyte)Mathf.Sign(_facing.Y);
+        }		
+	}
+
+	string AddVerticalFacingToAnim(string baseAnim)
+	{
+		if (_lastHorizontalFacing == 0)
+        {
+            if (_lastVerticalFacing > 0)
+				return "down_" + baseAnim;
+			else if (_lastVerticalFacing < 0)
+				return "up_" + baseAnim;
+			else
+				return baseAnim; // no vertical facing, return base animation
+        }
+
+		else
+		{
+			if (_lastVerticalFacing > 0)
+				return baseAnim;
+			else if (_lastVerticalFacing < 0)
+				return "up_" + baseAnim;
+			else
+				return baseAnim;
+		}	
 	}
 
 	// Checks if any movement keys were just pressed
@@ -519,7 +546,11 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 			case PlayerState.Hit:
 				CancelChargingAttack();
 				CancelChargingConsumable();
-				PlayAnimation(GetAnimationForState(s));
+
+				string animation = GetAnimationForState(s);
+				animation = AddVerticalFacingToAnim(animation);	
+
+				PlayAnimation(animation);
 				_damageFlash.PlayEffect(_spriteContainer);
 				break;
 
@@ -556,7 +587,10 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		
 		// Set the sprite's flip based on direction
 		FlipSprites(_dodgeDirection.X < 0 || _lastHorizontalFacing < 0);
-		PlayAnimation(GetAnimationForState(PlayerState.Dodge));
+		string animation = GetAnimationForState(PlayerState.Dodge);
+		animation = AddVerticalFacingToAnim(animation);
+
+		PlayAnimation(animation);
 		_dodgeFlash.PlayEffect(_spriteContainer);
 
 		// Make player invulnerable during dodge (can't be detected by enemy weapons)
@@ -679,10 +713,21 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 
 		// Set animation based on state
 		string targetAnimation = GetAnimationForState(_state);
+		
+		if(targetAnimation != "dead") // don't apply vertical facing to death animation to avoid weird stretching
+		 	targetAnimation = AddVerticalFacingToAnim(targetAnimation);
 
 		if (stateChanged || _bodyBaseSprite.Animation != targetAnimation)
 		{
 			PlayAnimation(targetAnimation);
+		}
+
+		if (_lastVerticalFacing < 0)
+        {
+			_handNode.ZIndex = -1; // behind body when facing up
+        } else
+		{
+			_handNode.ZIndex = 0; // in front of body when facing down or horizontal
 		}
 
 		_prevState = _state;
@@ -750,7 +795,11 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		// Get the name of the finished animation
 		var animName = _bodyBaseSprite.Animation;
 		// If dodge finished, end dodge and transit to Idle/Walking based on current input
-		if (animName == GetAnimationForState(PlayerState.Dodge) && _state == PlayerState.Dodge)
+		var dodgeAnim = GetAnimationForState(PlayerState.Dodge);
+
+		bool isDodgeAnim = animName ==  dodgeAnim || animName == "up_" + dodgeAnim || animName == "down_" + dodgeAnim;
+
+		if (isDodgeAnim && _state == PlayerState.Dodge)
 		{
 			// decide whether to be walking or idle after dodge
 			Vector2 currentInput = ReadDirection();

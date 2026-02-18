@@ -26,6 +26,7 @@ animations = [{
 radius = 14.0357
 
 [node name="WeaponPedestal" type="StaticBody2D"]
+z_index = 1
 collision_mask = 14
 script = ExtResource("1_aedhk")
 ItemScene = ExtResource("2_vgg7g")
