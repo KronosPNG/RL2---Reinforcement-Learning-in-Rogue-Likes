@@ -5,10 +5,10 @@ public abstract partial class AttackBehaviour : Resource, IAttackBehaviour
 {
 	// ---- Attack Properties ----
 	[Export] public float AttackRange { get; set; }
-	public abstract void OnEnterAttack(Entity entity);
-	public abstract void OnExitAttack(Entity entity);
-	public abstract void PerformAttack(Entity entity);
-	public virtual bool IsInAttackRange(Entity entity)
+	public abstract void OnEnterAttack(EnemyEntity entity);
+	public abstract void OnExitAttack(EnemyEntity entity);
+	public abstract void PerformAttack(EnemyEntity entity);
+	public virtual bool IsInAttackRange(EnemyEntity entity)
     {	
 		if (entity.Target == null)
 			return false;
@@ -17,7 +17,7 @@ public abstract partial class AttackBehaviour : Resource, IAttackBehaviour
         return entity.GlobalPosition.DistanceTo(targetPosition) <= AttackRange;
     }
 	
-	public abstract bool CanAttack(Entity entity);
-	public abstract Vector2 GetAttackVelocity(Entity entity, float delta);
+	public abstract bool CanAttack(EnemyEntity entity);
+	public abstract Vector2 GetAttackVelocity(EnemyEntity entity, float delta);
 
 }

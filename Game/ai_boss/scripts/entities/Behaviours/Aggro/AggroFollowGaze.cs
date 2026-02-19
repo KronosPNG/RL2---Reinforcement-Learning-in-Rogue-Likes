@@ -39,6 +39,11 @@ public partial class AggroFollowGaze : AggroBehaviour
 
     public override void PerformAggroBehaviour(Entity entity)
     {
+        PerformAggroBehaviour((EnemyEntity)entity);
+    }
+
+    public void PerformAggroBehaviour(EnemyEntity entity)
+    {
         // Dummy does not chase but follows with eyes
 		if (entity.Target != null && IsInstanceValid(entity.Target))
 		{

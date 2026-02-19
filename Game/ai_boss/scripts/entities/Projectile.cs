@@ -100,6 +100,7 @@ public partial class Projectile : RigidBody2D
 	private void OnBodyEntered(Node body)
 	{
 		// GD.Print($"Projectile hit detected on body: {body.Name}");
+		
 		// Handle hits with physics bodies (enemies, destructibles, etc.)
 		if (body == ProjectileOwner) return; // Don't hit the owner
 		if (_alreadyHit.Contains(body)) return;

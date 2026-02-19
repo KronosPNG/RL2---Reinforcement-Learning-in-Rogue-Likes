@@ -1,7 +1,7 @@
 public interface IAttackBehaviour
 {
-    void OnEnterAttack(Entity entity);
-    void OnExitAttack(Entity entity);
-    bool CanAttack(Entity entity);
-    void PerformAttack(Entity entity);
+    void OnEnterAttack(EnemyEntity entity);
+    void OnExitAttack(EnemyEntity entity);
+    bool CanAttack(EnemyEntity entity);
+    void PerformAttack(EnemyEntity entity);
 }

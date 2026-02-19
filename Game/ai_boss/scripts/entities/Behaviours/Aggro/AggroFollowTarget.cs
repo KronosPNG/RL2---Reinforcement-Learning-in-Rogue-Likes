@@ -1,7 +1,7 @@
 using Godot;
 
 [GlobalClass]
-public partial class AggroFollowPlayer : AggroBehaviour
+public partial class AggroFollowTarget : AggroBehaviour
 {
     public override bool CanSeeTarget(Entity entity)
     {
@@ -12,29 +12,25 @@ public partial class AggroFollowPlayer : AggroBehaviour
     {
         if (entity.Target == null || !IsInstanceValid(entity.Target))
             return Vector2.Zero;
-            
-        Vector2 direction;
-        NavigationAgent2D navAgent = entity.NavAgent;
-        
-        // Use navigation path if available and ready, otherwise move directly toward target
-        if (navAgent != null && navAgent.IsNavigationFinished() == false && navAgent.IsTargetReachable())
+
+        Vector2 direction = (entity.Target.GlobalPosition - entity.GlobalPosition).Normalized();
+
+        if (entity is INavigable navigableEntity)
         {
-            Vector2 nextPos = navAgent.GetNextPathPosition();
-            // Only use nav path if it's valid (not at current position)
-            if (entity.GlobalPosition.DistanceSquaredTo(nextPos) > 1.0f)
+            NavigationAgent2D navAgent = navigableEntity.NavAgent;
+
+            // Use navigation path if available and ready, otherwise move directly toward target
+            if (navAgent != null && !navAgent.IsNavigationFinished() && navAgent.IsTargetReachable())
             {
-                direction = entity.GlobalPosition.DirectionTo(nextPos);
-            }
-            else
-            {
-                direction = (entity.Target.GlobalPosition - entity.GlobalPosition).Normalized();
+                Vector2 nextPos = navAgent.GetNextPathPosition();
+                // Only use nav path if it's valid (not at current position)
+                if (entity.GlobalPosition.DistanceSquaredTo(nextPos) > 1.0f)
+                {
+                    direction = entity.GlobalPosition.DirectionTo(nextPos);
+                }
             }
         }
-        else
-        {
-            direction = (entity.Target.GlobalPosition - entity.GlobalPosition).Normalized();
-        }
-        
+
         return direction * entity.BaseSpeed * ChaseSpeedModifier * delta;
     }
 
@@ -55,7 +51,10 @@ public partial class AggroFollowPlayer : AggroBehaviour
         if (entity.Target == null || !IsInstanceValid(entity.Target))
             return;
             
-        NavigationAgent2D navAgent = entity.NavAgent;
+        if (entity is not INavigable navigableEntity)
+            return;
+
+        NavigationAgent2D navAgent = navigableEntity.NavAgent;
 
 		if (navAgent != null)
         {

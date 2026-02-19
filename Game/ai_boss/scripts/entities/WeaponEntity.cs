@@ -3,7 +3,7 @@ using Godot;
 
 public partial class WeaponEntity : WeaponBase
 {
-	public Entity OwnerCharacter { get; protected set; }
+	public EnemyEntity OwnerCharacter { get; protected set; }
 	[Export]public bool AllowFriendlyFire { get; set; } = false;
 	
 	//---- Attack Configuration ----
@@ -16,7 +16,7 @@ public partial class WeaponEntity : WeaponBase
 
 	public override void _Ready()
 	{
-		OwnerCharacter = GetParent<Entity>();
+		OwnerCharacter = GetParent<EnemyEntity>();
 		
 		// Override base class node initialization to match Entity weapon structure
 		// In entity weapons, the HitArea is called "AttackArea" and uses CollisionPolygon2D
@@ -161,7 +161,7 @@ public partial class WeaponEntity : WeaponBase
 			if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", AttackConfig.Damage, this.OwnerCharacter, AttackConfig.Knockback);
 		}
 
-		else if (body is Entity entity)
+		else if (body is EnemyEntity entity)
 		{
 			if (entity == OwnerCharacter) return; // Prevent self-hits
 			if (!AllowFriendlyFire) return; // Prevent friendly fire

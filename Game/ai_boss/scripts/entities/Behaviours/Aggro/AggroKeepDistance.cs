@@ -35,7 +35,7 @@ public partial class AggroKeepDistance : AggroBehaviour
 		float distance = toTarget.Length();
 		Vector2 direction = toTarget.Normalized();
 		
-		Vector2 velocity = Vector2.Zero;
+		Vector2 velocity;
 
 		animationName = "walk";
 		

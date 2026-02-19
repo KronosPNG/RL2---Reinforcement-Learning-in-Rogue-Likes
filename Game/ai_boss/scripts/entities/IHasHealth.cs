@@ -1,6 +1,6 @@
 using Godot;
 
-public interface IEntity
+public interface IHasHealth
 {
     // Health properties
     float CurrentHealth { get; }
