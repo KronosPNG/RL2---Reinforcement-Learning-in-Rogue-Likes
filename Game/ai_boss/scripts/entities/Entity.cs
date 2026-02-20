@@ -20,10 +20,11 @@ public abstract partial class Entity : CharacterBody2D
     // ---- Node references ----
     protected CollisionShape2D _wallCollision;
 	protected Area2D _hitArea;
-    protected AnimatedSprite2D _sprite;
+    protected AnimatedSprite2D _baseSprite;
 
     // ---- AI Properties ----
 	protected Node2D _target;
+    public string TargetType { get; set;}
 	protected Vector2 _lastKnownTargetPosition = Vector2.Zero;
 
     // ---- Lifecycle methods ----
@@ -32,8 +33,8 @@ public abstract partial class Entity : CharacterBody2D
     {
         InitializeNodes();
 
-        if (_sprite != null)
-			_sprite.AnimationFinished += OnAnimationFinished;
+        if (_baseSprite != null)
+			_baseSprite.AnimationFinished += OnAnimationFinished;
     }
 
     public override void _PhysicsProcess(double delta)
@@ -49,7 +50,7 @@ public abstract partial class Entity : CharacterBody2D
     {
         _wallCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
-        _sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+        _baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
     }
 
     protected abstract void UpdateTimers(float delta);
@@ -62,7 +63,24 @@ public abstract partial class Entity : CharacterBody2D
 
     protected virtual Node2D FindTarget()
     {
-        return null; // Base entity has no target logic, override in derived classes
+        var targets = GetTree().GetNodesInGroup(TargetType);
+        Node2D closestTarget = null;
+        float closestDistance = float.MaxValue;
+        
+        foreach (Node node in targets)
+        {
+            if (node is Node2D enemy && enemy != this)
+            {
+                float distance = GlobalPosition.DistanceTo(enemy.GlobalPosition);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTarget = enemy;
+                }
+            }
+        }
+        
+        return closestTarget;
     }
 
     // ---- State Transition Logic ----
@@ -90,11 +108,11 @@ public abstract partial class Entity : CharacterBody2D
 
 	public bool PlayAnimation(string animationName)
 	{
-		if (_sprite == null) return false;
+		if (_baseSprite == null) return false;
 
-		if (_sprite.SpriteFrames.HasAnimation(animationName))
+		if (_baseSprite.SpriteFrames.HasAnimation(animationName))
 		{
-			_sprite.Play(animationName);
+			_baseSprite.Play(animationName);
 			return true;
 		}
 

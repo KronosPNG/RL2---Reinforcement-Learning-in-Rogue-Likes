@@ -30,7 +30,8 @@ public partial class Projectile : Entity
 		// Get node references
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_wallCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
-		_sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+		TargetType = (ProjectileOwner as EnemyEntity)?.TargetType ?? "Enemy";
 
 		if (_hitArea != null)
 		{
@@ -78,7 +79,7 @@ public partial class Projectile : Entity
 			Rotation = FacingDirection.Angle();
 		}
 
-		_sprite.Play("default");
+		_baseSprite.Play("default");
 
 		// Set the projectile velocity
 		Velocity = FacingDirection * BaseSpeed;
@@ -277,7 +278,7 @@ public partial class Projectile : Entity
 
 	protected override void OnAnimationFinished()
 	{
-		string animName = _sprite.Animation;
+		string animName = _baseSprite.Animation;
 
 		switch (animName)
 		{

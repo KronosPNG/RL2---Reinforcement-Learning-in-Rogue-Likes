@@ -6,7 +6,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 {
 	//---- Node References ----
 	private Node2D _spriteContainer;
-	private AnimatedSprite2D _bodyBaseSprite;
+	private AnimatedSprite2D _baseSprite;
 	private AnimatedSprite2D _bodyArmorSprite;
 	private AnimatedSprite2D _helmetArmorSprite;
 	public Weapon EquippedWeapon;
@@ -64,7 +64,6 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	[Export] public float HitStunDuration = 0.25f; // time for hit stun duration
 	private float _invulnerabilityTimer = 0f; // timer for invulnerability after hit
 	[Export] public float InvulnerabilityDuration = 1f; // time for invulnerability after hit
-	private float _effectTimer = 0f; // timer for tracking effect durations
 
 	// ---- Active Consumable Effects ----
 	private List<ConsumableEffectBase> _activeEffects = new List<ConsumableEffectBase>();
@@ -74,11 +73,11 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	{
 		// Initialize node references
 		_spriteContainer = GetNodeOrNull<Node2D>("BodyLayers");
-		_bodyBaseSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyBase");
+		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyBase");
 		_bodyArmorSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyArmor");
 		_helmetArmorSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/Helmet");
 
-		if (_spriteContainer == null || _bodyBaseSprite == null || _bodyArmorSprite == null || _helmetArmorSprite == null)
+		if (_spriteContainer == null || _baseSprite == null || _bodyArmorSprite == null || _helmetArmorSprite == null)
 		{
 			GD.PrintErr("Bean: could not find one or more body sprite nodes");
 			return;
@@ -111,12 +110,12 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		if (_dodgeFlash == null)
 			_dodgeFlash = new VisualFlash();
 			
-		_damageFlash.InitializeVisuals(_bodyBaseSprite);
-		_dodgeFlash.InitializeVisuals(_bodyBaseSprite);
+		_damageFlash.InitializeVisuals(_baseSprite);
+		_dodgeFlash.InitializeVisuals(_baseSprite);
 
 		// Only connect the base sprite's animation finished signal to avoid multiple triggers
-		_bodyBaseSprite.AnimationFinished += OnAnimationFinished;
-		_bodyBaseSprite.FrameChanged += OnBaseFrameChanged;
+		_baseSprite.AnimationFinished += OnAnimationFinished;
+		_baseSprite.FrameChanged += OnBaseFrameChanged;
 		
 		// Store the original collision properties
 		_normalCollisionMask = CollisionMask;
@@ -717,7 +716,7 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 		if(targetAnimation != "dead") // don't apply vertical facing to death animation to avoid weird stretching
 		 	targetAnimation = AddVerticalFacingToAnim(targetAnimation);
 
-		if (stateChanged || _bodyBaseSprite.Animation != targetAnimation)
+		if (stateChanged || _baseSprite.Animation != targetAnimation)
 		{
 			PlayAnimation(targetAnimation);
 		}
@@ -754,15 +753,15 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private void PlayAnimation(string animationName)
 	{
 		// Play on base sprite first
-		_bodyBaseSprite.Play(animationName);
+		_baseSprite.Play(animationName);
 		_bodyArmorSprite.Play(animationName);
 		_helmetArmorSprite.Play(animationName);
 	}
 	
 	private void SyncArmorFrames()
 	{
-		string animation = _bodyBaseSprite.Animation;
-		int frame = _bodyBaseSprite.Frame;	
+		string animation = _baseSprite.Animation;
+		int frame = _baseSprite.Frame;	
 
 		_bodyArmorSprite.Animation = animation;
 		_bodyArmorSprite.Frame = frame;
@@ -782,18 +781,18 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	// Sync armor sprites to base sprite every frame change
 	private void OnBaseFrameChanged()
 	{
-		_bodyArmorSprite.Animation = _bodyBaseSprite.Animation;
-		_bodyArmorSprite.Frame = _bodyBaseSprite.Frame;
+		_bodyArmorSprite.Animation = _baseSprite.Animation;
+		_bodyArmorSprite.Frame = _baseSprite.Frame;
 
-		_helmetArmorSprite.Animation = _bodyBaseSprite.Animation;
-		_helmetArmorSprite.Frame = _bodyBaseSprite.Frame;
+		_helmetArmorSprite.Animation = _baseSprite.Animation;
+		_helmetArmorSprite.Frame = _baseSprite.Frame;
 	}
 
 	// Called by AnimatedSprite2D when any animation completes
 	private void OnAnimationFinished()
 	{
 		// Get the name of the finished animation
-		var animName = _bodyBaseSprite.Animation;
+		var animName = _baseSprite.Animation;
 		// If dodge finished, end dodge and transit to Idle/Walking based on current input
 		var dodgeAnim = GetAnimationForState(PlayerState.Dodge);
 
@@ -1128,9 +1127,8 @@ public partial class PlayerController : CharacterBody2D, IDamageable
 	private void UpdateEffects(double delta)
 	{
 		// Process all active effects
-		for (int i = _activeEffects.Count - 1; i >= 0; i--)
+		foreach (var effect in _activeEffects)
 		{
-			var effect = _activeEffects[i];
 			effect.Update(null, this, (float)delta); // Pass null for consumable since effect is now on player
 		}
 	}

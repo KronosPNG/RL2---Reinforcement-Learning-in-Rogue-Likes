@@ -61,9 +61,11 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		InitializeEntity();
 		InitializeVisuals();
 
+		TargetType = "Player"; // Default target type - override in inspector or derived classes
+
 		if (FlipSpriteHorizontally)
 		{
-			_sprite.FlipH = true;
+			_baseSprite.FlipH = true;
 		}
 
 		// Prevent player from pushing this entity
@@ -95,15 +97,15 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 	protected virtual void InitializeEntity()
 	{
 		// Override in derived classes
-		OriginalModulate = _sprite.Modulate;
+		OriginalModulate = _baseSprite.Modulate;
 	}
 
 	protected virtual void InitializeVisuals()
 	{
-		if (_sprite != null)
+		if (_baseSprite != null)
 		{
-			_damageEffect.InitializeVisuals(_sprite);
-			_deathEffect.InitializeVisuals(_sprite);
+			_damageEffect.InitializeVisuals(_baseSprite);
+			_deathEffect.InitializeVisuals(_baseSprite);
 		}
 	}
 
@@ -165,12 +167,6 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 			if (!Mathf.IsEqualApprox(FacingDirection.X, 0))
 				_lastHorizontalFacing = (sbyte)Mathf.Sign(FacingDirection.X);
 		}
-	}
-
-	protected override Node2D FindTarget()
-	{
-		// Find player node - override in derived classes for different targeting logic
-		return GetTree().GetFirstNodeInGroup("Player") as Node2D;
 	}
 
 	protected override void HandleStateTransitions(float delta)
@@ -328,9 +324,9 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 				break;
 
 			case EntityState.Hit:
-				_sprite.Play(GetAnimationForState(state));
+				_baseSprite.Play(GetAnimationForState(state));
 				// Apply damage flash effect
-				_damageEffect.PlayEffect(_sprite);
+				_damageEffect.PlayEffect(_baseSprite);
 				break;
 
 			case EntityState.Dying:
@@ -340,7 +336,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 			case EntityState.Dead:
 				// Darken the sprite 
-				_deathEffect.PlayEffect(_sprite);
+				_deathEffect.PlayEffect(_baseSprite);
 				break;
 		}
 	}
@@ -363,14 +359,14 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 			case EntityState.Hit:
 				// Clear damage flash effect
-				_damageEffect.ClearEffect(_sprite);
+				_damageEffect.ClearEffect(_baseSprite);
 				break;
 		}
 	}
 
 	protected override void UpdateAnimationIfNeeded()
 	{
-		if (_sprite == null) return;
+		if (_baseSprite == null) return;
 
 		if (!IsAlive || _currentState == EntityState.Dead)
 		{
@@ -417,10 +413,10 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		// Set animation based on state
 		string targetAnimation = GetAnimationForState(_currentState);
 
-		if (stateChanged || _sprite.Animation != targetAnimation)
+		if (stateChanged || _baseSprite.Animation != targetAnimation)
 		{
-			if (_sprite.SpriteFrames.HasAnimation(targetAnimation))
-				_sprite.Play(targetAnimation);
+			if (_baseSprite.SpriteFrames.HasAnimation(targetAnimation))
+				_baseSprite.Play(targetAnimation);
 		}
 	}
 
@@ -443,7 +439,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 	protected override void OnAnimationFinished()
 	{
-		string animName = _sprite.Animation;
+		string animName = _baseSprite.Animation;
 		// GD.Print($"Entity: OnAnimationFinished() - Animation: {animName}, State: {_currentState}");
 
 		switch (_currentState)
@@ -540,7 +536,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		// GD.Print($"Entity {Name} has died.");
 		TransitionToState(EntityState.Dying);
 		CurrentHealth = 0;
-		_sprite.Play("die");
+		_baseSprite.Play("die");
 	}
 
 	// ---- IHasHealth Implementation ----
@@ -566,7 +562,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 	{
 		if (IsUnflippable) return;
 
-		_sprite.FlipH = flip;
+		_baseSprite.FlipH = flip;
 		
 		// Flip the hit area and collision shape from the entity's origin
 		var hitAreaPos = _hitArea.Position;
