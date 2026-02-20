@@ -11,7 +11,7 @@ public abstract partial class Entity : CharacterBody2D
 
     // ---- Movement properties ----
 	[ExportGroup("Movement Properties")]
-	[Export] public float BaseSpeed { get; private set; } = 1000f;
+	[Export] public float BaseSpeed { get; protected set; } = 1000f;
     public Vector2 FacingDirection { get; set; } = Vector2.Right;
 
     // ---- Timers ----
@@ -27,6 +27,21 @@ public abstract partial class Entity : CharacterBody2D
 	protected Vector2 _lastKnownTargetPosition = Vector2.Zero;
 
     // ---- Lifecycle methods ----
+
+    public override void _Ready()
+    {
+        InitializeNodes();
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        UpdateTimers((float)delta);
+		UpdateAI((float)delta);
+		HandleStateTransitions((float)delta);
+		ApplyMovementByState((float)delta);
+		UpdateAnimationIfNeeded();
+    }
+
     protected virtual void InitializeNodes()
     {
         _wallCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
@@ -35,14 +50,8 @@ public abstract partial class Entity : CharacterBody2D
     }
 
     protected abstract void UpdateTimers(float delta);
-    protected virtual void UpdateAI(float delta)
-    {
-        // Find target (usually player). If current target was freed, reacquire.
-		if (_target == null || !IsInstanceValid(_target))
-		{
-			_target = FindTarget();
-		}
-    }
+    
+    protected abstract void UpdateAI(float delta);
     
     protected abstract void ApplyMovementByState(float delta);
 

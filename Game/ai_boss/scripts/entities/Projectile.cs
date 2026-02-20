@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-public partial class Projectile : RigidBody2D
+public partial class Projectile : Entity
 {
 	[Signal] public delegate void ProjectileHitEventHandler(Node2D target, float damage);
 	[Signal] public delegate void ProjectileExpiredEventHandler();
@@ -13,55 +13,32 @@ public partial class Projectile : RigidBody2D
 	
 	// Internal state
 	private float _lifetime;
-	private float _speed;
-	private Vector2 _direction;
 	private HashSet<Node> _alreadyHit = new HashSet<Node>();
 	public bool DestroyOnHit = true;
 	public bool DestroyOnWallHit = true;
-	
-	// Node references
-	private Area2D _enemyCollision;
-	private CollisionShape2D _wallCollision; // wall collision
-	private AnimatedSprite2D _sprite;
+
+	// Projectile behaviour
+	[ExportCategory("Projectile Properties")]
+	[Export] public AggroBehaviour Behaviour;
 
 	public override void _Ready()
 	{
 		// Get node references
-		_enemyCollision = GetNodeOrNull<Area2D>("HitArea");
+		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_wallCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
 		_sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
 
-		if (_enemyCollision != null)
+		if (_hitArea != null)
 		{
 			// GD.Print("Projectile: HitArea found");
-			_enemyCollision.BodyEntered += OnBodyEntered;
-			_enemyCollision.AreaEntered += OnAreaEntered;
+			_hitArea.BodyEntered += OnBodyEntered;
+			_hitArea.AreaEntered += OnAreaEntered;
 		}
-
-		// Set up physics
-		GravityScale = 0f; // No gravity for projectiles
-		LockRotation = true; // Prevent spinning
-		ContactMonitor = true;
-		MaxContactsReported = 10;
-		
-		// Connect collision signal for wall/obstacle hits
-		BodyEntered += OnCollisionBodyEntered;
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		// Handle lifetime
-		_lifetime -= (float)delta;
-		if (_lifetime <= 0f)
-		{
-			ExpireProjectile();
-		}
-
-		// Rotate sprite to face movement direction (optional)
-		if (_direction != Vector2.Zero)
-		{
-			Rotation = _direction.Angle();
-		}
+		base._PhysicsProcess(delta);
 	}
 
 	public void Initialize(
@@ -76,8 +53,8 @@ public partial class Projectile : RigidBody2D
 		bool destroyOnWallHit = true)
 	{
 		GlobalPosition = startPosition;
-		_direction = direction.Normalized();
-		_speed = speed;
+		FacingDirection = direction.Normalized();
+		BaseSpeed = speed;
 		Damage = damage;
 		Knockback = knockback;
 		_lifetime = lifetime;
@@ -86,21 +63,21 @@ public partial class Projectile : RigidBody2D
 		DestroyOnWallHit = destroyOnWallHit;
 
 		// Set initial rotation
-		if (_direction != Vector2.Zero)
+		if (FacingDirection != Vector2.Zero)
 		{
-			Rotation = _direction.Angle();
+			Rotation = FacingDirection.Angle();
 		}
 
 		_sprite.Play("default");
 
-		// Move the projectile
-		LinearVelocity = _direction * _speed;
+		// Set the projectile velocity
+		Velocity = FacingDirection * BaseSpeed;
 	}
 
 	private void OnBodyEntered(Node body)
 	{
 		// GD.Print($"Projectile hit detected on body: {body.Name}");
-		
+
 		// Handle hits with physics bodies (enemies, destructibles, etc.)
 		if (body == ProjectileOwner) return; // Don't hit the owner
 		if (_alreadyHit.Contains(body)) return;
@@ -139,11 +116,11 @@ public partial class Projectile : RigidBody2D
 		OnBodyEntered(body);
 	}
 
-	private void OnCollisionBodyEntered(Node body)
+	private void OnCollisionBodyEntered(GodotObject collider)
 	{
-		if (body == ProjectileOwner) return; // Don't hit the owner4
+		if (collider == ProjectileOwner) return; // Don't hit the owner
 
-		// GD.Print($"Projectile collision detected with body: {body.Name}");
+		// GD.Print($"Projectile collision detected with body: {(collider as Node)?.Name}");
 		
 		if (DestroyOnWallHit)
 		{
@@ -152,8 +129,11 @@ public partial class Projectile : RigidBody2D
 		else
 		{
 			// stop the projectile on collision with walls/obstacles
-			LinearVelocity = Vector2.Zero;
-			_enemyCollision.Monitoring = false; // Disable further hit detection
+			Velocity = Vector2.Zero;
+			if (_hitArea != null)
+			{
+				_hitArea.Monitoring = false; // Disable further hit detection
+			}
 		}
 		
 	}
@@ -169,4 +149,68 @@ public partial class Projectile : RigidBody2D
 		// Could add destruction effects here (particles, sound, etc.)
 		QueueFree();
 	}
+
+    protected override void UpdateTimers(float delta)
+    {
+        // Handle lifetime
+		_lifetime -= (float)delta;
+		if (_lifetime <= 0f)
+		{
+			ExpireProjectile();
+		}
+    }
+
+	protected override void UpdateAI(float delta)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void ApplyMovementByState(float delta)
+    {
+        // Move and check for collisions with walls/obstacles
+		var collision = MoveAndCollide(Velocity * (float)delta);
+		if (collision != null)
+		{
+			OnCollisionBodyEntered(collision.GetCollider());
+		}
+
+		// Rotate sprite to face movement direction (optional)
+		if (FacingDirection != Vector2.Zero)
+		{
+			Rotation = FacingDirection.Angle();
+		}
+    }
+
+    protected override void UpdateAnimationIfNeeded()
+    {
+        return;
+    }
+
+    protected override void OnEnterState(EntityState state)
+    {
+		switch (state)
+		{
+			case EntityState.Dying:
+				/*
+					FINISCI LGOGICA DI VITA PROIETTILI
+					CAPISCI STRUTTURA PER HOMING, ECC
+
+				*/
+		}
+    }
+
+    protected override void OnExitState(EntityState state)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void HandleStateTransitions(float delta)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void OnAnimationFinished()
+    {
+        throw new System.NotImplementedException();
+    }
 }

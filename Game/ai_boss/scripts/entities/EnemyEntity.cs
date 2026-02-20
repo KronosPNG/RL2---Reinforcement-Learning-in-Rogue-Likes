@@ -56,10 +56,11 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 	public override void _Ready()
 	{
-		InitializeNodes();
+		base._Ready();
 		InitializeBehaviours();
 		InitializeEntity();
 		InitializeVisuals();
+
 
 		if (_sprite != null)
 			_sprite.AnimationFinished += OnAnimationFinished;
@@ -137,11 +138,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		if (!IsAlive && _currentState != EntityState.Dead)
 			return;
 
-		UpdateTimers((float)delta);
-		UpdateAI((float)delta);
-		HandleStateTransitions((float)delta);
-		ApplyMovementByState((float)delta);
-		UpdateAnimationIfNeeded();
+		base._PhysicsProcess(delta);
 	}
 
 	protected override void UpdateTimers(float delta)
@@ -159,7 +156,11 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 	protected override void UpdateAI(float delta)
 	{
-		base.UpdateAI(delta);
+		// Find target (usually player). If current target was freed, reacquire.
+		if (_target == null || !IsInstanceValid(_target))
+		{
+			_target = FindTarget();
+		}
 
 		// Update facing direction based on movement
 		if (Velocity.LengthSquared() > 0.1f)
