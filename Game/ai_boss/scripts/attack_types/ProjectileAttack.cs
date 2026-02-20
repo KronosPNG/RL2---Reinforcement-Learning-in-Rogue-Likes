@@ -6,7 +6,7 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 	[ExportGroup("Projectile Properties")]
 	[Export] public PackedScene ProjectileScene; // The projectile prefab/scene
 	[Export] public float ProjectileSpeed = 300f;
-	[Export] public float ProjectileLifetime = 5f; // How long the projectile lives
+	[Export] public float ProjectileRange = 15f; // How long the projectile lives
 	[Export] public int ProjectileCount = 1; // Number of projectiles per attack
 	[Export] public float SpreadAngleDeg = 0f; // Spread angle for multiple projectiles
 	[Export] public float SpawnDistanceFromPlayer = 0f; // Distance from player in direction of target
@@ -82,7 +82,7 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 			ProjectileSpeed,
 			Damage,
 			Knockback,
-			ProjectileLifetime,
+			ProjectileRange,
 			weaponOwner, // Pass owner to avoid self-damage
 			DestroyOnHit,
 			DestroyOnWallHit

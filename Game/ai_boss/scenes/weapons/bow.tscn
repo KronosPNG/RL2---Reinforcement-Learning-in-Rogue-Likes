@@ -1,73 +1,41 @@
-[gd_scene load_steps=41 format=3 uid="uid://3ck2mhc1l2m0"]
+[gd_scene format=3 uid="uid://3ck2mhc1l2m0"]
 
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_rs3f0"]
 [ext_resource type="Texture2D" uid="uid://c6pcpe0mr10b6" path="res://art/animations/weapons/bow-Sheet.png" id="2_pevdf"]
 [ext_resource type="PackedScene" uid="uid://dufefxrpx60dr" path="res://scenes/weapons/projectiles/arrow.tscn" id="2_rs3f0"]
-[ext_resource type="Script" uid="uid://d3c176vks5jg6" path="res://scripts/attack_types/ProjectileAttack.cs" id="2_wr7d4"]
-[ext_resource type="Script" uid="uid://dwplos1b2bkmp" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_cwr1y"]
+[ext_resource type="Script" uid="uid://5alhbkf2df8r" path="res://scripts/attack_types/ProjectileAttack.cs" id="2_wr7d4"]
+[ext_resource type="Script" uid="uid://br2k1oubrxxrw" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_cwr1y"]
 [ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="6_0hpek"]
 
 [sub_resource type="Resource" id="Resource_cwr1y"]
 script = ExtResource("2_wr7d4")
 ProjectileScene = ExtResource("2_rs3f0")
-ProjectileSpeed = 350.0
-ProjectileLifetime = 1.0
-ProjectileCount = 1
-SpreadAngleDeg = 0.0
-SpawnDistanceFromPlayer = 0.0
-DestroyOnHit = true
+ProjectileRange = 300.0
 DestroyOnWallHit = false
 Damage = 5.0
-Cooldown = 0.0
-Windup = 0.0
-Active = 0.0
-Knockback = 0.0
-metadata/_custom_type_script = "uid://behghmgcgacq5"
 
 [sub_resource type="Resource" id="Resource_hl64m"]
 script = ExtResource("4_cwr1y")
 ProjectileAttack = SubResource("Resource_cwr1y")
 ScaleProjectileCountWithCharge = false
-MaxProjectileCount = 5
-ScaleSpeedWithCharge = true
-MinProjectileSpeedMultiplier = 0.75
-MaxProjectileSpeedMultiplier = 1.0
-ScaleProjectileLifeWithCharge = true
-MinProjectileLifeMultiplier = 0.1
-MaxProjectileLifeMultiplier = 1.0
-UseExponentialLifeScaling = true
-LifeScalingExponent = 0.25
-MinChargeTime = 1.5
-MaxChargeTime = 4.0
+MinProjectileSpeedMultiplier = 0.6
+MinProjectileRangeMultiplier = 0.15
+MinChargeTime = 0.75
+MaxChargeTime = 1.75
 MinChargeDamagePercentage = 0.1
-MaxChargeDamagePercentage = 1.0
-RequiresMinCharge = true
-ChargeAnimation = "charge"
-FullyChargedAnimation = "fully_charged"
-IdleAnimation = "idle"
 Damage = 35.0
-Cooldown = 0.0
-Windup = 0.0
 Active = 0.75
-Knockback = 0.0
-metadata/_custom_type_script = "uid://yslsc0gfiae4"
 
 [sub_resource type="Resource" id="Resource_rs3f0"]
 script = ExtResource("2_wr7d4")
 ProjectileScene = ExtResource("2_rs3f0")
 ProjectileSpeed = 240.0
-ProjectileLifetime = 3.0
+ProjectileRange = 150.0
 ProjectileCount = 3
 SpreadAngleDeg = 20.0
-SpawnDistanceFromPlayer = 0.0
-DestroyOnHit = true
 DestroyOnWallHit = false
 Damage = 25.0
-Cooldown = 0.0
 Windup = 0.25
-Active = 0.0
-Knockback = 0.0
-metadata/_custom_type_script = "uid://behghmgcgacq5"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jug75"]
 atlas = ExtResource("2_pevdf")
@@ -308,27 +276,27 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Bow" type="Node2D"]
+[node name="Bow" type="Node2D" unique_id=858920173]
 script = ExtResource("1_rs3f0")
 Description = ""
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_hl64m")
 HeavyAttackConfig = SubResource("Resource_rs3f0")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1944169808]
 sprite_frames = SubResource("SpriteFrames_jvvga")
 animation = &"idle"
 
-[node name="Pivot" type="Node2D" parent="."]
+[node name="Pivot" type="Node2D" parent="." unique_id=993419505]
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=1684360838]
 collision_layer = 16
 collision_mask = 32
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea" unique_id=39010773]
 visible = false
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=317008876]
 visible = false
 sprite_frames = SubResource("SpriteFrames_jga22")
 animation = &"idle"

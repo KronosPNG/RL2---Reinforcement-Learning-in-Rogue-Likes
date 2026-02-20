@@ -1,38 +1,29 @@
-[gd_scene load_steps=62 format=3 uid="uid://c2e1s6ljjv0p"]
+[gd_scene format=3 uid="uid://c2e1s6ljjv0p"]
 
-[ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_ceu7g"]
-[ext_resource type="Script" uid="uid://cdjmp2xwqotcq" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_a53x7"]
+[ext_resource type="Script" uid="uid://drqt2ixr8ia3b" path="res://scripts/entities/EnemyEntity.cs" id="1_sb2t5"]
+[ext_resource type="Script" uid="uid://ctpaen5dam7v5" path="res://scripts/entities/Behaviours/Wandering/WanderRandomWalk.cs" id="2_a53x7"]
 [ext_resource type="Texture2D" uid="uid://sxwmc72wj5r3" path="res://art/animations/skeleton/skeleton_sheet.png" id="2_ceu7g"]
-[ext_resource type="Script" uid="uid://beqi3c4w10k6l" path="res://scripts/entities/Behaviours/Aggro/AggroKeepDistance.cs" id="3_ed2xj"]
-[ext_resource type="Script" uid="uid://j5vc1qwuofvc" path="res://scripts/entities/Behaviours/Attacking/AttackInRange.cs" id="4_sb2t5"]
-[ext_resource type="Script" uid="uid://crpbd0mlja4gs" path="res://scripts/entities/WeaponEntity.cs" id="6_jsnsc"]
-[ext_resource type="Script" uid="uid://d3c176vks5jg6" path="res://scripts/attack_types/ProjectileAttack.cs" id="7_jsnsc"]
+[ext_resource type="Script" uid="uid://cvknijbdebtxr" path="res://scripts/entities/Behaviours/Aggro/AggroKeepDistance.cs" id="3_ed2xj"]
+[ext_resource type="Script" uid="uid://7wl1bqipf4t" path="res://scripts/entities/Behaviours/Attacking/AttackInRange.cs" id="4_sb2t5"]
+[ext_resource type="Script" uid="uid://5c7mbggcxc0r" path="res://scripts/entities/WeaponEntity.cs" id="6_jsnsc"]
+[ext_resource type="Script" uid="uid://5alhbkf2df8r" path="res://scripts/attack_types/ProjectileAttack.cs" id="7_jsnsc"]
 [ext_resource type="PackedScene" uid="uid://bebq38eunlmnr" path="res://scenes/weapons/projectiles/evil_missile.tscn" id="7_sb2t5"]
 
-[sub_resource type="Resource" id="Resource_sb2t5"]
+[sub_resource type="Resource" id="Resource_87w4c"]
 script = ExtResource("2_a53x7")
 WanderMaxDuration = 2.0
-WanderCooldown = 5.0
-WanderSpeedMultiplier = 0.75
-metadata/_custom_type_script = "uid://cdjmp2xwqotcq"
-
-[sub_resource type="Resource" id="Resource_87w4c"]
-script = ExtResource("3_ed2xj")
-PreferredDistance = 150.0
-DistanceTolerance = 20.0
-StrafeSpeed = 300.0
-EnableStrafing = false
-MinStrafeDuration = 1.5
-MaxStrafeDuration = 3.0
-DetectionRange = 200.0
-ChaseSpeedModifier = 1.0
-AggroDecayTime = 2.0
-metadata/_custom_type_script = "uid://beqi3c4w10k6l"
+WanderCooldown = 2.0
+metadata/_custom_type_script = "uid://ctpaen5dam7v5"
 
 [sub_resource type="Resource" id="Resource_mr1eg"]
+script = ExtResource("3_ed2xj")
+DetectionRange = 200.0
+metadata/_custom_type_script = "uid://cvknijbdebtxr"
+
+[sub_resource type="Resource" id="Resource_ptmnq"]
 script = ExtResource("4_sb2t5")
 AttackRange = 150.0
-metadata/_custom_type_script = "uid://j5vc1qwuofvc"
+metadata/_custom_type_script = "uid://7wl1bqipf4t"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k2w82"]
 atlas = ExtResource("2_ceu7g")
@@ -409,59 +400,52 @@ size = Vector2(1.42857, 2.57143)
 script = ExtResource("7_jsnsc")
 ProjectileScene = ExtResource("7_sb2t5")
 ProjectileSpeed = 200.0
-ProjectileLifetime = 10.0
-ProjectileCount = 1
-SpreadAngleDeg = 0.0
-SpawnDistanceFromPlayer = 0.0
-DestroyOnHit = true
-DestroyOnWallHit = true
+ProjectileRange = 150.0
 Damage = 15.0
 Cooldown = 2.0
 Windup = 0.25
 Active = 0.5
-Knockback = 0.0
-metadata/_custom_type_script = "uid://d3c176vks5jg6"
 
-[node name="Skeleton" type="CharacterBody2D"]
+[node name="Skeleton" type="CharacterBody2D" unique_id=685011258]
 collision_layer = 2
 collision_mask = 5
-script = ExtResource("1_ceu7g")
-MaxHealth = 100.0
-WanderingBehavior = SubResource("Resource_sb2t5")
-AggroBehavior = SubResource("Resource_87w4c")
-AttackBehavior = SubResource("Resource_mr1eg")
+script = ExtResource("1_sb2t5")
+MaxHealth = 75.0
+WanderingBehavior = SubResource("Resource_87w4c")
+AggroBehavior = SubResource("Resource_mr1eg")
+AttackBehavior = SubResource("Resource_ptmnq")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=635926858]
 sprite_frames = SubResource("SpriteFrames_skeleton")
 animation = &"attack_prepare"
 
-[node name="PhysicalCollision" type="CollisionShape2D" parent="."]
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1964196401]
 visible = false
 position = Vector2(-1.90735e-06, 1.43051e-06)
 scale = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_khxps")
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=2145860150]
 scale = Vector2(7, 7)
 collision_layer = 32
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=382001262]
 visible = false
 position = Vector2(3.27825e-07, -9.36644e-08)
 shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
-[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=322266064]
 
-[node name="Weapon" type="Node2D" parent="."]
+[node name="Weapon" type="Node2D" parent="." unique_id=447470933]
 script = ExtResource("6_jsnsc")
 AttackConfig = SubResource("Resource_5gv7q")
 
-[node name="AttackArea" type="Area2D" parent="Weapon"]
+[node name="AttackArea" type="Area2D" parent="Weapon" unique_id=1754407103]
 collision_layer = 2
 collision_mask = 64
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea" unique_id=155946233]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Weapon"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Weapon" unique_id=1470310650]

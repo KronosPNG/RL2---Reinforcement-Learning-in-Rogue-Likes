@@ -132,10 +132,10 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 
 		float chargeRatio = UsageTime > 0 ? _currentChargeTime / UsageTime : 0f;
 		// Example: modulate effect based on charge level
-		if (_chargeEffect.HasMethod("SetChargeLevel"))
-		{
-			_chargeEffect.Call("SetChargeLevel", chargeRatio);
-		}
+		// if (_chargeEffect.HasMethod("SetChargeLevel"))
+		// {
+		// 	_chargeEffect.Call("SetChargeLevel", chargeRatio);
+		// }
 	}
 
 	// ---- IChargeableConsumable Implementation ----

@@ -61,10 +61,6 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		InitializeEntity();
 		InitializeVisuals();
 
-
-		if (_sprite != null)
-			_sprite.AnimationFinished += OnAnimationFinished;
-
 		if (FlipSpriteHorizontally)
 		{
 			_sprite.FlipH = true;

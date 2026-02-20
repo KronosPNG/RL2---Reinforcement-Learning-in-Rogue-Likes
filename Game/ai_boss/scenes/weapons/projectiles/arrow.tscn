@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://dufefxrpx60dr"]
+[gd_scene format=3 uid="uid://dufefxrpx60dr"]
 
-[ext_resource type="Script" uid="uid://b5i0dbufc7jtg" path="res://scripts/attack_types/Projectile.cs" id="1_di1w4"]
+[ext_resource type="Script" uid="uid://bhpb7xku3g06m" path="res://scripts/entities/Projectile.cs" id="1_di1w4"]
 [ext_resource type="Texture2D" uid="uid://dbcydwltr3pmr" path="res://art/animations/weapons/arrow-Sheet.png" id="2_lwydh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_di1w4"]
@@ -24,29 +24,28 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="Arrow" type="RigidBody2D"]
+[node name="Arrow" type="CharacterBody2D" unique_id=1710382349]
 collision_layer = 8
-continuous_cd = 1
 script = ExtResource("1_di1w4")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1579341511]
 visible = false
 position = Vector2(4, 2.98023e-08)
 scale = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_di1w4")
 debug_color = Color(0.522613, 0.13251, 0.652217, 0.42)
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=673978274]
 visible = false
 collision_layer = 16
 collision_mask = 32
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=411272514]
 visible = false
 position = Vector2(4, 0)
 shape = SubResource("RectangleShape2D_lwydh")
 debug_color = Color(0.682353, 0, 0.0745098, 0.419608)
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=198929003]
 sprite_frames = SubResource("SpriteFrames_lwydh")
 offset = Vector2(-0.5, 0.5)

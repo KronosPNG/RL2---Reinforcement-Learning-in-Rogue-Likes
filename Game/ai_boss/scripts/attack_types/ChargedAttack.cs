@@ -178,10 +178,10 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
 
         float chargeRatio = _currentChargeTime / MaxChargeTime;
         // Example: modulate effect based on charge level
-        if (_chargeEffect.HasMethod("SetChargeLevel"))
-        {
-            _chargeEffect.Call("SetChargeLevel", chargeRatio);
-        }
+        // if (_chargeEffect.HasMethod("SetChargeLevel"))
+        // {
+        //     _chargeEffect.Call("SetChargeLevel", chargeRatio);
+        // }
     }
 
     // ---- Getters ----

@@ -1,74 +1,42 @@
-[gd_scene load_steps=56 format=3 uid="uid://rf3kky6lb4ed"]
+[gd_scene format=3 uid="uid://rf3kky6lb4ed"]
 
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_lakth"]
 [ext_resource type="PackedScene" uid="uid://btlvl7kus6crp" path="res://scenes/weapons/projectiles/magic_missile.tscn" id="2_rh371"]
 [ext_resource type="Texture2D" uid="uid://bilq6snonsws4" path="res://art/animations/weapons/staff-Sheet.png" id="3_52f0k"]
-[ext_resource type="Script" uid="uid://d3c176vks5jg6" path="res://scripts/attack_types/ProjectileAttack.cs" id="3_j3civ"]
+[ext_resource type="Script" uid="uid://5alhbkf2df8r" path="res://scripts/attack_types/ProjectileAttack.cs" id="3_j3civ"]
 [ext_resource type="PackedScene" uid="uid://x7kojflwwlva" path="res://scenes/weapons/projectiles/giant_missile.tscn" id="4_hiblv"]
-[ext_resource type="Script" uid="uid://dwplos1b2bkmp" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_lakth"]
+[ext_resource type="Script" uid="uid://br2k1oubrxxrw" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_lakth"]
 [ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="7_j3civ"]
 
 [sub_resource type="Resource" id="Resource_rh371"]
 script = ExtResource("3_j3civ")
 ProjectileScene = ExtResource("2_rh371")
 ProjectileSpeed = 150.0
-ProjectileLifetime = 5.0
-ProjectileCount = 1
-SpreadAngleDeg = 0.0
+ProjectileRange = 300.0
 SpawnDistanceFromPlayer = 16.0
-DestroyOnHit = true
-DestroyOnWallHit = true
 Damage = 20.0
-Cooldown = 0.0
 Windup = 0.25
 Active = 0.5
-Knockback = 0.0
-metadata/_custom_type_script = "uid://behghmgcgacq5"
 
 [sub_resource type="Resource" id="Resource_j3civ"]
 script = ExtResource("3_j3civ")
 ProjectileScene = ExtResource("4_hiblv")
 ProjectileSpeed = 75.0
-ProjectileLifetime = 5.0
-ProjectileCount = 1
-SpreadAngleDeg = 0.0
+ProjectileRange = 1000.0
 SpawnDistanceFromPlayer = 20.0
 DestroyOnHit = false
-DestroyOnWallHit = true
 Damage = 10.0
-Cooldown = 0.0
-Windup = 0.0
 Active = 1.5
-Knockback = 0.0
-metadata/_custom_type_script = "uid://behghmgcgacq5"
 
 [sub_resource type="Resource" id="Resource_hiblv"]
 script = ExtResource("4_lakth")
 ProjectileAttack = SubResource("Resource_j3civ")
 ScaleProjectileCountWithCharge = false
-MaxProjectileCount = 5
 ScaleSpeedWithCharge = false
-MinProjectileSpeedMultiplier = 0.25
-MaxProjectileSpeedMultiplier = 1.0
-ScaleProjectileLifeWithCharge = false
-MinProjectileLifeMultiplier = 0.25
-MaxProjectileLifeMultiplier = 1.0
-UseExponentialLifeScaling = false
-LifeScalingExponent = 2.0
 MinChargeTime = 2.0
-MaxChargeTime = 2.0
 MinChargeDamagePercentage = 1.0
-MaxChargeDamagePercentage = 1.0
-RequiresMinCharge = true
-ChargeAnimation = "charge"
-FullyChargedAnimation = "fully_charged"
-IdleAnimation = "idle"
 Damage = 75.0
-Cooldown = 0.0
 Windup = 0.65
-Active = 0.0
-Knockback = 0.0
-metadata/_custom_type_script = "uid://yslsc0gfiae4"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j3civ"]
 atlas = ExtResource("3_52f0k")
@@ -407,7 +375,7 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Staff" type="Node2D"]
+[node name="Staff" type="Node2D" unique_id=882237376]
 script = ExtResource("1_lakth")
 Description = ""
 PedestalDisplayScale = Vector2(1, 1)
@@ -415,21 +383,21 @@ LightAttackConfig = SubResource("Resource_rh371")
 HeavyAttackConfig = SubResource("Resource_hiblv")
 EnableLightAutoswing = true
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=530912704]
 sprite_frames = SubResource("SpriteFrames_jvvga")
 animation = &"idle"
 frame_progress = 1.0
 
-[node name="Pivot" type="Node2D" parent="."]
+[node name="Pivot" type="Node2D" parent="." unique_id=2110449741]
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=1518527704]
 collision_layer = 16
 collision_mask = 32
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea" unique_id=431690850]
 visible = false
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=2001527075]
 visible = false
 sprite_frames = SubResource("SpriteFrames_cdeft")
 animation = &"idle"

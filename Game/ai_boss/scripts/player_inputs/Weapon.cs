@@ -46,8 +46,6 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	// ---- Damage Application Settings ----
 	// If false, only the signal will be emitted and other systems should subscribe.
 	[Export] public bool AutoApplyDamage = true;
-	[Export] public string EnemyDamageMethodName = "ApplyDamage"; // name of method to call on enemies (if AutoApplyDamage)
-
 
 	public override void _Ready()
 	{
@@ -435,16 +433,9 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			GD.Print($"Weapon auto-applying {damage} damage with {knockback} knockback to {body.Name}");
 
 			// Attempt to call configured method
-			if (body.HasMethod(EnemyDamageMethodName))
+			if (body is IDamageable damageable)
 			{
-				body.Call(EnemyDamageMethodName, damage, this.OwnerCharacter, knockback);
-			}
-			else
-			{
-				// fallback: try common names
-				if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", damage, this.OwnerCharacter, knockback);
-				else if (body.HasMethod("TakeDamage")) body.Call("TakeDamage", damage, this.OwnerCharacter, knockback);
-				// else GD.Print($"Weapon: hit {body.Name} for {damage}, but no damage method found.");
+				damageable.ApplyDamage(damage, this.OwnerCharacter, knockback);
 			}
 		}
 	}

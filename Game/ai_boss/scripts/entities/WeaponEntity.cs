@@ -158,7 +158,7 @@ public partial class WeaponEntity : WeaponBase
 		
 		if (body is PlayerController player)
 		{
-			if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", AttackConfig.Damage, this.OwnerCharacter, AttackConfig.Knockback);
+			player.ApplyDamage(AttackConfig.Damage, OwnerCharacter, AttackConfig.Knockback);
 		}
 
 		else if (body is EnemyEntity entity)
@@ -166,7 +166,7 @@ public partial class WeaponEntity : WeaponBase
 			if (entity == OwnerCharacter) return; // Prevent self-hits
 			if (!AllowFriendlyFire) return; // Prevent friendly fire
 
-			if (body.HasMethod("ApplyDamage")) body.Call("ApplyDamage", AttackConfig.Damage, this.OwnerCharacter, AttackConfig.Knockback);
+			entity.ApplyDamage(AttackConfig.Damage, OwnerCharacter, AttackConfig.Knockback);
 		}
 	}
 

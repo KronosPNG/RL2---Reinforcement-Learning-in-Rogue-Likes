@@ -31,6 +31,9 @@ public abstract partial class Entity : CharacterBody2D
     public override void _Ready()
     {
         InitializeNodes();
+
+        if (_sprite != null)
+			_sprite.AnimationFinished += OnAnimationFinished;
     }
 
     public override void _PhysicsProcess(double delta)
@@ -85,18 +88,17 @@ public abstract partial class Entity : CharacterBody2D
     // ---- Animation methods ----
     protected abstract void OnAnimationFinished();
 
-	public void PlayAnimation(string animationName)
+	public bool PlayAnimation(string animationName)
 	{
-		if (_sprite == null) return;
+		if (_sprite == null) return false;
 
 		if (_sprite.SpriteFrames.HasAnimation(animationName))
 		{
 			_sprite.Play(animationName);
+			return true;
 		}
-		else
-		{
-			GD.PrintErr($"Entity {Name} does not have animation '{animationName}'");
-		}
+
+		return false;
 	}
 
     // ---- Public Getters for AI customization ----

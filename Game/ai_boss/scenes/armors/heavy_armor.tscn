@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://um62s86wrvvn"]
+[gd_scene format=3 uid="uid://um62s86wrvvn"]
 
-[ext_resource type="Script" uid="uid://cmwrcflub0swv" path="res://scripts/player_inputs/Armor.cs" id="1_ed4n3"]
+[ext_resource type="Script" uid="uid://bni724410dhr7" path="res://scripts/player_inputs/Armor.cs" id="1_ed4n3"]
 [ext_resource type="SpriteFrames" uid="uid://bumlki5u22ooq" path="res://assets/sprite_frames/bean/armors/heavy_armor.tres" id="2_ed4n3"]
 [ext_resource type="SpriteFrames" uid="uid://bq62yyoxwivsp" path="res://assets/sprite_frames/bean/helmets/helmet.tres" id="3_ed4n3"]
 [ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_fr7f1"]
@@ -20,7 +20,7 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="HeavyArmor" type="Node2D"]
+[node name="HeavyArmor" type="Node2D" unique_id=1083528101]
 script = ExtResource("1_ed4n3")
 ItemName = "Heavy Armor"
 Description = "A well-forged heavy iron armor that grants great protection at the cost of movement"
@@ -31,5 +31,5 @@ BodySpriteFrames = ExtResource("2_ed4n3")
 HelmetSpriteFrames = ExtResource("3_ed4n3")
 PedestalDisplayScale = Vector2(1, 1)
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=814572269]
 sprite_frames = SubResource("SpriteFrames_ivnlu")

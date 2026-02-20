@@ -1,6 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://btlvl7kus6crp"]
+[gd_scene format=3 uid="uid://btlvl7kus6crp"]
 
-[ext_resource type="Script" uid="uid://b5i0dbufc7jtg" path="res://scripts/attack_types/Projectile.cs" id="1_pqfyw"]
+[ext_resource type="Script" uid="uid://bhpb7xku3g06m" path="res://scripts/entities/Projectile.cs" id="1_pqfyw"]
 [ext_resource type="Texture2D" uid="uid://b7f84cei5xux" path="res://art/animations/weapons/magic_missile-Sheet.png" id="2_pqfyw"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_di1w4"]
@@ -38,28 +38,27 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pqfyw"]
 size = Vector2(16, 12)
 
-[node name="MagicMissile" type="RigidBody2D"]
+[node name="MagicMissile" type="CharacterBody2D" unique_id=998086778]
 collision_layer = 8
-continuous_cd = 1
 script = ExtResource("1_pqfyw")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1023759995]
 visible = false
 position = Vector2(5, -0.1875)
 scale = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_di1w4")
 debug_color = Color(0.522613, 0.13251, 0.652217, 0.42)
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=395184514]
 sprite_frames = SubResource("SpriteFrames_7dxrr")
 frame_progress = 0.265821
 offset = Vector2(0, -0.6)
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=2053056195]
 collision_layer = 16
 collision_mask = 32
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=1064807130]
 visible = false
 shape = SubResource("RectangleShape2D_pqfyw")
 debug_color = Color(0.682353, 0, 0.0745098, 0.419608)

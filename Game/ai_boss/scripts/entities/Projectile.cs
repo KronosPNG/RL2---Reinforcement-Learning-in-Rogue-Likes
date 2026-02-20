@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public partial class Projectile : Entity
 {
 	[Signal] public delegate void ProjectileHitEventHandler(Node2D target, float damage);
-	[Signal] public delegate void ProjectileExpiredEventHandler();
+	[Signal] public delegate void ProjectileDestroyedEventHandler();
 
 	// Properties
 	public float Damage { get; private set; }
@@ -12,7 +12,11 @@ public partial class Projectile : Entity
 	public float Knockback { get; private set; }
 	
 	// Internal state
+	private float _range;
+	private float _remainingRange;
 	private float _lifetime;
+	private Vector2 _startingPosition;
+	private Vector2 _previousPosition; // For range calculation
 	private HashSet<Node> _alreadyHit = new HashSet<Node>();
 	public bool DestroyOnHit = true;
 	public bool DestroyOnWallHit = true;
@@ -47,20 +51,26 @@ public partial class Projectile : Entity
 		float speed,
 		float damage,
 		float knockback,
-		float lifetime,
+		float range,
 		Node2D owner,
 		bool destroyOnHit = true,
 		bool destroyOnWallHit = true)
 	{
 		GlobalPosition = startPosition;
+		_startingPosition = startPosition;
+		_previousPosition = startPosition;
 		FacingDirection = direction.Normalized();
 		BaseSpeed = speed;
 		Damage = damage;
 		Knockback = knockback;
-		_lifetime = lifetime;
+		_range = range;
+		_remainingRange = range;
 		ProjectileOwner = owner;
 		DestroyOnHit = destroyOnHit;
 		DestroyOnWallHit = destroyOnWallHit;
+
+		// Max lifetime of 30 seconds 
+		_lifetime = 15f; // Default max lifetime
 
 		// Set initial rotation
 		if (FacingDirection != Vector2.Zero)
@@ -90,21 +100,21 @@ public partial class Projectile : Entity
 			EmitSignal(nameof(ProjectileHit), node2d, Damage);
 		}
 
-	// Try to apply damage
-	if (body.HasMethod("ApplyDamage"))
-	{
-		// GD.Print($"Applying damage to {body.Name}");
-		body.Call("ApplyDamage", Damage, ProjectileOwner, Knockback);
-	}
+		// Try to apply damage
+		if (body is IDamageable damageable)
+		{
+			// GD.Print($"Applying damage to {body.Name}");
+			damageable.ApplyDamage(Damage, ProjectileOwner, Knockback);
+		}
 
-	// GD.Print($"Projectile hit {body.Name} for {Damage} damage.");
+		// GD.Print($"Projectile hit {body.Name} for {Damage} damage.");
 
 		// Destroy projectile on hit if allowed
-	if (DestroyOnHit)
-	{
-		// GD.Print("Destroying projectile on hit.");
-		DestroyProjectile();
-	}
+		if (DestroyOnHit)
+		{
+			// GD.Print("Destroying projectile on hit.");
+			TransitionToState(EntityState.Hit);
+		}
 			
 	}
 
@@ -124,12 +134,13 @@ public partial class Projectile : Entity
 		
 		if (DestroyOnWallHit)
 		{
-			DestroyProjectile();
+			TransitionToState(EntityState.Hit);
 		}
 		else
 		{
 			// stop the projectile on collision with walls/obstacles
 			Velocity = Vector2.Zero;
+
 			if (_hitArea != null)
 			{
 				_hitArea.Monitoring = false; // Disable further hit detection
@@ -138,36 +149,41 @@ public partial class Projectile : Entity
 		
 	}
 
-	private void ExpireProjectile()
-	{
-		EmitSignal(nameof(ProjectileExpired));
-		DestroyProjectile();
-	}
-
 	private void DestroyProjectile()
 	{
-		// Could add destruction effects here (particles, sound, etc.)
+		EmitSignal(nameof(ProjectileDestroyed));
 		QueueFree();
 	}
 
-    protected override void UpdateTimers(float delta)
-    {
-        // Handle lifetime
+	protected override void UpdateTimers(float delta)
+	{
+		// Handle range 
+		_remainingRange -= _previousPosition.DistanceTo(this.GlobalPosition);
+
+		if (_remainingRange <= 0f)
+		{
+			GD.Print("Projectile reached max range, destroying.");
+			TransitionToState(EntityState.Dying);
+		}
+
+		// Handle lifetime
 		_lifetime -= (float)delta;
 		if (_lifetime <= 0f)
 		{
-			ExpireProjectile();
+			TransitionToState(EntityState.Dead);
 		}
-    }
+
+		_previousPosition = this.GlobalPosition;
+	}
 
 	protected override void UpdateAI(float delta)
-    {
-        throw new System.NotImplementedException();
-    }
+	{
+		return;
+	}
 
-    protected override void ApplyMovementByState(float delta)
-    {
-        // Move and check for collisions with walls/obstacles
+	protected override void ApplyMovementByState(float delta)
+	{
+		// Move and check for collisions with walls/obstacles
 		var collision = MoveAndCollide(Velocity * (float)delta);
 		if (collision != null)
 		{
@@ -179,38 +195,102 @@ public partial class Projectile : Entity
 		{
 			Rotation = FacingDirection.Angle();
 		}
-    }
 
-    protected override void UpdateAnimationIfNeeded()
-    {
-        return;
-    }
+		switch (_currentState)
+		{
+			case EntityState.Aggro:
+				if (Behaviour == null) return;
+				
+				Velocity = Behaviour.GetChaseVelocity(this, (float)delta);
+				Behaviour.PerformAggroBehaviour(this);
+				break;
 
-    protected override void OnEnterState(EntityState state)
-    {
+			default:
+				break;
+		}
+	}
+
+	protected override void UpdateAnimationIfNeeded()
+	{
+		return;
+	}
+
+	protected override void OnEnterState(EntityState state)
+	{
 		switch (state)
 		{
+			case EntityState.Hit:
+				SetPhysicsProcess(false);
+				if(!PlayAnimation("hit"))
+				{
+					GD.PrintErr("Projectile: 'hit' animation not found, skipping to destroy.");
+					TransitionToState(EntityState.Dead);
+				}
+				break;
+
 			case EntityState.Dying:
-				/*
-					FINISCI LGOGICA DI VITA PROIETTILI
-					CAPISCI STRUTTURA PER HOMING, ECC
+				if(!PlayAnimation("dying"))
+				{
+					GD.PrintErr("Projectile: 'dying' animation not found, skipping to destroy.");
+					TransitionToState(EntityState.Dead);
+				}
+				break;
 
-				*/
+			case EntityState.Dead:
+				DestroyProjectile();
+				break;
+
+			default:
+				break;
 		}
-    }
+	}
 
-    protected override void OnExitState(EntityState state)
-    {
-        throw new System.NotImplementedException();
-    }
+	protected override void OnExitState(EntityState state)
+	{
+		return;
+	}
 
-    protected override void HandleStateTransitions(float delta)
-    {
-        throw new System.NotImplementedException();
-    }
+	protected override void HandleStateTransitions(float delta)
+	{
 
-    protected override void OnAnimationFinished()
-    {
-        throw new System.NotImplementedException();
-    }
+		if (Behaviour == null) return;
+
+		switch (_currentState)
+		{
+			case EntityState.Idle:
+				if (Behaviour == null) return;
+
+				if(Behaviour.CanSeeTarget(this))
+				{
+					TransitionToState(EntityState.Aggro);
+				}
+				break;
+
+			case EntityState.Aggro:
+				if (Behaviour.ShouldLoseTarget(this))
+				{
+					TransitionToState(EntityState.Idle);
+				}
+				break;
+		}
+	}
+
+	protected override void OnAnimationFinished()
+	{
+		string animName = _sprite.Animation;
+
+		switch (animName)
+		{
+			case "hit":
+				TransitionToState(EntityState.Dead);
+				break;
+
+			case "dying":
+				TransitionToState(EntityState.Dead);
+				break;
+
+			default:
+				break;
+		}
+	}
 }

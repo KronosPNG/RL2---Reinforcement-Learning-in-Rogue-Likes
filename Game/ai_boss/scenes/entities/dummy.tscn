@@ -1,29 +1,22 @@
-[gd_scene load_steps=21 format=3 uid="uid://d02snf7r66hnm"]
+[gd_scene format=3 uid="uid://d02snf7r66hnm"]
 
-[ext_resource type="Script" uid="uid://doknkyrykhgt2" path="res://scripts/entities/Entity.cs" id="1_ab73t"]
+[ext_resource type="Script" uid="uid://drqt2ixr8ia3b" path="res://scripts/entities/EnemyEntity.cs" id="1_ab73t"]
 [ext_resource type="Texture2D" uid="uid://c0x4cfkw0sevv" path="res://art/animations/dummy/dummy-Sheet.png" id="1_khxps"]
-[ext_resource type="Script" uid="uid://cwmynn16gnl81" path="res://scripts/entities/Behaviours/Wandering/WanderImmovable.cs" id="2_tpd06"]
-[ext_resource type="Script" uid="uid://sujx2e5tb2vm" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="3_fb3xl"]
-[ext_resource type="Script" uid="uid://bkbvhfotdpa6c" path="res://scripts/entities/Behaviours/Attacking/AttackInoffensive.cs" id="4_0eyuu"]
+[ext_resource type="Script" uid="uid://sq726rok2yho" path="res://scripts/entities/Behaviours/Wandering/WanderImmovable.cs" id="2_tpd06"]
+[ext_resource type="Script" uid="uid://b1h63nu0sdktb" path="res://scripts/entities/Behaviours/Aggro/AggroFollowGaze.cs" id="3_fb3xl"]
+[ext_resource type="Script" uid="uid://cdoviv2oy754f" path="res://scripts/entities/Behaviours/Attacking/AttackInoffensive.cs" id="4_0eyuu"]
 
 [sub_resource type="Resource" id="Resource_wd821"]
 script = ExtResource("2_tpd06")
-WanderMaxDuration = 0.0
-WanderCooldown = 0.0
-WanderSpeedMultiplier = 0.75
-metadata/_custom_type_script = "uid://cwmynn16gnl81"
+metadata/_custom_type_script = "uid://sq726rok2yho"
 
 [sub_resource type="Resource" id="Resource_gtckb"]
 script = ExtResource("3_fb3xl")
-DetectionRange = 50.0
-ChaseSpeedModifier = 1.0
-AggroDecayTime = 2.0
-metadata/_custom_type_script = "uid://sujx2e5tb2vm"
+metadata/_custom_type_script = "uid://b1h63nu0sdktb"
 
 [sub_resource type="Resource" id="Resource_5i650"]
 script = ExtResource("4_0eyuu")
-AttackRange = 0.0
-metadata/_custom_type_script = "uid://bkbvhfotdpa6c"
+metadata/_custom_type_script = "uid://cdoviv2oy754f"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vlvhm"]
 atlas = ExtResource("1_khxps")
@@ -127,38 +120,36 @@ size = Vector2(7, 5)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ab73t"]
 size = Vector2(0.714286, 1.5)
 
-[node name="Dummy" type="CharacterBody2D"]
+[node name="Dummy" type="CharacterBody2D" unique_id=1724195486]
 collision_layer = 2
 script = ExtResource("1_ab73t")
-MaxHealth = 100.0
+MaxHealth = 1.0
 IsInvulnerable = true
-BaseSpeed = 0.0
-KnockbackResistance = 1.0
 WanderingBehavior = SubResource("Resource_wd821")
 AggroBehavior = SubResource("Resource_gtckb")
 AttackBehavior = SubResource("Resource_5i650")
 IsUnflippable = true
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1957346259]
 sprite_frames = SubResource("SpriteFrames_ruppt")
 animation = &"hit"
 frame = 3
 frame_progress = 1.0
 
-[node name="PhysicalCollision" type="CollisionShape2D" parent="."]
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1371221448]
 visible = false
 position = Vector2(0.5, 1.5)
 shape = SubResource("RectangleShape2D_khxps")
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=1123695329]
 scale = Vector2(7, 7)
 collision_layer = 32
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=1539387257]
 visible = false
 position = Vector2(0.0714285, 0.107143)
 shape = SubResource("RectangleShape2D_ab73t")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
-[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1143444482]

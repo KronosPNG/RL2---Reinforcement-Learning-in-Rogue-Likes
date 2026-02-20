@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=125 format=3 uid="uid://bumlki5u22ooq"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://bumlki5u22ooq"]
 
 [ext_resource type="Texture2D" uid="uid://bc5eor8bkwfe0" path="res://art/animations/bean/armor/heavy_armor-Sheet.png" id="1_s6uek"]
 
