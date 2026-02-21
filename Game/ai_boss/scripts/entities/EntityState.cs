@@ -1,12 +1,17 @@
 public enum EntityState
 	{
 		Idle,
-		Wandering,
+		Walking,
+		Wandering = Walking, // Alias for wandering behavior
 		Aggro,
 		AttackPrepare,
-		AttackCharge,
+		AttackCharging,
 		Attacking,
 		Hit,
+		DodgePrep,
+		Dodging,
+		ConsumableUse,
+		ConsumableCharging,
 		Dying,
 		Dead
 	}

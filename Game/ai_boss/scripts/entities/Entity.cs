@@ -18,7 +18,7 @@ public abstract partial class Entity : CharacterBody2D
     protected float _stateTimer = 0f;
 
     // ---- Node references ----
-    protected CollisionShape2D _wallCollision;
+    protected CollisionShape2D _physicalCollision;
 	protected Area2D _hitArea;
     protected AnimatedSprite2D _baseSprite;
 
@@ -41,14 +41,14 @@ public abstract partial class Entity : CharacterBody2D
     {
         UpdateTimers((float)delta);
 		UpdateAI((float)delta);
-		HandleStateTransitions((float)delta);
+		HandleStateTransitions();
 		ApplyMovementByState((float)delta);
 		UpdateAnimationIfNeeded();
     }
 
     protected virtual void InitializeNodes()
     {
-        _wallCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
+        _physicalCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
         _baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
     }
@@ -56,6 +56,8 @@ public abstract partial class Entity : CharacterBody2D
     protected abstract void UpdateTimers(float delta);
     
     protected abstract void UpdateAI(float delta);
+
+    protected abstract void UpdateFacing();
     
     protected abstract void ApplyMovementByState(float delta);
 
@@ -101,18 +103,19 @@ public abstract partial class Entity : CharacterBody2D
 		EmitSignal(SignalName.EntityStateChanged, newState.ToString());
 	}
 
-    protected abstract void HandleStateTransitions(float delta);
+    protected abstract void HandleStateTransitions();
 
     // ---- Animation methods ----
     protected abstract void OnAnimationFinished();
 
-	public bool PlayAnimation(string animationName)
+	public virtual bool PlayAnimation(string animationName, AnimatedSprite2D sprite = null)
 	{
-		if (_baseSprite == null) return false;
+		AnimatedSprite2D targetSprite = sprite ?? _baseSprite;
+		if (targetSprite == null) return false;
 
-		if (_baseSprite.SpriteFrames.HasAnimation(animationName))
+		if (targetSprite.SpriteFrames.HasAnimation(animationName))
 		{
-			_baseSprite.Play(animationName);
+			targetSprite.Play(animationName);
 			return true;
 		}
 

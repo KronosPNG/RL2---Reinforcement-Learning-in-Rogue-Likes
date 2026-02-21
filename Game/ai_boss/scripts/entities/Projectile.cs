@@ -29,7 +29,7 @@ public partial class Projectile : Entity
 	{
 		// Get node references
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
-		_wallCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+		_physicalCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
 		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
 		TargetType = (ProjectileOwner as EnemyEntity)?.TargetType ?? "Enemy";
 
@@ -182,6 +182,11 @@ public partial class Projectile : Entity
 		return;
 	}
 
+	protected override void UpdateFacing()
+	{
+		return;
+	}
+
 	protected override void ApplyMovementByState(float delta)
 	{
 		// Move and check for collisions with walls/obstacles
@@ -251,7 +256,7 @@ public partial class Projectile : Entity
 		return;
 	}
 
-	protected override void HandleStateTransitions(float delta)
+	protected override void HandleStateTransitions()
 	{
 
 		if (Behaviour == null) return;

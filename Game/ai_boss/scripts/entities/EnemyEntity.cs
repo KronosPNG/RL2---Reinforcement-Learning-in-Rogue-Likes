@@ -58,10 +58,10 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 	{
 		base._Ready();
 		InitializeBehaviours();
-		InitializeEntity();
-		InitializeVisuals();
 
-		TargetType = "Player"; // Default target type - override in inspector or derived classes
+		OriginalModulate = _baseSprite.Modulate;
+
+		InitializeVisuals();
 
 		if (FlipSpriteHorizontally)
 		{
@@ -73,6 +73,8 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 		CurrentHealth = MaxHealth;
 		TransitionToState(EntityState.Idle);
+
+		TargetType = "Player"; // Enemies target the player by default
 	}
 
 	protected override void InitializeNodes()
@@ -92,12 +94,6 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 			AggroBehavior = new AggroFollowGaze();
 		if (AttackBehavior == null)
 			AttackBehavior = new AttackInoffensive();
-	}
-
-	protected virtual void InitializeEntity()
-	{
-		// Override in derived classes
-		OriginalModulate = _baseSprite.Modulate;
 	}
 
 	protected virtual void InitializeVisuals()
@@ -159,7 +155,11 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		{
 			_target = FindTarget();
 		}
+	}
+		
 
+	protected override void UpdateFacing()
+	{
 		// Update facing direction based on movement
 		if (Velocity.LengthSquared() > 0.1f)
 		{
@@ -169,7 +169,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		}
 	}
 
-	protected override void HandleStateTransitions(float delta)
+	protected override void HandleStateTransitions()
 	{
 		switch (_currentState)
 		{
@@ -284,7 +284,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 			case EntityState.Attacking:
 			case EntityState.AttackPrepare:
-			case EntityState.AttackCharge:
+			case EntityState.AttackCharging:
 				Velocity = AttackBehavior.GetAttackVelocity(this, delta);
 				break;
 
@@ -331,7 +331,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 			case EntityState.Dying:
 				_hitArea.SetDeferred("monitoring", false);
-				_wallCollision.SetDeferred("disabled", true);
+				_physicalCollision.SetDeferred("disabled", true);
 				break;
 
 			case EntityState.Dead:
@@ -428,7 +428,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 			EntityState.Wandering => "walk",
 			EntityState.Aggro => AggroBehavior.animationName,
 			EntityState.AttackPrepare => "attack_prepare",
-			EntityState.AttackCharge => "attack_charge",
+			EntityState.AttackCharging => "attack_charge",
 			EntityState.Attacking => "attack",
 			EntityState.Hit => "hit",
 			EntityState.Dying => "die",
@@ -448,11 +448,11 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 				if (animName == "attack_prepare")
 				{
 					// GD.Print("Entity: Transitioning AttackPrepare -> AttackCharge");
-					TransitionToState(EntityState.AttackCharge);
+					TransitionToState(EntityState.AttackCharging);
 				}
 				break;
 
-			case EntityState.AttackCharge:
+			case EntityState.AttackCharging:
 				if (animName == "attack_charge")
 				{
 					// GD.Print("Entity: Transitioning AttackCharge -> Attacking");
@@ -574,14 +574,14 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		_hitArea.Position = hitAreaPos;
 		_hitArea.Scale = hitAreaScale;
 
-		var collisionPos = _wallCollision.Position;
-		var collisionScale = _wallCollision.Scale;
+		var collisionPos = _physicalCollision.Position;
+		var collisionScale = _physicalCollision.Scale;
 		
 		collisionPos.X = flip ? -Mathf.Abs(collisionPos.X) : Mathf.Abs(collisionPos.X);
 		collisionScale.X = flip ? -Mathf.Abs(collisionScale.X) : Mathf.Abs(collisionScale.X);
 		
-		_wallCollision.Position = collisionPos;
-		_wallCollision.Scale = collisionScale;
+		_physicalCollision.Position = collisionPos;
+		_physicalCollision.Scale = collisionScale;
 		
 	}
 }
