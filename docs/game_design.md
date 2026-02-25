@@ -2,14 +2,14 @@
 
 **Project:** Adaptive Boss AI Thesis Game
 **Author:** Luigi Turco
-**Version:** 0.1
+**Version:** 0.2
 **Date:** 2025-08-24
 
 ---
 
 ## 1. High-Level Concept
 
-A compact 2D roguelike-inspired game designed to test adaptive boss AI. The player progresses through four fixed rooms (Weapon, Armor, Heal, Spawning) before facing a dynamically adaptive Boss. Rewards in the first three rooms are randomized, while basic non-AI enemies provide light combat encounters. The Boss uses reinforcement learning to adapt its behavior and item loadout based on the player’s build and playstyle.
+A compact 2D roguelike-inspired game designed to test adaptive boss AI. The player progresses through four fixed rooms (Weapon, Armor, Heal, Spawning) before facing a dynamically adaptive Boss. Rewards in the first three rooms are fixed, while basic non-AI enemies provide light combat encounters. The Boss uses reinforcement learning to adapt its behavior based on the player’s build and playstyle.
 
 ---
 
@@ -62,13 +62,13 @@ A compact 2D roguelike-inspired game designed to test adaptive boss AI. The play
 * **Movement:** 8‑directional (WASD).
 * **Primary Attack:** weapon‑specific (melee swing, bow shot, staff cast).
 * **Secondary Attack:** weapon‑specific heavy/charged variant; each weapon may have an internal cooldown.
-* **Dodge (Dash):** short burst with **0.25s** i‑frames; **1s** cooldown; distance \~**3 tiles** (tunable).
+* **Dodge (Dash):** short burst with **0.25s** i‑frames; distance \~**3 tiles** (tunable).
 * **Use Consumable:** immediate activation; respects personal cooldown and slot rules above.
 
 **Notes**
 
 * No ammo/mana systems in MVP; **cooldowns** regulate attack/ability frequency.
-* Hitstun/knockback: light knockback on heavy/charged hits (tunable).
+* Hitstun/knockback: knockback on hits (tunable).
 
 ---
 
@@ -84,7 +84,7 @@ Enemies are deliberately simple (scripted behavior, no adaptation). Their role i
 ### Boss Enemy
 
 * **Loadout:** weapon, armor, consumables chosen dynamically.
-* **Behavior Variables:** dodging, aggression, trap avoidance, consumable use.
+* **Behavior Variables:** dodging/parrying, aggression, distance from player, attack frequency.
 * **Adaptation:** Reinforcement learning (PPO in PyTorch) trained against archetypal player strategies.
 
 ---
@@ -112,7 +112,7 @@ Enemies are deliberately simple (scripted behavior, no adaptation). Their role i
   * Prepares player for boss (visual buildup).
 
 * **Boss Room:**
-F
+
   * One adaptive boss.
   * End of run on victory or defeat.
 
@@ -124,16 +124,16 @@ F
 
   * Longsword:
     * Primary attack: snap cut, medium damage, medium speed.
-    * Secondary attack: pulling cut, high damage, slow speed.
+    * Secondary attack: charged cut, high damage, slow speed.
   * Dagger:
     * Primary attack: cut, low damage, high speed.
     * Secondary attack: stab, high damage, medium speed.
   * Bow:
     * Primary attack: shoot, medium damage, speed variable based on charge.
-    * Secondary attack: spread attack, medium damage, high speed, multiple projectiles in spread pattern.
+    * Secondary attack: spread attack, low damage, high speed, multiple projectiles in spread pattern.
   * Staff:
-    * Primary attack: cast, low damage, low speed, multiple projectiles on the same line.
-    * Secondary attack: explosion, very high damage, very low speed, area damage, higher cooldown.
+    * Primary attack: cast missile, low damage, low speed.
+    * Secondary attack: cast flaming sphere, very high damage, very low speed, area damage, higher cooldown.
 
 * **Armor:** modifies movement speed and defense.
 
@@ -141,7 +141,6 @@ F
 
 ## 8. Progression & Replayability
 
-* **Rewards are randomized** (which 2–3 items appear in each choice room, element type of weapons is randomised).
 * **Boss behavior changes** between runs due to adaptive ML policy.
 * **Short sessions** allow rapid iteration for testing and player adaptation.
 
@@ -150,10 +149,10 @@ F
 ## 9. Controls (Default)
 
 * **Move:** WASD
-* **Primary Attack:** Left Mouse / J
-* **Secondary Attack:** Right Mouse / K
-* **Dodge:** Spacebar / L
-* **Use Consumable:** Q / H
+* **Primary Attack:** Left Mouse
+* **Secondary Attack:** Right Mouse
+* **Dodge:** Spacebar
+* **Use Consumable:** Q
 
 ---
 

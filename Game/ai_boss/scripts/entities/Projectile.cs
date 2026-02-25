@@ -1,10 +1,11 @@
 using Godot;
 using System.Collections.Generic;
 
-public partial class Projectile : Entity
+public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileState>
 {
 	[Signal] public delegate void ProjectileHitEventHandler(Node2D target, float damage);
 	[Signal] public delegate void ProjectileDestroyedEventHandler();
+	[Signal] public delegate void StateChangedEventHandler(string newState);
 
 	// Properties
 	public float Damage { get; private set; }
@@ -27,6 +28,8 @@ public partial class Projectile : Entity
 
 	public override void _Ready()
 	{
+		StateMachine = new StateMachine<ProjectileState>(this, ProjectileState.Idle);
+
 		// Get node references
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_physicalCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
@@ -114,7 +117,7 @@ public partial class Projectile : Entity
 		if (DestroyOnHit)
 		{
 			// GD.Print("Destroying projectile on hit.");
-			TransitionToState(EntityState.Hit);
+			TransitionToState(ProjectileState.Hit);
 		}
 			
 	}
@@ -135,7 +138,7 @@ public partial class Projectile : Entity
 		
 		if (DestroyOnWallHit)
 		{
-			TransitionToState(EntityState.Hit);
+			TransitionToState(ProjectileState.Fading);
 		}
 		else
 		{
@@ -164,14 +167,14 @@ public partial class Projectile : Entity
 		if (_remainingRange <= 0f)
 		{
 			GD.Print("Projectile reached max range, destroying.");
-			TransitionToState(EntityState.Dying);
+			TransitionToState(ProjectileState.Fading);
 		}
 
 		// Handle lifetime
 		_lifetime -= (float)delta;
 		if (_lifetime <= 0f)
 		{
-			TransitionToState(EntityState.Dead);
+			TransitionToState(ProjectileState.Destroyed);
 		}
 
 		_previousPosition = this.GlobalPosition;
@@ -202,9 +205,9 @@ public partial class Projectile : Entity
 			Rotation = FacingDirection.Angle();
 		}
 
-		switch (_currentState)
+		switch (CurrentState)
 		{
-			case EntityState.Aggro:
+			case ProjectileState.Active:
 				if (Behaviour == null) return;
 				
 				Velocity = Behaviour.GetChaseVelocity(this, (float)delta);
@@ -221,28 +224,28 @@ public partial class Projectile : Entity
 		return;
 	}
 
-	protected override void OnEnterState(EntityState state)
+	public override void OnEnterState(ProjectileState state)
 	{
 		switch (state)
 		{
-			case EntityState.Hit:
+			case ProjectileState.Hit:
 				SetPhysicsProcess(false);
 				if(!PlayAnimation("hit"))
 				{
 					GD.PrintErr("Projectile: 'hit' animation not found, skipping to destroy.");
-					TransitionToState(EntityState.Dead);
+					TransitionToState(ProjectileState.Destroyed);
 				}
 				break;
 
-			case EntityState.Dying:
-				if(!PlayAnimation("dying"))
+			case ProjectileState.Fading:
+				if(!PlayAnimation("fading"))
 				{
-					GD.PrintErr("Projectile: 'dying' animation not found, skipping to destroy.");
-					TransitionToState(EntityState.Dead);
+					GD.PrintErr("Projectile: 'fading' animation not found, skipping to destroy.");
+					TransitionToState(ProjectileState.Destroyed);
 				}
 				break;
 
-			case EntityState.Dead:
+			case ProjectileState.Destroyed:
 				DestroyProjectile();
 				break;
 
@@ -251,31 +254,31 @@ public partial class Projectile : Entity
 		}
 	}
 
-	protected override void OnExitState(EntityState state)
+	public override void OnExitState(ProjectileState state)
 	{
 		return;
 	}
 
-	protected override void HandleStateTransitions()
+	public override void HandleStateTransitions()
 	{
 
 		if (Behaviour == null) return;
 
-		switch (_currentState)
+		switch (CurrentState)
 		{
-			case EntityState.Idle:
+			case ProjectileState.Idle:
 				if (Behaviour == null) return;
 
 				if(Behaviour.CanSeeTarget(this))
 				{
-					TransitionToState(EntityState.Aggro);
+					TransitionToState(ProjectileState.Active);
 				}
 				break;
 
-			case EntityState.Aggro:
+			case ProjectileState.Active:
 				if (Behaviour.ShouldLoseTarget(this))
 				{
-					TransitionToState(EntityState.Idle);
+					TransitionToState(ProjectileState.Idle);
 				}
 				break;
 		}
@@ -288,11 +291,11 @@ public partial class Projectile : Entity
 		switch (animName)
 		{
 			case "hit":
-				TransitionToState(EntityState.Dead);
+				TransitionToState(ProjectileState.Destroyed);
 				break;
 
-			case "dying":
-				TransitionToState(EntityState.Dead);
+			case "fading":
+				TransitionToState(ProjectileState.Destroyed);
 				break;
 
 			default:

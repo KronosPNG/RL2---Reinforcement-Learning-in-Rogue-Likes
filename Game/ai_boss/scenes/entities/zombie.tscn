@@ -334,12 +334,12 @@ Damage = 25.0
 Cooldown = 2.0
 Active = 0.5
 Knockback = 500.0
-metadata/_custom_type_script = "uid://d2kuottbfxm87"
 
-[node name="Zombie" type="CharacterBody2D" unique_id=681170650]
+[node name="Zombie" type="CharacterBody2D" unique_id=681170650 node_paths=PackedStringArray("Weapon")]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_47c00")
+Weapon = NodePath("Weapon")
 MaxHealth = 100.0
 WanderingBehavior = SubResource("Resource_rv1jy")
 AggroBehavior = SubResource("Resource_bvivf")

@@ -3,21 +3,21 @@ using Godot;
 [GlobalClass]
 public partial class AggroFollowGaze : AggroBehaviour
 {
-    public override void OnEnterNotice(Entity entity)
+    public override void OnEnterNotice(IEntity entity)
     {
         // No special setup needed when entering notice state
     }
 
-    public override void OnExitNotice(Entity entity)
+    public override void OnExitNotice(IEntity entity)
     {
         // No special teardown needed when exiting notice state
     }
-    public override bool CanSeeTarget(Entity entity)
+    public override bool CanSeeTarget(IEntity entity)
     {
         return base.CanSeeTarget(entity);
     }
 
-    public override bool ShouldLoseTarget(Entity entity)
+    public override bool ShouldLoseTarget(IEntity entity)
     {
         if (entity.Target == null || !IsInstanceValid(entity.Target)) return true;
 
@@ -32,12 +32,12 @@ public partial class AggroFollowGaze : AggroBehaviour
         return false;
     }
 
-    public override Vector2 GetChaseVelocity(Entity entity, float delta)
+    public override Vector2 GetChaseVelocity(IEntity entity, float delta)
     {
         return Vector2.Zero; // This behavior does not move the entity
     }
 
-    public override void PerformAggroBehaviour(Entity entity)
+    public override void PerformAggroBehaviour(IEntity entity)
     {
         PerformAggroBehaviour((EnemyEntity)entity);
     }

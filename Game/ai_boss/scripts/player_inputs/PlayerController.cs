@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class PlayerController : Entity, IDamageable, IHasHealth
+public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHealth, IStateful<EntityState>
 {
 	//---- Node References ----
 	private Node2D _spriteContainer;
@@ -17,6 +17,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	private Node2D _handNode;
 
 	// ---- Signals ----
+	[Signal] public delegate void StateChangedEventHandler(string newState);
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
 	[Signal] public delegate void PlayerDiedEventHandler();
 
@@ -24,7 +25,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	[Export] public float MaxHealth { get; set; } = 100;
 	public float CurrentHealth { get; private set; } = 100f;
 	public bool IsAlive => CurrentHealth > 0;
-	public bool IsInvulnerable => _invulnerabilityTimer > 0 || _currentState == EntityState.Dodging;
+	public bool IsInvulnerable => _invulnerabilityTimer > 0 || CurrentState == EntityState.Dodging;
 	
 	//---- Movement Data ----
 	[Export] public float DodgeSpeed { get; set; } = 250f; // speed during dodge
@@ -65,6 +66,8 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 
 	public override void _Ready()
 	{
+		StateMachine = new StateMachine<EntityState>(this, EntityState.Idle);
+
 		// Initialize node references
 		InitializeNodes();
 
@@ -106,9 +109,9 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 		TargetType = "Enemy"; // Player targets enemies by default
 	}
 
-    protected override void InitializeNodes()
-    {
-        // Initialize node references
+	protected override void InitializeNodes()
+	{
+		// Initialize node references
 		_spriteContainer = GetNodeOrNull<Node2D>("BodyLayers");
 		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyBase");
 		_bodyArmorSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyArmor");
@@ -177,10 +180,10 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	protected override void UpdateFacing()
 	{
 		if (!Mathf.IsEqualApprox(_inputDirection.X, 0) || !Mathf.IsEqualApprox(_inputDirection.Y, 0))
-        {
-            _lastHorizontalFacing = (sbyte)Mathf.Sign(_inputDirection.X);
+		{
+			_lastHorizontalFacing = (sbyte)Mathf.Sign(_inputDirection.X);
 			_lastVerticalFacing = (sbyte)Mathf.Sign(_inputDirection.Y);
-        }		
+		}		
 	}
 
 	// Update Timers
@@ -202,14 +205,14 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	protected string AddVerticalFacingToAnim(string baseAnim)
 	{
 		if (_lastHorizontalFacing == 0)
-        {
-            if (_lastVerticalFacing > 0)
+		{
+			if (_lastVerticalFacing > 0)
 				return "down_" + baseAnim;
 			else if (_lastVerticalFacing < 0)
 				return "up_" + baseAnim;
 			else
 				return baseAnim; // no vertical facing, return base animation
-        }
+		}
 
 		else
 		{
@@ -234,9 +237,9 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	}
 
 	// --- State machine --------------------------
-	protected override void HandleStateTransitions()
+	public override void HandleStateTransitions()
 	{
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			case EntityState.Idle:
 			case EntityState.Walking:
@@ -336,8 +339,8 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 
 	private void HandleHitTransitions()
 	{
-		_stateTimer += (float)GetProcessDeltaTime();
-		if (_stateTimer >= HitStunDuration)
+		StateTimer += (float)GetProcessDeltaTime();
+		if (StateTimer >= HitStunDuration)
 		{
 			// decide whether to be walking or idle after hit stun
 			Vector2 currentInput = ReadDirection();
@@ -352,7 +355,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	private void HandleCombatInput()
 	{
 
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			// Don't allow attacks while dodging, in dodge preparation, or already attacking
 			case EntityState.DodgePrep:
@@ -456,7 +459,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	// --- Consumable Input Handling -------------
 	private void HandleConsumableInput()
 	{
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			// Don't allow consumable use while dodging, in dodge prep, attacking, or dead
 			case EntityState.DodgePrep:
@@ -545,7 +548,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 		}
 	}
 
-	protected override void OnEnterState(EntityState s)
+	public override void OnEnterState(EntityState s)
 	{
 		switch (s)
 		{
@@ -615,7 +618,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 		CollisionLayer = _normalCollisionLayer & ~4u; // Remove Layer 3 (4 = 2^2)
 	}
 
-	protected override void OnExitState(EntityState s)
+	public override void OnExitState(EntityState s)
 	{
 		switch (s)
 		{
@@ -645,7 +648,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 		}
 
 		// Reset state timer on any state exit
-		_stateTimer = 0f;
+		StateTimer = 0f;
 	}
 
 	// --- Physics & movement ---------------------
@@ -653,7 +656,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	{
 		float armorSpeedModifier = EquippedArmor != null ? EquippedArmor.SpeedModifier : 1f;
 
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			case EntityState.Dodging:
 				// move using dodge vector & speed
@@ -702,12 +705,12 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	protected override void UpdateAnimationIfNeeded()
 	{
 		// Only update visuals when state changed OR we need to update facing while walking/idle
-		bool stateChanged = _currentState != _previousState;
+		bool stateChanged = CurrentState != PreviousState;
 
 		// If we are in dodge, don't let other animations override
-		if (_currentState == EntityState.Dodging)
+		if (CurrentState == EntityState.Dodging)
 		{
-			_previousState = _currentState; // just update prev state to avoid repeated checks
+			PreviousState = CurrentState; // just update prev state to avoid repeated checks
 			return;
 		}
 
@@ -716,14 +719,14 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 
 		// Don't override weapon attack animations with player animations
 		// The weapon controls the sprite during attacking state
-		if (_currentState == EntityState.Attacking)
+		if (CurrentState == EntityState.Attacking)
 		{
-			_previousState = _currentState;
+			PreviousState = CurrentState;
 			return;
 		}
 
 		// Set animation based on state
-		string targetAnimation = GetAnimationForState(_currentState);
+		string targetAnimation = GetAnimationForState(CurrentState);
 		
 		if(targetAnimation != "dead") // don't apply vertical facing to death animation to avoid weird stretching
 		 	targetAnimation = AddVerticalFacingToAnim(targetAnimation);
@@ -734,14 +737,14 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 		}
 
 		if (_lastVerticalFacing < 0)
-        {
+		{
 			_handNode.ZIndex = -1; // behind body when facing up
-        } else
+		} else
 		{
 			_handNode.ZIndex = 0; // in front of body when facing down or horizontal
 		}
 
-		_previousState = _currentState;
+		PreviousState = CurrentState;
 	}
 
 	private string GetAnimationForState(EntityState state)
@@ -812,7 +815,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 
 		bool isDodgeAnim = animName ==  dodgeAnim || animName == "up_" + dodgeAnim || animName == "down_" + dodgeAnim;
 
-		if (isDodgeAnim && _currentState == EntityState.Dodging)
+		if (isDodgeAnim && CurrentState == EntityState.Dodging)
 		{
 			// decide whether to be walking or idle after dodge
 			Vector2 currentInput = ReadDirection();
@@ -839,7 +842,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 		}
 
 		// If we were attacking or charging when switching weapons, reset to appropriate state
-		if (_currentState == EntityState.Attacking || _currentState == EntityState.AttackCharging)
+		if (CurrentState == EntityState.Attacking || CurrentState == EntityState.AttackCharging)
 		{
 			Vector2 currentInput = ReadDirection();
 			TransitionToState(currentInput.Length() > 0 ? EntityState.Walking : EntityState.Idle);
@@ -887,7 +890,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	private void OnWeaponAttackStarted(string attackName)
 	{
 		// Weapon attack has started, ensure we're in attacking state
-		if (_currentState != EntityState.Attacking)
+		if (CurrentState != EntityState.Attacking)
 		{
 			TransitionToState(EntityState.Attacking);
 		}
@@ -896,7 +899,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	private void OnWeaponAttackEnded(string attackName)
 	{
 		// Weapon attack has ended, check for autoswing before transitioning state
-		if (_currentState == EntityState.Attacking)
+		if (CurrentState == EntityState.Attacking)
 		{
 			// Check if we should autoswing
 			bool isLightAttack = attackName == "light";
@@ -1061,7 +1064,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	private void OnConsumableCompleted(string consumableName)
 	{
 		// Consumable effect has completed, return to appropriate state
-		if (_currentState == EntityState.ConsumableUse || _currentState == EntityState.ConsumableCharging)
+		if (CurrentState == EntityState.ConsumableUse || CurrentState == EntityState.ConsumableCharging)
 		{
 			_isChargingConsumable = false;
 			Vector2 currentInput = ReadDirection();
@@ -1113,7 +1116,7 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 	
 	public void Die()
 	{
-		if (_currentState == EntityState.Dead) return;
+		if (CurrentState == EntityState.Dead) return;
 		
 		CurrentHealth = 0;
 		TransitionToState(EntityState.Dead);
@@ -1166,19 +1169,19 @@ public partial class PlayerController : Entity, IDamageable, IHasHealth
 		}
 	}
 
-    public void ShowDamageNumber(float damage)
-    {
-        throw new NotImplementedException();
-    }
+	public void ShowDamageNumber(float damage)
+	{
+		throw new NotImplementedException();
+	}
 
-    public void PlayHitEffect(Vector2 hitPosition)
-    {
-        throw new NotImplementedException();
-    }
+	public void PlayHitEffect(Vector2 hitPosition)
+	{
+		throw new NotImplementedException();
+	}
 
-    public void PlayDeathEffect()
-    {
-        throw new NotImplementedException();
-    }
+	public void PlayDeathEffect()
+	{
+		throw new NotImplementedException();
+	}
 
 }

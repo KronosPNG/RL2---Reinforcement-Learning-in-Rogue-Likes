@@ -141,9 +141,16 @@ public partial class WeaponEntity : WeaponBase
 
 	protected override Vector2 GetAimDirection()
 	{
-		if (OwnerCharacter?.Target == null || !IsInstanceValid(OwnerCharacter.Target))
+
+		if (OwnerCharacter == null)
 		{
-			GD.PrintErr("WeaponEntity: GetAimDirection() - No valid target!");
+			GD.PrintErr("WeaponEntity: GetAimDirection() - OwnerCharacter is null!");
+			return Vector2.Right; // Default direction
+		}
+
+		if (!IsInstanceValid(OwnerCharacter.Target))
+		{
+			GD.PrintErr("WeaponEntity: GetAimDirection() - OwnerCharacter is not valid!");
 			return Vector2.Right; // Default direction
 		}
 		

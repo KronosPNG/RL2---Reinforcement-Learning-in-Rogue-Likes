@@ -1,112 +1,103 @@
 using Godot;
+using System;
 
-public abstract partial class Entity : CharacterBody2D
+public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStateful<TState> where TState : Enum
 {
-    // ---- Signals ----
-    [Signal] public delegate void EntityStateChangedEventHandler(string newState);
+	// ---- Signals ----
+	[Signal] public delegate void EntityStateChangedEventHandler(string newState);
 
-    // ---- State Machine ----
-	protected EntityState _currentState = EntityState.Idle;
-	protected EntityState _previousState = EntityState.Idle;
+	// ---- State Machine ----
+	public StateMachine<TState> StateMachine{ get; protected set; }
 
-    // ---- Movement properties ----
+	// ---- Movement properties ----
 	[ExportGroup("Movement Properties")]
-	[Export] public float BaseSpeed { get; protected set; } = 1000f;
-    public Vector2 FacingDirection { get; set; } = Vector2.Right;
+	[Export] public float BaseSpeed { get; set; } = 1000f;
+	public Vector2 FacingDirection { get; set; } = Vector2.Right;
 
-    // ---- Timers ----
-    protected float _stateTimer = 0f;
-
-    // ---- Node references ----
-    protected CollisionShape2D _physicalCollision;
+	// ---- Node references ----
+	protected CollisionShape2D _physicalCollision;
 	protected Area2D _hitArea;
-    protected AnimatedSprite2D _baseSprite;
+	protected AnimatedSprite2D _baseSprite;
 
-    // ---- AI Properties ----
+	// ---- AI Properties ----
 	protected Node2D _target;
-    public string TargetType { get; set;}
+	public string TargetType { get; set;}
 	protected Vector2 _lastKnownTargetPosition = Vector2.Zero;
 
-    // ---- Lifecycle methods ----
+	// ---- Lifecycle methods ----
 
-    public override void _Ready()
-    {
-        InitializeNodes();
+	public override void _Ready()
+	{
+		StateMachine = new StateMachine<TState>(this, default);
 
-        if (_baseSprite != null)
+		InitializeNodes();
+
+		if (_baseSprite != null)
 			_baseSprite.AnimationFinished += OnAnimationFinished;
-    }
+	}
 
-    public override void _PhysicsProcess(double delta)
-    {
-        UpdateTimers((float)delta);
+	public override void _PhysicsProcess(double delta)
+	{
+		UpdateTimers((float)delta);
 		UpdateAI((float)delta);
 		HandleStateTransitions();
 		ApplyMovementByState((float)delta);
 		UpdateAnimationIfNeeded();
-    }
-
-    protected virtual void InitializeNodes()
-    {
-        _physicalCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
-		_hitArea = GetNodeOrNull<Area2D>("HitArea");
-        _baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
-    }
-
-    protected abstract void UpdateTimers(float delta);
-    
-    protected abstract void UpdateAI(float delta);
-
-    protected abstract void UpdateFacing();
-    
-    protected abstract void ApplyMovementByState(float delta);
-
-    protected abstract void UpdateAnimationIfNeeded();
-
-    protected virtual Node2D FindTarget()
-    {
-        var targets = GetTree().GetNodesInGroup(TargetType);
-        Node2D closestTarget = null;
-        float closestDistance = float.MaxValue;
-        
-        foreach (Node node in targets)
-        {
-            if (node is Node2D enemy && enemy != this)
-            {
-                float distance = GlobalPosition.DistanceTo(enemy.GlobalPosition);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestTarget = enemy;
-                }
-            }
-        }
-        
-        return closestTarget;
-    }
-
-    // ---- State Transition Logic ----
-    protected abstract void OnEnterState(EntityState state);
-
-    protected abstract void OnExitState(EntityState state);
-
-    protected virtual void TransitionToState(EntityState newState)
-	{
-		if (_currentState == newState) return;
-
-		OnExitState(_currentState);
-		_previousState = _currentState;
-		_currentState = newState;
-		_stateTimer = 0f;
-		OnEnterState(newState);
-
-		EmitSignal(SignalName.EntityStateChanged, newState.ToString());
 	}
 
-    protected abstract void HandleStateTransitions();
+	protected virtual void InitializeNodes()
+	{
+		_physicalCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
+		_hitArea = GetNodeOrNull<Area2D>("HitArea");
+		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+	}
 
-    // ---- Animation methods ----
-    protected abstract void OnAnimationFinished();
+	protected abstract void UpdateTimers(float delta);
+	
+	protected abstract void UpdateAI(float delta);
+
+	protected abstract void UpdateFacing();
+	
+	protected abstract void ApplyMovementByState(float delta);
+
+	protected abstract void UpdateAnimationIfNeeded();
+
+	protected virtual Node2D FindTarget()
+	{
+		var targets = GetTree().GetNodesInGroup(TargetType);
+		Node2D closestTarget = null;
+		float closestDistance = float.MaxValue;
+		
+		foreach (Node node in targets)
+		{
+			if (node is Node2D enemy && enemy != this)
+			{
+				float distance = GlobalPosition.DistanceTo(enemy.GlobalPosition);
+				if (distance < closestDistance)
+				{
+					closestDistance = distance;
+					closestTarget = enemy;
+				}
+			}
+		}
+		
+		return closestTarget;
+	}
+
+	// ---- State Transition Logic ----
+	public abstract void OnEnterState(TState state);
+
+	public abstract void OnExitState(TState state);
+
+	protected virtual void TransitionToState(TState newState)
+	{
+		StateMachine.TransitionToState(newState, OnExitState, OnEnterState);
+	}
+
+	public abstract void HandleStateTransitions();
+
+	// ---- Animation methods ----
+	protected abstract void OnAnimationFinished();
 
 	public virtual bool PlayAnimation(string animationName, AnimatedSprite2D sprite = null)
 	{
@@ -122,9 +113,19 @@ public abstract partial class Entity : CharacterBody2D
 		return false;
 	}
 
-    // ---- Public Getters for AI customization ----
-    public float StateTimer => _stateTimer;
-    public EntityState CurrentState => _currentState;
+	// ---- Public Getters for AI customization ----
+	public float StateTimer
+	{
+		get => StateMachine.StateTimer;
+		set => StateMachine.StateTimer = value;
+	}
+	public TState CurrentState => StateMachine.CurrentState;
+	public TState PreviousState
+	{
+		get => StateMachine.PreviousState;
+		set => StateMachine.PreviousState = value;
+	}
+
 	public Node2D Target => _target;
 
 }

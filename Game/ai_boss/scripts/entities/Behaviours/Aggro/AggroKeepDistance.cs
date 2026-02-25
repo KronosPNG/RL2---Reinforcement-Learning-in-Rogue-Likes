@@ -21,12 +21,12 @@ public partial class AggroKeepDistance : AggroBehaviour
 	private float _currentStrafeInterval = 1.5f;
 	private float lastDistanceFromTarget = 0f;
 
-	public override bool CanSeeTarget(Entity entity)
+	public override bool CanSeeTarget(IEntity entity)
 	{
 		return base.CanSeeTarget(entity);
 	}
 
-	public override Vector2 GetChaseVelocity(Entity entity, float delta)
+	public override Vector2 GetChaseVelocity(IEntity entity, float delta)
 	{
 		if (entity.Target == null || !IsInstanceValid(entity.Target))
 			return Vector2.Zero;
@@ -63,7 +63,7 @@ public partial class AggroKeepDistance : AggroBehaviour
 			animationName = "idle";
 			
 			// Update facing direction to look at the player
-			// The Entity class will use this to flip the sprite when velocity is zero
+			// The IEntity class will use this to flip the sprite when velocity is zero
 			entity.FacingDirection = direction;
 		}
 
@@ -72,22 +72,26 @@ public partial class AggroKeepDistance : AggroBehaviour
 		return velocity;
 	}
 
-	public override void OnEnterNotice(Entity entity)
+	public override void OnEnterNotice(IEntity entity)
 	{
 		_strafeDirection = GD.Randf() > 0.5f ? 1f : -1f;
 		_strafeTimer = 0f;
 		_currentStrafeInterval = (float)GD.RandRange(MinStrafeDuration, MaxStrafeDuration);
 	}
 
-	public override void OnExitNotice(Entity entity)
+	public override void OnExitNotice(IEntity entity)
 	{
 		_strafeDirection = 1f;
 		_strafeTimer = 0f;
 	}
 
-	public override void PerformAggroBehaviour(Entity entity)
+	public override void PerformAggroBehaviour(IEntity entity)
 	{
-		float deltaTime = (float)entity.GetPhysicsProcessDeltaTime();
+		if (entity is not CharacterBody2D ent)
+			return;
+
+
+		float deltaTime = (float)ent.GetPhysicsProcessDeltaTime();
 		
 		if (!EnableStrafing)
 			return;
@@ -103,7 +107,7 @@ public partial class AggroKeepDistance : AggroBehaviour
 		}
 	}
 
-	public override bool ShouldLoseTarget(Entity entity)
+	public override bool ShouldLoseTarget(IEntity entity)
 	{
 		if (entity.Target == null || !IsInstanceValid(entity.Target))
 			return true;

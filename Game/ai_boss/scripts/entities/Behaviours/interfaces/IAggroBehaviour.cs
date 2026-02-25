@@ -2,11 +2,11 @@ using Godot;
 
 public interface IAggroBehaviour
 {
-    void OnEnterNotice(Entity entity);
-    void OnExitNotice(Entity entity);
-    bool CanSeeTarget(Entity entity);
-    bool ShouldLoseTarget(Entity entity);
-    Vector2 GetChaseVelocity(Entity entity, float delta);
-    void PerformAggroBehaviour(Entity entity);
+    void OnEnterNotice(IEntity entity);
+    void OnExitNotice(IEntity entity);
+    bool CanSeeTarget(IEntity entity);
+    bool ShouldLoseTarget(IEntity entity);
+    Vector2 GetChaseVelocity(IEntity entity, float delta);
+    void PerformAggroBehaviour(IEntity entity);
 
 }

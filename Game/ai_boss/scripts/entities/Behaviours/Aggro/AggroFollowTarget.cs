@@ -3,12 +3,12 @@ using Godot;
 [GlobalClass]
 public partial class AggroFollowTarget : AggroBehaviour
 {
-    public override bool CanSeeTarget(Entity entity)
+    public override bool CanSeeTarget(IEntity entity)
     {
         return base.CanSeeTarget(entity);
     }
 
-    public override Vector2 GetChaseVelocity(Entity entity, float delta)
+    public override Vector2 GetChaseVelocity(IEntity entity, float delta)
     {
         if (entity.Target == null || !IsInstanceValid(entity.Target))
             return Vector2.Zero;
@@ -34,17 +34,17 @@ public partial class AggroFollowTarget : AggroBehaviour
         return direction * entity.BaseSpeed * ChaseSpeedModifier * delta;
     }
 
-    public override void OnEnterNotice(Entity entity)
+    public override void OnEnterNotice(IEntity entity)
     {
         return;
     }
 
-    public override void OnExitNotice(Entity entity)
+    public override void OnExitNotice(IEntity entity)
     {
         return;
     }
 
-    public override void PerformAggroBehaviour(Entity entity)
+    public override void PerformAggroBehaviour(IEntity entity)
     {
         // Setup navigation if available
         // Note: Velocity is already set by GetChaseVelocity, don't override it here
@@ -63,7 +63,7 @@ public partial class AggroFollowTarget : AggroBehaviour
         }
     }
 
-    public override bool ShouldLoseTarget(Entity entity)
+    public override bool ShouldLoseTarget(IEntity entity)
     {
         if (entity.Target == null || !IsInstanceValid(entity.Target))
             return true;

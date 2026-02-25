@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
+public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth, INavigable, IStateful<EntityState>
 {
 	// ---- Node references ----
 	public NavigationAgent2D NavAgent{ get; protected set; }
@@ -51,6 +51,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 	protected float _idleToWanderTimer = 0f;
 
 	// ---- Signals ----
+	[Signal] public delegate void StateChangedEventHandler(string newState);
 	[Signal] public delegate void EntityHealthChangedEventHandler(float currentHealth, float maxHealth);
 	[Signal] public delegate void EntityDiedEventHandler();
 
@@ -129,7 +130,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (!IsAlive && _currentState != EntityState.Dead)
+		if (!IsAlive && CurrentState != EntityState.Dead)
 			return;
 
 		base._PhysicsProcess(delta);
@@ -137,7 +138,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 	protected override void UpdateTimers(float delta)
 	{
-		_stateTimer += delta;
+		StateTimer += delta;
 		_idleToWanderTimer -= delta;
 		_damageEffect.UpdateTimer(delta);
 
@@ -169,9 +170,9 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		}
 	}
 
-	protected override void HandleStateTransitions()
+	public override void HandleStateTransitions()
 	{
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			case EntityState.Idle:
 				HandleIdleTransitions();
@@ -251,7 +252,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 	protected virtual void HandleHitTransitions()
 	{
-		if (_stateTimer >= _hitStunDuration)
+		if (StateTimer >= _hitStunDuration)
 		{
 			// If we have a valid target (set when hit), transition to Aggro even if outside detection range
 			if (_target != null && IsInstanceValid(_target))
@@ -267,7 +268,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 
 	protected override void ApplyMovementByState(float delta)
 	{
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			case EntityState.Idle:
 				Velocity = Vector2.Zero;
@@ -299,7 +300,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		MoveAndSlide();
 	}
 
-	protected override void OnEnterState(EntityState state)
+	public override void OnEnterState(EntityState state)
 	{
 		switch (state)
 		{
@@ -341,7 +342,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		}
 	}
 
-	protected override void OnExitState(EntityState state)
+	public override void OnExitState(EntityState state)
 	{
 		switch (state)
 		{
@@ -368,16 +369,16 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 	{
 		if (_baseSprite == null) return;
 
-		if (!IsAlive || _currentState == EntityState.Dead)
+		if (!IsAlive || CurrentState == EntityState.Dead)
 		{
 			return;
 		}
 
-		bool stateChanged = _currentState != _previousState;
+		bool stateChanged = CurrentState != PreviousState;
 
 		// Update sprite facing - only update if we're in a state where movement affects facing
 		// Don't update facing during Hit, Dying, or Attacking states to preserve direction
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			case EntityState.Idle:
 			case EntityState.Wandering:
@@ -411,7 +412,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		}
 
 		// Set animation based on state
-		string targetAnimation = GetAnimationForState(_currentState);
+		string targetAnimation = GetAnimationForState(CurrentState);
 
 		if (stateChanged || _baseSprite.Animation != targetAnimation)
 		{
@@ -442,7 +443,7 @@ public partial class EnemyEntity : Entity, IDamageable, IHasHealth, INavigable
 		string animName = _baseSprite.Animation;
 		// GD.Print($"Entity: OnAnimationFinished() - Animation: {animName}, State: {_currentState}");
 
-		switch (_currentState)
+		switch (CurrentState)
 		{
 			case EntityState.AttackPrepare:
 				if (animName == "attack_prepare")

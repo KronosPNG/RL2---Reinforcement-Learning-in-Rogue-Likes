@@ -1,22 +1,19 @@
-[gd_scene load_steps=134 format=3 uid="uid://ckxxtcm5oi43l"]
+[gd_scene format=3 uid="uid://ckxxtcm5oi43l"]
 
 [ext_resource type="Script" uid="uid://cx5a35bjt1j1" path="res://scripts/player_inputs/PlayerController.cs" id="1_vdqyq"]
-[ext_resource type="Script" uid="uid://dentrp0nybtl5" path="res://scripts/visual_effects/VisualFlash.cs" id="2_rfort"]
+[ext_resource type="Script" uid="uid://js0p3qok4w1f" path="res://scripts/visual_effects/VisualFlash.cs" id="2_rfort"]
 [ext_resource type="Texture2D" uid="uid://c5t3vysnlgppp" path="res://art/animations/bean/bean_base.png" id="3_cphwl"]
 [ext_resource type="SpriteFrames" uid="uid://q0sn0iotmcp4" path="res://assets/sprite_frames/bean/armors/no_armor.tres" id="3_mjp81"]
 [ext_resource type="SpriteFrames" uid="uid://b366kuqnji7qh" path="res://assets/sprite_frames/bean/helmets/no_helmet.tres" id="5_0bndg"]
 
 [sub_resource type="Resource" id="Resource_mjp81"]
 script = ExtResource("2_rfort")
-FlashModulate = Color(1, 0.75, 0.75, 1)
 FlashDuration = 0.2
-metadata/_custom_type_script = "uid://cqvn6c4vnbkj6"
 
 [sub_resource type="Resource" id="Resource_0bndg"]
 script = ExtResource("2_rfort")
 FlashModulate = Color(0.8, 0.8, 0.8, 1)
 FlashDuration = 0.2
-metadata/_custom_type_script = "uid://cqvn6c4vnbkj6"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rfort"]
 atlas = ExtResource("3_cphwl")
@@ -983,7 +980,7 @@ size = Vector2(6, 12)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cphwl"]
 size = Vector2(4, 9)
 
-[node name="Bean" type="CharacterBody2D" groups=["Player"]]
+[node name="Bean" type="CharacterBody2D" unique_id=627311338 groups=["Player"]]
 z_index = 1
 collision_layer = 4
 collision_mask = 3
@@ -991,11 +988,12 @@ script = ExtResource("1_vdqyq")
 _damageFlash = SubResource("Resource_mjp81")
 _dodgeFlash = SubResource("Resource_0bndg")
 InvulnerabilityDuration = 1.5
+BaseSpeed = 100.0
 
-[node name="BodyLayers" type="Node2D" parent="."]
+[node name="BodyLayers" type="Node2D" parent="." unique_id=1884146494]
 position = Vector2(-0.5, 0)
 
-[node name="BodyBase" type="AnimatedSprite2D" parent="BodyLayers"]
+[node name="BodyBase" type="AnimatedSprite2D" parent="BodyLayers" unique_id=912262346]
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_kckdp")
 animation = &"up_charge_walking"
@@ -1025,7 +1023,7 @@ metadata/_aseprite_wizard_config_ = {
 }
 metadata/_aseprite_wizard_source_file_hash_ = "e8f29a3492ff11e531f9e5072f607a06"
 
-[node name="BodyArmor" type="AnimatedSprite2D" parent="BodyLayers"]
+[node name="BodyArmor" type="AnimatedSprite2D" parent="BodyLayers" unique_id=1460289600]
 texture_filter = 1
 sprite_frames = ExtResource("3_mjp81")
 animation = &"up_charge_walking"
@@ -1055,7 +1053,7 @@ metadata/_aseprite_wizard_config_ = {
 }
 metadata/_aseprite_wizard_source_file_hash_ = "e8f29a3492ff11e531f9e5072f607a06"
 
-[node name="Helmet" type="AnimatedSprite2D" parent="BodyLayers"]
+[node name="Helmet" type="AnimatedSprite2D" parent="BodyLayers" unique_id=751986655]
 texture_filter = 1
 sprite_frames = ExtResource("5_0bndg")
 animation = &"idle"
@@ -1086,19 +1084,19 @@ metadata/_aseprite_wizard_config_ = {
 }
 metadata/_aseprite_wizard_source_file_hash_ = "e8f29a3492ff11e531f9e5072f607a06"
 
-[node name="Hand" type="Node2D" parent="."]
+[node name="Hand" type="Node2D" parent="." unique_id=241999519]
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=410506795]
 visible = false
 collision_layer = 64
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=97605470]
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_hurtbox")
 debug_color = Color(0.729564, 0.30582, 0.900709, 0.42)
 
-[node name="PhysicalCollision" type="CollisionShape2D" parent="."]
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1268801547]
 visible = false
 position = Vector2(0, 1.5)
 shape = SubResource("RectangleShape2D_cphwl")
