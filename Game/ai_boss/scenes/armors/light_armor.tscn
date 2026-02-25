@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://btg3xrenbt0ao"]
+[gd_scene format=3 uid="uid://btg3xrenbt0ao"]
 
-[ext_resource type="Script" uid="uid://cmwrcflub0swv" path="res://scripts/player_inputs/Armor.cs" id="1_qarl8"]
+[ext_resource type="Script" uid="uid://bni724410dhr7" path="res://scripts/player_inputs/Armor.cs" id="1_qarl8"]
 [ext_resource type="SpriteFrames" uid="uid://dupmbke43yk80" path="res://assets/sprite_frames/bean/armors/light_armor.tres" id="2_qarl8"]
 [ext_resource type="SpriteFrames" uid="uid://b3fpjxlrcrvgb" path="res://assets/sprite_frames/bean/helmets/hood.tres" id="3_a53hn"]
 [ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_go6vk"]
@@ -20,7 +20,7 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="LightArmor" type="Node2D"]
+[node name="LightArmor" type="Node2D" unique_id=610199707 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_qarl8")
 ItemName = "Light Armor"
 Description = "A stealthy outfit that enhances the wearer's movement."
@@ -29,7 +29,8 @@ DamageModifier = 1.0
 SpeedModifier = 1.25
 BodySpriteFrames = ExtResource("2_qarl8")
 HelmetSpriteFrames = ExtResource("3_a53hn")
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=571335842]
 sprite_frames = SubResource("SpriteFrames_ivnlu")

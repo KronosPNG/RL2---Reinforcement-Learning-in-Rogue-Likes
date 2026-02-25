@@ -375,9 +375,11 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Staff" type="Node2D" unique_id=882237376]
+[node name="Staff" type="Node2D" unique_id=882237376 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_lakth")
-Description = ""
+ItemName = "Magic Staff"
+Description = "A powerfulmagic weapon capable of shooting magic missiles"
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_rh371")
 HeavyAttackConfig = SubResource("Resource_hiblv")

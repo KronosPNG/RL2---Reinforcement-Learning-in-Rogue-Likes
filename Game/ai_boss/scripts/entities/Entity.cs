@@ -11,7 +11,7 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 
 	// ---- Movement properties ----
 	[ExportGroup("Movement Properties")]
-	[Export] public float BaseSpeed { get; set; } = 1000f;
+	[Export] public float BaseSpeed { get; set; } = 0f;
 	public Vector2 FacingDirection { get; set; } = Vector2.Right;
 
 	// ---- Node references ----

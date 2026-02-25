@@ -28,13 +28,11 @@ public partial class Armor : Node2D, IPedestalItem
     [Export] public SpriteFrames BodySpriteFrames { get; set; }
     [Export] public SpriteFrames HelmetSpriteFrames { get; set; }
 
-    public AnimatedSprite2D PedestalDisplaySprite { get; set; }
+    [Export] public AnimatedSprite2D PedestalDisplaySprite { get; set; }
     [Export] public Vector2 PedestalDisplayScale { get; set; } = new Vector2(7f, 7f);
 
     public override void _Ready()
     {
-        PedestalDisplaySprite = GetNodeOrNull<AnimatedSprite2D>("PedestalDisplaySprite");
-
         if (PedestalDisplaySprite == null)
         {
             GD.PrintErr("Armor: could not find PedestalDisplaySprite");

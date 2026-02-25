@@ -20,7 +20,7 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="HeavyArmor" type="Node2D" unique_id=1083528101]
+[node name="HeavyArmor" type="Node2D" unique_id=1083528101 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_ed4n3")
 ItemName = "Heavy Armor"
 Description = "A well-forged heavy iron armor that grants great protection at the cost of movement"
@@ -29,6 +29,7 @@ DamageModifier = 0.6
 SpeedModifier = 0.65
 BodySpriteFrames = ExtResource("2_ed4n3")
 HelmetSpriteFrames = ExtResource("3_ed4n3")
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
 
 [node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=814572269]

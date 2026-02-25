@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://bw7r4ui3km6jf"]
+[gd_scene format=3 uid="uid://bw7r4ui3km6jf"]
 
-[ext_resource type="Script" uid="uid://cmwrcflub0swv" path="res://scripts/player_inputs/Armor.cs" id="1_f15m2"]
+[ext_resource type="Script" uid="uid://bni724410dhr7" path="res://scripts/player_inputs/Armor.cs" id="1_f15m2"]
 [ext_resource type="SpriteFrames" uid="uid://qhanrdx03e4j" path="res://assets/sprite_frames/bean/armors/medium_armor.tres" id="2_f15m2"]
 [ext_resource type="SpriteFrames" uid="uid://b366kuqnji7qh" path="res://assets/sprite_frames/bean/helmets/no_helmet.tres" id="3_ouyie"]
 [ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_k01wy"]
@@ -20,7 +20,7 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="MediumArmor" type="Node2D"]
+[node name="MediumArmor" type="Node2D" unique_id=898996101 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_f15m2")
 ItemName = "Medium Armor"
 Description = "A studded leather armor that protects the wearer in exchange for some speed."
@@ -28,7 +28,8 @@ DamageModifier = 0.8
 SpeedModifier = 0.85
 BodySpriteFrames = ExtResource("2_f15m2")
 HelmetSpriteFrames = ExtResource("3_ouyie")
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=154057443]
 sprite_frames = SubResource("SpriteFrames_ivnlu")

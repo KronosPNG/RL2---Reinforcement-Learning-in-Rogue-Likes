@@ -20,7 +20,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	[Export] public string Description { get; set; } = "No Description";
 
 	//---- Pedestal Display ----
-	public AnimatedSprite2D PedestalDisplaySprite { get; set; } // Optional separate sprite for pedestal display
+	[Export] public AnimatedSprite2D PedestalDisplaySprite { get; set; } // Optional separate sprite for pedestal display
 	[Export] public Vector2 PedestalDisplayScale { get; set; } = new Vector2(7f, 7f); // Scale to use for pedestal display
 
 	//---- Attack Configuration ----
@@ -50,8 +50,6 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	public override void _Ready()
 	{
 		base._Ready();
-
-		PedestalDisplaySprite = GetNodeOrNull<AnimatedSprite2D>("PedestalDisplaySprite");
 
 		if (PedestalDisplaySprite == null)
 		{

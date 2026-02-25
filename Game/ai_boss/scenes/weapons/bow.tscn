@@ -276,9 +276,11 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Bow" type="Node2D" unique_id=858920173]
+[node name="Bow" type="Node2D" unique_id=858920173 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_rs3f0")
-Description = ""
+ItemName = "Shortbow"
+Description = "Ranged weapon with great range and speed"
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_hl64m")
 HeavyAttackConfig = SubResource("Resource_rs3f0")

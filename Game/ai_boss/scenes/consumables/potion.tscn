@@ -1,17 +1,14 @@
-[gd_scene load_steps=31 format=3 uid="uid://2jfgq8rtprvv"]
+[gd_scene format=3 uid="uid://2jfgq8rtprvv"]
 
-[ext_resource type="Script" uid="uid://dql0qy46it4mk" path="res://scripts/combat/consumables/Consumable.cs" id="1_consumable"]
-[ext_resource type="Script" uid="uid://hdu1bsfju176" path="res://scripts/combat/consumables/InstantHealEffect.cs" id="2_rmdn2"]
+[ext_resource type="Script" uid="uid://dneu0jdgv74uo" path="res://scripts/combat/consumables/Consumable.cs" id="1_consumable"]
+[ext_resource type="Script" uid="uid://cw0sygpgrpifg" path="res://scripts/combat/consumables/InstantHealEffect.cs" id="2_rmdn2"]
 [ext_resource type="Texture2D" uid="uid://1862sp1gdlit" path="res://art/animations/bean/consumables/potion-Sheet.png" id="3_ykp20"]
 [ext_resource type="Texture2D" uid="uid://b5pwu4brh2b84" path="res://art/static_sprites/potion.png" id="4_ykp20"]
 
 [sub_resource type="Resource" id="Resource_qqepg"]
 script = ExtResource("2_rmdn2")
 EffectValue = 35.0
-Duration = 0.0
-Cooldown = 0.0
 UsageTime = 2.0
-metadata/_custom_type_script = "uid://hdu1bsfju176"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_prsoh"]
 atlas = ExtResource("3_ykp20")
@@ -190,18 +187,19 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Potion" type="Node2D"]
+[node name="Potion" type="Node2D" unique_id=1166084879 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_consumable")
 ItemName = "Healing Potion"
 Description = "A magic potion that instantly heals any kind of wound."
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 EffectConfig = SubResource("Resource_qqepg")
 IsSingleUse = true
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=548618642]
 sprite_frames = SubResource("SpriteFrames_3c737")
 animation = &"use"
 frame = 21
 frame_progress = 1.0
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=1060323142]
 sprite_frames = SubResource("SpriteFrames_prsoh")

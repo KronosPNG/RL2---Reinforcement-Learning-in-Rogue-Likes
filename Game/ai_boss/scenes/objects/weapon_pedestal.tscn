@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://c28gni2g3ftbe"]
+[gd_scene format=3 uid="uid://c28gni2g3ftbe"]
 
-[ext_resource type="Script" uid="uid://qjcmmcdg62ew" path="res://scripts/interactive_elements/pedestal/Pedestal.cs" id="1_aedhk"]
 [ext_resource type="Texture2D" uid="uid://cxli5nldq3ih7" path="res://art/objects/weapon_pedestal.png" id="1_hsd6d"]
-[ext_resource type="PackedScene" uid="uid://cqiyycxt5b10s" path="res://scenes/weapons/sword.tscn" id="2_vgg7g"]
+[ext_resource type="Script" uid="uid://bx5sggbu3bpbr" path="res://scripts/entities/Pedestal/WeaponPedestal.cs" id="1_klygf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aedhk"]
 size = Vector2(16, 4)
@@ -25,33 +24,31 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_hsd6d"]
 radius = 14.0357
 
-[node name="WeaponPedestal" type="StaticBody2D"]
+[node name="WeaponPedestal" type="CharacterBody2D" unique_id=1584743976]
 z_index = 1
 collision_mask = 14
-script = ExtResource("1_aedhk")
-ItemScene = ExtResource("2_vgg7g")
-InteractRange = 40.0
+script = ExtResource("1_klygf")
 
-[node name="PedestalCollision" type="CollisionShape2D" parent="."]
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1411349511]
 visible = false
 position = Vector2(-2.72478e-07, 0)
 shape = SubResource("RectangleShape2D_aedhk")
 
-[node name="PedestalSprite" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1675206705]
 sprite_frames = SubResource("SpriteFrames_vgg7g")
 
-[node name="InteractArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=195912074]
 collision_layer = 0
 collision_mask = 4
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=1195128549]
 visible = false
 shape = SubResource("CircleShape2D_hsd6d")
 
-[node name="ItemSprite" type="AnimatedSprite2D" parent="."]
+[node name="ItemSprite" type="AnimatedSprite2D" parent="." unique_id=1507008172]
 z_index = 1
 
-[node name="InteractPrompt" type="Label" parent="."]
+[node name="InteractPrompt" type="Label" parent="." unique_id=1669965104]
 offset_left = -15.0
 offset_top = -20.0
 offset_right = 85.0

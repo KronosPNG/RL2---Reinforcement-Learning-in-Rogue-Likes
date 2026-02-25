@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://ue8mbbs06g27" path="res://scripts/Main.cs" id="1_jyhfs"]
 [ext_resource type="TileSet" uid="uid://cncwrtmglwj0e" path="res://assets/tileset/main_tileset.tres" id="2_0wfyh"]
-[ext_resource type="PackedScene" uid="uid://c2e1s6ljjv0p" path="res://scenes/entities/skeleton.tscn" id="3_jbj1t"]
 [ext_resource type="PackedScene" uid="uid://c28gni2g3ftbe" path="res://scenes/objects/weapon_pedestal.tscn" id="4_tefeu"]
 [ext_resource type="PackedScene" uid="uid://djl2qfaytujjk" path="res://scenes/weapons/dagger.tscn" id="5_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://3ck2mhc1l2m0" path="res://scenes/weapons/bow.tscn" id="6_choun"]
@@ -46,9 +45,6 @@ collision_visibility_mode = 2
 [node name="SortSceneElements" type="Node2D" parent="." unique_id=1646673646]
 y_sort_enabled = true
 
-[node name="Skeleton" parent="SortSceneElements" unique_id=685011258 instance=ExtResource("3_jbj1t")]
-position = Vector2(115, -44)
-
 [node name="Pedestal" parent="SortSceneElements" unique_id=827899485 instance=ExtResource("4_tefeu")]
 position = Vector2(-128, -48)
 ItemScene = ExtResource("6_choun")
@@ -60,18 +56,6 @@ ItemScene = ExtResource("5_o6xl0")
 [node name="Pedestal3" parent="SortSceneElements" unique_id=1010795697 instance=ExtResource("4_tefeu")]
 position = Vector2(-64, -48)
 ItemScene = ExtResource("6_tipki")
-
-[node name="ArmorPedestal" parent="SortSceneElements" unique_id=1283880637 instance=ExtResource("9_ya4ey")]
-position = Vector2(-128, 48)
-ItemScene = ExtResource("10_a8y0u")
-
-[node name="ArmorPedestal2" parent="SortSceneElements" unique_id=1062276749 instance=ExtResource("9_ya4ey")]
-position = Vector2(-96, 48)
-ItemScene = ExtResource("11_jkv2x")
-
-[node name="ArmorPedestal3" parent="SortSceneElements" unique_id=249554798 instance=ExtResource("9_ya4ey")]
-position = Vector2(-64, 48)
-ItemScene = ExtResource("12_jbj1t")
 
 [node name="ConsumablePedestal2" parent="SortSceneElements" unique_id=207943111 instance=ExtResource("11_muem4")]
 position = Vector2(-128, -16)
@@ -85,3 +69,15 @@ ItemScene = ExtResource("13_0ld40")
 position = Vector2(150, -2)
 AggroBehavior = SubResource("Resource_choun")
 FlipSpriteHorizontally = true
+
+[node name="ArmorPedestal" parent="SortSceneElements" unique_id=1161654268 instance=ExtResource("9_ya4ey")]
+position = Vector2(-128, 42)
+ItemScene = ExtResource("10_a8y0u")
+
+[node name="ArmorPedestal2" parent="SortSceneElements" unique_id=187097987 instance=ExtResource("9_ya4ey")]
+position = Vector2(-97, 42)
+ItemScene = ExtResource("11_jkv2x")
+
+[node name="ArmorPedestal3" parent="SortSceneElements" unique_id=301299983 instance=ExtResource("9_ya4ey")]
+position = Vector2(-65, 42)
+ItemScene = ExtResource("12_jbj1t")

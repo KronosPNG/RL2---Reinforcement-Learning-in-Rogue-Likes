@@ -1,31 +1,23 @@
-[gd_scene load_steps=45 format=3 uid="uid://bextv0e8jevx8"]
+[gd_scene format=3 uid="uid://bextv0e8jevx8"]
 
-[ext_resource type="Script" uid="uid://dql0qy46it4mk" path="res://scripts/combat/consumables/Consumable.cs" id="1_38gmm"]
+[ext_resource type="Script" uid="uid://dneu0jdgv74uo" path="res://scripts/combat/consumables/Consumable.cs" id="1_38gmm"]
 [ext_resource type="Texture2D" uid="uid://h5pnaiqp1qpy" path="res://art/animations/bean/consumables/medkit-Sheet.png" id="2_pwkdm"]
-[ext_resource type="Script" uid="uid://c04t8ebo2dy1o" path="res://scripts/combat/consumables/RegenerationEffect.cs" id="2_rmgur"]
-[ext_resource type="Script" uid="uid://dvuwvgo250jks" path="res://scripts/combat/consumables/ChargedConsumableEffect.cs" id="3_c4d2j"]
+[ext_resource type="Script" uid="uid://b320g8fdgrhkl" path="res://scripts/combat/consumables/RegenerationEffect.cs" id="2_rmgur"]
+[ext_resource type="Script" uid="uid://b8lbkri18h1jv" path="res://scripts/combat/consumables/ChargedConsumableEffect.cs" id="3_c4d2j"]
 [ext_resource type="Texture2D" uid="uid://bjcwy5rrh26cf" path="res://art/static_sprites/medkit.png" id="3_pwkdm"]
 
 [sub_resource type="Resource" id="Resource_mkubu"]
 script = ExtResource("2_rmgur")
 TickInterval = 0.2
 HealPerTick = 1.0
-EffectValue = 0.0
 Duration = 10.0
-Cooldown = 0.0
 UsageTime = 2.0
 metadata/_custom_type_script = "uid://c04t8ebo2dy1o"
 
 [sub_resource type="Resource" id="Resource_b4yia"]
 script = ExtResource("3_c4d2j")
 BaseEffect = SubResource("Resource_mkubu")
-ChargeAnimation = "charge"
-FullyChargedAnimation = "fully_charged"
-EffectValue = 0.0
-Duration = 0.0
-Cooldown = 0.0
 UsageTime = 3.5
-metadata/_custom_type_script = "uid://dvuwvgo250jks"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fdl44"]
 atlas = ExtResource("2_pwkdm")
@@ -298,18 +290,20 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Medkit" type="Node2D"]
+[node name="Medkit" type="Node2D" unique_id=249450005 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_38gmm")
 ItemName = "Medkit"
 Description = "A set of medical supplies for tending wounds during battle."
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 EffectConfig = SubResource("Resource_b4yia")
 IsSingleUse = true
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=957728791]
 sprite_frames = SubResource("SpriteFrames_6jajj")
 animation = &"charge"
 frame = 33
 frame_progress = 1.0
+offset = Vector2(-0.5, 0)
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=304230464]
 sprite_frames = SubResource("SpriteFrames_xs0qq")

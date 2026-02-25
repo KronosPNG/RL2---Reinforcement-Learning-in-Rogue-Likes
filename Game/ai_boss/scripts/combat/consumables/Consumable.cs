@@ -23,7 +23,7 @@ public partial class Consumable : Node2D, IPedestalItem
 	[Export] public string Description { get; set; } = "No description available.";
 
 	// ---- Pedestal Item Properties ----
-	public AnimatedSprite2D PedestalDisplaySprite { get; set; }
+	[Export]public AnimatedSprite2D PedestalDisplaySprite { get; set; }
 	[Export] public Vector2 PedestalDisplayScale { get; set; } = new Vector2(1f, 1f);
 
 	// ---- Effect Configuration ----
@@ -51,8 +51,6 @@ public partial class Consumable : Node2D, IPedestalItem
 			GD.PrintErr($"[Consumable] AnimatedSprite2D node not found in consumable: {Name}");
 			throw new System.Exception("AnimatedSprite2D node is required for Consumable");
 		}
-
-		PedestalDisplaySprite = GetNodeOrNull<AnimatedSprite2D>("PedestalDisplaySprite");
 
 		if (PedestalDisplaySprite == null)
 		{

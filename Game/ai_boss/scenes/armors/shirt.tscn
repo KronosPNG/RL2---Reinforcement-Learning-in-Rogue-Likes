@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://nnfsgfoe1uu6"]
+[gd_scene format=3 uid="uid://nnfsgfoe1uu6"]
 
-[ext_resource type="Script" uid="uid://cmwrcflub0swv" path="res://scripts/player_inputs/Armor.cs" id="1_jxya8"]
+[ext_resource type="Script" uid="uid://bni724410dhr7" path="res://scripts/player_inputs/Armor.cs" id="1_jxya8"]
 [ext_resource type="SpriteFrames" uid="uid://q0sn0iotmcp4" path="res://assets/sprite_frames/bean/armors/no_armor.tres" id="2_wx34n"]
 [ext_resource type="SpriteFrames" uid="uid://b366kuqnji7qh" path="res://assets/sprite_frames/bean/helmets/no_helmet.tres" id="3_dug28"]
 [ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_vhuep"]
@@ -20,7 +20,7 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Shirt" type="Node2D"]
+[node name="Shirt" type="Node2D" unique_id=268144104 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_jxya8")
 ItemName = "Shirt"
 Description = "A normal linen shirt."
@@ -29,7 +29,8 @@ DamageModifier = 1.0
 SpeedModifier = 1.0
 BodySpriteFrames = ExtResource("2_wx34n")
 HelmetSpriteFrames = ExtResource("3_dug28")
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
 
-[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="."]
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=503452892]
 sprite_frames = SubResource("SpriteFrames_ivnlu")
