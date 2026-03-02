@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHealth, IStateful<EntityState>
 {
@@ -1139,7 +1140,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	private void UpdateEffects(float delta)
 	{
 		// Process all active effects
-		foreach (var effect in _activeEffects)
+		foreach (var effect in _activeEffects.ToList()) // ToList to avoid modification during iteration
 		{
 			effect.Update(null, this, (float)delta); // Pass null for consumable since effect is now on player
 		}
