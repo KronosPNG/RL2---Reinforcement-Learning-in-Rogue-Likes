@@ -39,10 +39,6 @@ public  abstract partial class PedestalEntity<ItemType> : Entity<PedestalEntityS
 		if (_interactPromptLabel != null)
 			_interactPromptLabel.Visible = false;
 
-		// Play pedestal animation if it exists
-		if (_baseSprite != null && _baseSprite.SpriteFrames.HasAnimation("idle"))
-			_baseSprite.Play("idle");
-
 		_hitArea.BodyEntered += OnPlayerEntered;
 		_hitArea.BodyExited += OnPlayerExited;
 	}
@@ -118,11 +114,6 @@ public  abstract partial class PedestalEntity<ItemType> : Entity<PedestalEntityS
 		UpdateInteractPrompt();
 	}
 
-	protected override void OnAnimationFinished()
-	{
-		return;
-	}
-
 	protected override void UpdateAI(float delta)
 	{
 		if (StateMachine.CurrentState == PedestalEntityState.PlayerInRange && _playerInRange != null)
@@ -135,7 +126,7 @@ public  abstract partial class PedestalEntity<ItemType> : Entity<PedestalEntityS
 		}
 	}
 
-	protected override void UpdateAnimationIfNeeded()
+	public override void UpdateAnimationIfNeeded()
 	{
 		return;
 	}

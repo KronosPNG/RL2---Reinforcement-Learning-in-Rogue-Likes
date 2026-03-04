@@ -17,7 +17,6 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 	// ---- Node references ----
 	protected CollisionShape2D _physicalCollision;
 	protected Area2D _hitArea;
-	protected AnimatedSprite2D _baseSprite;
 
 	// ---- AI Properties ----
 	protected Node2D _target;
@@ -28,12 +27,7 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 
 	public override void _Ready()
 	{
-		StateMachine = new StateMachine<TState>(this, default);
-
 		InitializeNodes();
-
-		if (_baseSprite != null)
-			_baseSprite.AnimationFinished += OnAnimationFinished;
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -49,7 +43,8 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 	{
 		_physicalCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
-		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+		
+		StateMachine = new StateMachine<TState>(this, default);
 	}
 
 	protected abstract void UpdateTimers(float delta);
@@ -60,7 +55,7 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 	
 	protected abstract void ApplyMovementByState(float delta);
 
-	protected abstract void UpdateAnimationIfNeeded();
+	public abstract void UpdateAnimationIfNeeded();
 
 	protected virtual Node2D FindTarget()
 	{
@@ -95,23 +90,6 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 	}
 
 	public abstract void HandleStateTransitions();
-
-	// ---- Animation methods ----
-	protected abstract void OnAnimationFinished();
-
-	public virtual bool PlayAnimation(string animationName, AnimatedSprite2D sprite = null)
-	{
-		AnimatedSprite2D targetSprite = sprite ?? _baseSprite;
-		if (targetSprite == null) return false;
-
-		if (targetSprite.SpriteFrames.HasAnimation(animationName))
-		{
-			targetSprite.Play(animationName);
-			return true;
-		}
-
-		return false;
-	}
 
 	// ---- Public Getters for AI customization ----
 	public float StateTimer

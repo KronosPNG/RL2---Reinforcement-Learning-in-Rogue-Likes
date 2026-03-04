@@ -3,12 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHealth, IStateful<EntityState>
+public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHealth, IStateful<EntityState>, IAnimatable<EntityState>
 {
 	//---- Node References ----
-	private Node2D _spriteContainer;
-	private AnimatedSprite2D _bodyArmorSprite;
-	private AnimatedSprite2D _helmetArmorSprite;
 	public Weapon EquippedWeapon;
 	public Armor EquippedArmor;
 	public Consumable EquippedConsumable;
@@ -50,9 +47,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	private bool _isHeavyCharge = false;
 	private bool _isChargingConsumable = false;
 
-	// ---- Visual Effects ----
-	[Export] public VisualFlash _damageFlash;
-	[Export] public VisualFlash _dodgeFlash;
+	// ---- Animation ----
+	public PlayerVisualController VisualController { get; private set; }
 
 	// ---- Timers ----
 	[Export] public float HitStunDuration = 0.25f; // time for hit stun duration
@@ -71,15 +67,6 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 		// Initialize node references
 		InitializeNodes();
-
-		// Initialize visuals (effects, etc.)
-		InitializeVisuals();
-
-		if (_spriteContainer == null || _baseSprite == null || _bodyArmorSprite == null || _helmetArmorSprite == null)
-		{
-			GD.PrintErr("Bean: could not find one or more body sprite nodes");
-			return;
-		}
 
 		if (_handNode == null)
 		{
@@ -100,8 +87,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		}
 
 		// Only connect the base sprite's animation finished signal to avoid multiple triggers
-		_baseSprite.AnimationFinished += OnAnimationFinished;
-		_baseSprite.FrameChanged += OnBaseFrameChanged;
+		VisualController.AnimationFinished += OnAnimationFinished;
 		
 		// Store the original collision properties
 		_normalCollisionMask = CollisionMask;
@@ -113,31 +99,18 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	protected override void InitializeNodes()
 	{
 		// Initialize node references
-		_spriteContainer = GetNodeOrNull<Node2D>("BodyLayers");
-		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyBase");
-		_bodyArmorSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/BodyArmor");
-		_helmetArmorSprite = GetNodeOrNull<AnimatedSprite2D>("BodyLayers/Helmet");
-
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_physicalCollision = GetNodeOrNull<CollisionShape2D>("PhysicalCollision");
-		_handNode = GetNodeOrNull<Node2D>("Hand");
-	}
+		_handNode = GetNodeOrNull<Node2D>("VisualController/Hand");
 
-	protected virtual void InitializeVisuals()
-	{
-		// Initialize visual effects
-		if (_damageFlash == null)
-			_damageFlash = new VisualFlash();
-		if (_dodgeFlash == null)
-			_dodgeFlash = new VisualFlash();
-			
-		_damageFlash.InitializeVisuals(_baseSprite);
-		_dodgeFlash.InitializeVisuals(_baseSprite);
+		VisualController = GetNodeOrNull<PlayerVisualController>("VisualController");
+		VisualController.HandNode = _handNode; // Pass reference to hand node for visual controller to manage visibility during attacks/dodges
 	}
-
 
 	public override void _PhysicsProcess(double delta)
 	{
+
+		GD.Print($"Current State: {CurrentState}, Input Direction: {_inputDirection}, Velocity: {Velocity}");
 		// Read input direction
 		_inputDirection = ReadDirection();
 
@@ -184,6 +157,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		{
 			_lastHorizontalFacing = (sbyte)Mathf.Sign(_inputDirection.X);
 			_lastVerticalFacing = (sbyte)Mathf.Sign(_inputDirection.Y);
+			VisualController.FacingDirection = _inputDirection;
 		}		
 	}
 
@@ -200,29 +174,6 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
 				// End of invulnerability - can add visual effect here if desired	
 			}
-		}	
-	}
-
-	protected string AddVerticalFacingToAnim(string baseAnim)
-	{
-		if (_lastHorizontalFacing == 0)
-		{
-			if (_lastVerticalFacing > 0)
-				return "down_" + baseAnim;
-			else if (_lastVerticalFacing < 0)
-				return "up_" + baseAnim;
-			else
-				return baseAnim; // no vertical facing, return base animation
-		}
-
-		else
-		{
-			if (_lastVerticalFacing > 0)
-				return baseAnim;
-			else if (_lastVerticalFacing < 0)
-				return "up_" + baseAnim;
-			else
-				return baseAnim;
 		}	
 	}
 
@@ -553,20 +504,26 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	{
 		switch (s)
 		{
+			case EntityState.Idle:
+				VisualController.IsMoving = false;
+				VisualController.PlayState(EntityState.Idle);
+				break;
+
+			case EntityState.Walking:
+				VisualController.IsMoving = true;
+				VisualController.PlayState(EntityState.Walking);
+				break;
+
 			// play dodge animation; movement will be handled in ApplyMovementByState
 			case EntityState.Dodging:
-			_handNode.Visible = false;
 				OnEnterStateDodge();
 				break;
 			case EntityState.Hit:
 				CancelChargingAttack();
 				CancelChargingConsumable();
 
-				string animation = GetAnimationForState(s);
-				animation = AddVerticalFacingToAnim(animation);	
-
-				PlayAnimations(animation);
-				_damageFlash.PlayEffect(_spriteContainer);
+				VisualController.PlayState(EntityState.Hit);
+				// _damageFlash.PlayEffect(_spriteContainer);
 				break;
 
 			case EntityState.Dead:
@@ -577,16 +534,22 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
 				EquippedWeapon.SetPhysicsProcess(false);
-				_handNode.Visible = false;
 				SetPhysicsProcess(false);
 				
-				PlayAnimations(GetAnimationForState(s));
+				VisualController.PlayState(EntityState.Dead);
 
 				break;
 
 			case EntityState.ConsumableUse:
 			case EntityState.ConsumableCharging:
-				_handNode.Visible = false;
+				VisualController.IsMoving = IsMoving();
+				VisualController.PlayState(s);
+				break;
+
+			case EntityState.Attacking:
+			case EntityState.AttackCharging:
+				VisualController.IsMoving = IsMoving();
+				VisualController.PlayState(s);
 				break;
 				
 			default:
@@ -601,12 +564,10 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		CancelChargingConsumable();
 		
 		// Set the sprite's flip based on direction
-		FlipSprites(_dodgeDirection.X < 0 || _lastHorizontalFacing < 0);
-		string animation = GetAnimationForState(EntityState.Dodging);
-		animation = AddVerticalFacingToAnim(animation);
-
-		PlayAnimations(animation);
-		_dodgeFlash.PlayEffect(_spriteContainer);
+		VisualController.UpdateFlip(_dodgeDirection.X < 0 || _lastHorizontalFacing < 0);
+		VisualController.IsMoving = true;
+		VisualController.PlayState(EntityState.Dodging);
+		// _dodgeFlash.PlayEffect(_spriteContainer);
 
 		// Make player invulnerable during dodge (can't be detected by enemy weapons)
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
@@ -624,12 +585,11 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		switch (s)
 		{
 			case EntityState.Hit:
-				_damageFlash.ClearEffect(_spriteContainer);
+				VisualController.ClearEffects();
 				break;
 
 			case EntityState.Dodging:
-				_handNode.Visible = true;
-				_dodgeFlash.ClearEffect(_spriteContainer);
+				VisualController.ClearEffects();
 
 				// Restore vulnerability after dodge
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
@@ -637,11 +597,6 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 				// Restore normal collision properties after dodge
 				CollisionMask = _normalCollisionMask;
 				CollisionLayer = _normalCollisionLayer;
-				break;
-			
-			case EntityState.ConsumableUse:
-			case EntityState.ConsumableCharging:
-				_handNode.Visible = true;
 				break;
 
 			default:
@@ -703,120 +658,36 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	}
 
 	// --- Animation ------------------------------
-	protected override void UpdateAnimationIfNeeded()
+
+
+	public override void UpdateAnimationIfNeeded()
 	{
-		// Only update visuals when state changed OR we need to update facing while walking/idle
-		bool stateChanged = CurrentState != PreviousState;
-
-		// If we are in dodge, don't let other animations override
-		if (CurrentState == EntityState.Dodging)
+		// Always keep IsMoving synced for states that allow movement
+		switch (CurrentState)
 		{
-			PreviousState = CurrentState; // just update prev state to avoid repeated checks
-			return;
+			case EntityState.Attacking:
+			case EntityState.AttackCharging:
+			case EntityState.ConsumableUse:
+			case EntityState.ConsumableCharging:
+				VisualController.IsMoving = IsMoving();
+				break;
 		}
 
-		// Update sprite facing (even during attacks for autoswing)
-		FlipSprites(_lastHorizontalFacing < 0);
-
-		// Don't override weapon attack animations with player animations
-		// The weapon controls the sprite during attacking state
-		if (CurrentState == EntityState.Attacking)
+		// Don't update animation during dodge - let it finish naturally
+		if (CurrentState != EntityState.Dodging)
 		{
-			PreviousState = CurrentState;
-			return;
+			VisualController.UpdateAnimationIfNeeded();
 		}
 
-		// Set animation based on state
-		string targetAnimation = GetAnimationForState(CurrentState);
 		
-		if(targetAnimation != "dead") // don't apply vertical facing to death animation to avoid weird stretching
-		 	targetAnimation = AddVerticalFacingToAnim(targetAnimation);
-
-		if (stateChanged || _baseSprite.Animation != targetAnimation)
-		{
-			PlayAnimations(targetAnimation);
-		}
-
-		if (_lastVerticalFacing < 0)
-		{
-			_handNode.ZIndex = -1; // behind body when facing up
-		} else
-		{
-			_handNode.ZIndex = 0; // in front of body when facing down or horizontal
-		}
 
 		PreviousState = CurrentState;
 	}
 
-	private string GetAnimationForState(EntityState state)
-	{
-		return state switch
-		{
-			EntityState.Dodging => "dodge",
-			EntityState.Walking => "walking",
-			EntityState.Idle => "idle",
-			EntityState.Attacking => "attack",
-			EntityState.AttackCharging => IsMoving() ? "charge_walking" : "charge_idle",
-			EntityState.ConsumableCharging => IsMoving() ? "charge_walking" : "charge_idle",
-			EntityState.ConsumableUse => IsMoving() ? "walking" : "idle",
-			EntityState.Hit => "hit",
-			EntityState.Dead => "dead",
-			EntityState.DodgePrep => "idle", 
-			_ => "idle" // Default to idle for any unhandled state
-		};
-	}
-
-	public bool PlayAnimations(string animationName)
-	{
-		// Play on base sprite first
-		return (
-			base.PlayAnimation(animationName, _baseSprite) &&
-			base.PlayAnimation(animationName, _bodyArmorSprite) &&
-			base.PlayAnimation(animationName, _helmetArmorSprite)
-		);
-	}
-	
-	private void SyncArmorFrames()
-	{
-		string animation = _baseSprite.Animation;
-		int frame = _baseSprite.Frame;	
-
-		_bodyArmorSprite.Animation = animation;
-		_bodyArmorSprite.Frame = frame;
-		
-		_helmetArmorSprite.Animation = animation;
-		_helmetArmorSprite.Frame = frame;
-	}
-
-	private void FlipSprites(bool flip)
-	{
-		_spriteContainer.Scale = new Vector2(
-			flip ? -1 : 1, 
-			1
-		);
-	}
-
-	// Sync armor sprites to base sprite every frame change
-	private void OnBaseFrameChanged()
-	{
-		_bodyArmorSprite.Animation = _baseSprite.Animation;
-		_bodyArmorSprite.Frame = _baseSprite.Frame;
-
-		_helmetArmorSprite.Animation = _baseSprite.Animation;
-		_helmetArmorSprite.Frame = _baseSprite.Frame;
-	}
-
 	// Called by AnimatedSprite2D when any animation completes
-	protected override void OnAnimationFinished()
+	public void OnAnimationFinished()
 	{
-		// Get the name of the finished animation
-		var animName = _baseSprite.Animation;
-		// If dodge finished, end dodge and transit to Idle/Walking based on current input
-		var dodgeAnim = GetAnimationForState(EntityState.Dodging);
-
-		bool isDodgeAnim = animName ==  dodgeAnim || animName == "up_" + dodgeAnim || animName == "down_" + dodgeAnim;
-
-		if (isDodgeAnim && CurrentState == EntityState.Dodging)
+		if (CurrentState == EntityState.Dodging)
 		{
 			// decide whether to be walking or idle after dodge
 			Vector2 currentInput = ReadDirection();
@@ -978,7 +849,6 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		AddChild(armor);
 		armor.Equip(this);
 		EquippedArmor = armor;
-		SyncArmorFrames();
 
 		// Connect to armor signals
 		armor.Equipped += OnArmorEquipped;
@@ -1001,15 +871,9 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	// ---- Visuals ----
 	public void UpdateArmorVisuals(Armor armor)
 	{
-		if (armor != null)
+		if (VisualController is PlayerVisualController pvc)
 		{
-			_bodyArmorSprite.SpriteFrames = armor.BodySpriteFrames;
-			_helmetArmorSprite.SpriteFrames = armor.HelmetSpriteFrames;
-		}
-		else
-		{
-			_bodyArmorSprite.SpriteFrames = null;
-			_helmetArmorSprite.SpriteFrames = null;
+			pvc.UpdateArmorVisuals(armor);
 		}
 	}
 

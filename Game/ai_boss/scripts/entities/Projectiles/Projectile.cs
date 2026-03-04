@@ -22,18 +22,21 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 	public bool DestroyOnHit = true;
 	public bool DestroyOnWallHit = true;
 
-	// Projectile behaviour
+	// ---- Projectile behaviour ----
 	[ExportCategory("Projectile Properties")]
 	[Export] public AggroBehaviour Behaviour;
+
+	// ---- Animation properties ----
+	EntityVisualController<ProjectileState> VisualController;
 
 	public override void _Ready()
 	{
 		StateMachine = new StateMachine<ProjectileState>(this, ProjectileState.Idle);
-
+		VisualController = GetNodeOrNull<EntityVisualController<ProjectileState>>("EntityVisualController");
+		
 		// Get node references
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
 		_physicalCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
-		_baseSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
 		TargetType = (ProjectileOwner as EnemyEntity)?.TargetType ?? "Enemy";
 
 		if (_hitArea != null)
@@ -82,7 +85,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 			Rotation = FacingDirection.Angle();
 		}
 
-		_baseSprite.Play("default");
+		VisualController.PlayState(ProjectileState.Idle);
 
 		// Set the projectile velocity
 		Velocity = FacingDirection * BaseSpeed;
@@ -219,7 +222,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		}
 	}
 
-	protected override void UpdateAnimationIfNeeded()
+	public override void UpdateAnimationIfNeeded()
 	{
 		return;
 	}
@@ -230,19 +233,11 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		{
 			case ProjectileState.Hit:
 				SetPhysicsProcess(false);
-				if(!PlayAnimation("hit"))
-				{
-					GD.PrintErr("Projectile: 'hit' animation not found, skipping to destroy.");
-					TransitionToState(ProjectileState.Destroyed);
-				}
+				VisualController.PlayState(ProjectileState.Hit);
 				break;
 
 			case ProjectileState.Fading:
-				if(!PlayAnimation("fading"))
-				{
-					GD.PrintErr("Projectile: 'fading' animation not found, skipping to destroy.");
-					TransitionToState(ProjectileState.Destroyed);
-				}
+				VisualController.PlayState(ProjectileState.Fading);
 				break;
 
 			case ProjectileState.Destroyed:
@@ -284,9 +279,9 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		}
 	}
 
-	protected override void OnAnimationFinished()
+	public void OnAnimationFinished()
 	{
-		string animName = _baseSprite.Animation;
+		string animName = VisualController.GetCurrentAnimation();
 
 		switch (animName)
 		{

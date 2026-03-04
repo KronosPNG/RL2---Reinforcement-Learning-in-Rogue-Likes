@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bw7r4ui3km6jf"]
 
 [ext_resource type="Script" uid="uid://bni724410dhr7" path="res://scripts/player_inputs/Armor.cs" id="1_f15m2"]
-[ext_resource type="SpriteFrames" uid="uid://qhanrdx03e4j" path="res://assets/sprite_frames/bean/armors/medium_armor.tres" id="2_f15m2"]
-[ext_resource type="SpriteFrames" uid="uid://b366kuqnji7qh" path="res://assets/sprite_frames/bean/helmets/no_helmet.tres" id="3_ouyie"]
+[ext_resource type="Texture2D" uid="uid://bn08v0p4ev7um" path="res://art/animations/bean/armor/medium_armor-Sheet.png" id="3_f15m2"]
 [ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_k01wy"]
+[ext_resource type="Texture2D" uid="uid://no3ubsc2rfbj" path="res://art/animations/bean/helmets/no_helmet-Sheet.png" id="4_qqhdu"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f15m2"]
 atlas = ExtResource("4_k01wy")
@@ -26,10 +26,24 @@ ItemName = "Medium Armor"
 Description = "A studded leather armor that protects the wearer in exchange for some speed."
 DamageModifier = 0.8
 SpeedModifier = 0.85
-BodySpriteFrames = ExtResource("2_f15m2")
-HelmetSpriteFrames = ExtResource("3_ouyie")
 PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
 
 [node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=154057443]
 sprite_frames = SubResource("SpriteFrames_ivnlu")
+
+[node name="BodySprite" type="Sprite2D" parent="." unique_id=727787252]
+visible = false
+texture = ExtResource("3_f15m2")
+hframes = 10
+vframes = 6
+region_enabled = true
+region_rect = Rect2(0, 0, 160, 96)
+
+[node name="HelmetSprite" type="Sprite2D" parent="." unique_id=1371726872]
+visible = false
+texture = ExtResource("4_qqhdu")
+hframes = 10
+vframes = 6
+region_enabled = true
+region_rect = Rect2(0, 0, 160, 96)

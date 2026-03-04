@@ -41,6 +41,9 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 	[Export] public VisualFlash _damageEffect = new();
 	[Export] public VisualFading _deathEffect = new();
 
+	// ---- Animation properties ----
+	EntityVisualController<EntityState> VisualController;
+
 	// ---- Death color transition ----
 	[Export] public float DeathColorTransitionDuration { get; set; } = 1.0f;
 	protected float _deathColorTimer = 0f;
@@ -60,13 +63,13 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		base._Ready();
 		InitializeBehaviours();
 
-		OriginalModulate = _baseSprite.Modulate;
+		OriginalModulate = VisualController.Modulate;
 
 		InitializeVisuals();
 
 		if (FlipSpriteHorizontally)
 		{
-			_baseSprite.FlipH = true;
+			VisualController.UpdateFlip(true);
 		}
 
 		// Prevent player from pushing this entity
@@ -99,11 +102,9 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 	protected virtual void InitializeVisuals()
 	{
-		if (_baseSprite != null)
-		{
-			_damageEffect.InitializeVisuals(_baseSprite);
-			_deathEffect.InitializeVisuals(_baseSprite);
-		}
+		VisualController = GetNodeOrNull<EntityVisualController<EntityState>>("EntityVisualController");
+		if (VisualController == null)
+			GD.PrintErr("EnemyEntity: Missing EntityVisualController node.");
 	}
 
 	// ---- Public methods to change behaviours at runtime ----
@@ -325,9 +326,9 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				break;
 
 			case EntityState.Hit:
-				_baseSprite.Play(GetAnimationForState(state));
+				VisualController.PlayState(state);
 				// Apply damage flash effect
-				_damageEffect.PlayEffect(_baseSprite);
+				// _damageEffect.PlayEffect(_baseSprite);
 				break;
 
 			case EntityState.Dying:
@@ -337,7 +338,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 			case EntityState.Dead:
 				// Darken the sprite 
-				_deathEffect.PlayEffect(_baseSprite);
+				// _deathEffect.PlayEffect(_baseSprite);
 				break;
 		}
 	}
@@ -360,14 +361,14 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 			case EntityState.Hit:
 				// Clear damage flash effect
-				_damageEffect.ClearEffect(_baseSprite);
+				// _damageEffect.ClearEffect(_baseSprite);
 				break;
 		}
 	}
 
-	protected override void UpdateAnimationIfNeeded()
+	public override void UpdateAnimationIfNeeded()
 	{
-		if (_baseSprite == null) return;
+		if (VisualController == null) return;
 
 		if (!IsAlive || CurrentState == EntityState.Dead)
 		{
@@ -414,10 +415,9 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		// Set animation based on state
 		string targetAnimation = GetAnimationForState(CurrentState);
 
-		if (stateChanged || _baseSprite.Animation != targetAnimation)
+		if (stateChanged)
 		{
-			if (_baseSprite.SpriteFrames.HasAnimation(targetAnimation))
-				_baseSprite.Play(targetAnimation);
+			VisualController.PlayState(CurrentState);
 		}
 	}
 
@@ -438,9 +438,9 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		};
 	}
 
-	protected override void OnAnimationFinished()
+	public void OnAnimationFinished()
 	{
-		string animName = _baseSprite.Animation;
+		string animName = VisualController.GetCurrentAnimation();
 		// GD.Print($"Entity: OnAnimationFinished() - Animation: {animName}, State: {_currentState}");
 
 		switch (CurrentState)
@@ -537,7 +537,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		// GD.Print($"Entity {Name} has died.");
 		TransitionToState(EntityState.Dying);
 		CurrentHealth = 0;
-		_baseSprite.Play("die");
+		VisualController.PlayState(EntityState.Dying);
 	}
 
 	// ---- IHasHealth Implementation ----
@@ -563,7 +563,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 	{
 		if (IsUnflippable) return;
 
-		_baseSprite.FlipH = flip;
+		VisualController.UpdateFlip(flip);
 		
 		// Flip the hit area and collision shape from the entity's origin
 		var hitAreaPos = _hitArea.Position;

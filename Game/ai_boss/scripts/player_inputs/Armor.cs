@@ -25,14 +25,17 @@ public partial class Armor : Node2D, IPedestalItem
     public float SpeedModifier { get; set; } = 0.95f; // Reduces speed by 5%    
 
     [ExportGroup("Visuals")]
-    [Export] public SpriteFrames BodySpriteFrames { get; set; }
-    [Export] public SpriteFrames HelmetSpriteFrames { get; set; }
+    [Export] public Sprite2D BodySprite { get; set; }
+    [Export] public Sprite2D HelmetSprite { get; set; }
 
     [Export] public AnimatedSprite2D PedestalDisplaySprite { get; set; }
     [Export] public Vector2 PedestalDisplayScale { get; set; } = new Vector2(7f, 7f);
 
     public override void _Ready()
     {
+        BodySprite = GetNodeOrNull<Sprite2D>("BodySprite");
+        HelmetSprite = GetNodeOrNull<Sprite2D>("HelmetSprite");
+
         if (PedestalDisplaySprite == null)
         {
             GD.PrintErr("Armor: could not find PedestalDisplaySprite");

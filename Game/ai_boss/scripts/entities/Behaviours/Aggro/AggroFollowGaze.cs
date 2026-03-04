@@ -73,7 +73,7 @@ public partial class AggroFollowGaze : AggroBehaviour
             }
 
 			// Play the appropriate animation
-			entity.PlayAnimation(animationName);
+			//entity.VisualController.PlayState();
 		}
 		return;
     }
