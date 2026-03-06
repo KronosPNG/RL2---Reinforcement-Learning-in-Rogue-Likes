@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://cx5a35bjt1j1" path="res://scripts/player_inputs/PlayerController.cs" id="1_vdqyq"]
 [ext_resource type="Texture2D" uid="uid://c5t3vysnlgppp" path="res://art/animations/bean/bean_base.png" id="3_cphwl"]
+[ext_resource type="Script" uid="uid://hjik14ol648t" path="res://scripts/visual_effects/effects/VisualBlinking.cs" id="3_dqsbe"]
+[ext_resource type="Script" uid="uid://kvce7e5c5bgh" path="res://scripts/visual_effects/effects/VisualFlash.cs" id="4_dqsbe"]
 [ext_resource type="Texture2D" uid="uid://bx0p8te3xcp2q" path="res://art/animations/bean/armor/no_armor.png" id="4_mjp81"]
 [ext_resource type="Texture2D" uid="uid://no3ubsc2rfbj" path="res://art/animations/bean/helmets/no_helmet-Sheet.png" id="4_rfort"]
 [ext_resource type="Script" uid="uid://bdh62hvlonw8f" path="res://scripts/visual_effects/VisualControllers/PlayerVisualController.cs" id="5_mjp81"]
@@ -11,6 +13,18 @@ size = Vector2(6, 12)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cphwl"]
 size = Vector2(4, 9)
+
+[sub_resource type="Resource" id="Resource_dqsbe"]
+script = ExtResource("3_dqsbe")
+ModulateB = Color(0.99999875, 0.57429826, 0.5835411, 1)
+BlinkInterval = 0.075
+EffectDuration = 0.5
+metadata/_custom_type_script = "uid://hjik14ol648t"
+
+[sub_resource type="Resource" id="Resource_d16vh"]
+script = ExtResource("4_dqsbe")
+FlashModulate = Color(0.5802277, 0.58022773, 0.58022773, 1)
+metadata/_custom_type_script = "uid://kvce7e5c5bgh"
 
 [sub_resource type="Animation" id="Animation_mjp81"]
 length = 0.001
@@ -1605,6 +1619,8 @@ shape = SubResource("RectangleShape2D_cphwl")
 
 [node name="VisualController" type="Node2D" parent="." unique_id=1540219496]
 script = ExtResource("5_mjp81")
+_damageEffect = SubResource("Resource_dqsbe")
+_dodgeEffect = SubResource("Resource_d16vh")
 
 [node name="BodyLayers" type="Node2D" parent="VisualController" unique_id=1884146494]
 position = Vector2(-0.5, 0)
@@ -1696,7 +1712,7 @@ hframes = 10
 vframes = 6
 frame = 1
 region_enabled = true
-region_rect = Rect2(0, 224, 160, 96)
+region_rect = Rect2(0, 0, 160, 96)
 metadata/_aseprite_wizard_interface_config_ = {
 "animation_section": false,
 "layer_section": true,

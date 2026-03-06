@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://dufefxrpx60dr"]
 
-[ext_resource type="Script" uid="uid://bhpb7xku3g06m" path="res://scripts/entities/Projectile.cs" id="1_di1w4"]
+[ext_resource type="Script" uid="uid://bjepcxymx41yd" path="res://scripts/entities/Projectiles/Projectile.cs" id="1_di1w4"]
 [ext_resource type="Texture2D" uid="uid://dbcydwltr3pmr" path="res://art/animations/weapons/arrow-Sheet.png" id="2_lwydh"]
+[ext_resource type="Script" uid="uid://bn0hi44v7jyf" path="res://scripts/visual_effects/VisualControllers/ProjectileVisualController.cs" id="2_nk2bl"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_di1w4"]
 size = Vector2(0.285714, 0.285714)
@@ -9,20 +10,87 @@ size = Vector2(0.285714, 0.285714)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lwydh"]
 size = Vector2(4, 4)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_di1w4"]
-atlas = ExtResource("2_lwydh")
-region = Rect2(0, 0, 16, 16)
+[sub_resource type="Animation" id="Animation_lwydh"]
+length = 0.001
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_lwydh"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_di1w4")
-}],
-"loop": false,
-"name": &"default",
-"speed": 5.0
-}]
+[sub_resource type="Animation" id="Animation_nk2bl"]
+resource_name = "active"
+length = 0.25
+loop_mode = 1
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0625, 0.125, 0.1875),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_di1w4"]
+resource_name = "default"
+length = 0.25
+loop_mode = 1
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0625, 0.125, 0.1875),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_0qbm4"]
+resource_name = "fading"
+length = 0.25
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("..:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(0.35906908, 0.35906908, 0.35906908, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_wfd47"]
+resource_name = "hit"
+length = 0.25
+step = 0.125
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0625, 0.125, 0.1875),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [4, 5, 6, 7]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_lwydh"]
+_data = {
+&"RESET": SubResource("Animation_lwydh"),
+&"active": SubResource("Animation_nk2bl"),
+&"default": SubResource("Animation_di1w4"),
+&"fading": SubResource("Animation_0qbm4"),
+&"hit": SubResource("Animation_wfd47")
+}
 
 [node name="Arrow" type="CharacterBody2D" unique_id=1710382349]
 collision_layer = 8
@@ -46,6 +114,15 @@ position = Vector2(4, 0)
 shape = SubResource("RectangleShape2D_lwydh")
 debug_color = Color(0.682353, 0, 0.0745098, 0.419608)
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=198929003]
-sprite_frames = SubResource("SpriteFrames_lwydh")
-offset = Vector2(-0.5, 0.5)
+[node name="VisualController" type="Node2D" parent="." unique_id=607910472]
+script = ExtResource("2_nk2bl")
+
+[node name="Sprite2D" type="Sprite2D" parent="VisualController" unique_id=320579691]
+texture = ExtResource("2_lwydh")
+offset = Vector2(0, 0.5)
+hframes = 4
+vframes = 2
+frame = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualController" unique_id=180451429]
+libraries/ = SubResource("AnimationLibrary_lwydh")

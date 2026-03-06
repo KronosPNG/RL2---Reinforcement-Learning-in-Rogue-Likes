@@ -51,7 +51,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	public PlayerVisualController VisualController { get; private set; }
 
 	// ---- Timers ----
-	[Export] public float HitStunDuration = 0.25f; // time for hit stun duration
+	[Export] public float HitStunDuration = 0.5f; // time for hit stun duration
 	private float _invulnerabilityTimer = 0f; // timer for invulnerability after hit
 	[Export] public float InvulnerabilityDuration = 1f; // time for invulnerability after hit
 
@@ -109,8 +109,6 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 	public override void _PhysicsProcess(double delta)
 	{
-
-		GD.Print($"Current State: {CurrentState}, Input Direction: {_inputDirection}, Velocity: {Velocity}");
 		// Read input direction
 		_inputDirection = ReadDirection();
 
@@ -619,7 +617,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 				Velocity = _dodgeDirection * DodgeSpeed * armorSpeedModifier;
 				MoveAndSlide();
 				break;
-
+			
+			case EntityState.Hit:
 			case EntityState.ConsumableUse:
 			case EntityState.Attacking:
 			// allow movement while attacking
@@ -632,8 +631,6 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 			case EntityState.Dead:
 			// no movement when dead
-			case EntityState.Hit:
-			// stop movement while in hit stun
 			case EntityState.DodgePrep:
 			// stop movement while preparing to dodge
 			case EntityState.Idle:

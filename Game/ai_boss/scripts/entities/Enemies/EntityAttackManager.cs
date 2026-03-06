@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-public partial class WeaponEntity : WeaponBase
+public partial class EntityAttackManager : WeaponBase
 {
 	public EnemyEntity OwnerCharacter { get; protected set; }
 	[Export]public bool AllowFriendlyFire { get; set; } = false;

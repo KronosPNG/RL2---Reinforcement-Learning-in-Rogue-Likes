@@ -31,7 +31,8 @@ public partial class AggroFollowTarget : AggroBehaviour
             }
         }
 
-        return direction * entity.BaseSpeed * ChaseSpeedModifier * delta;
+        // Don't multiply by delta - MoveAndSlide() handles that internally
+        return direction * entity.BaseSpeed * ChaseSpeedModifier;
     }
 
     public override void OnEnterNotice(IEntity entity)

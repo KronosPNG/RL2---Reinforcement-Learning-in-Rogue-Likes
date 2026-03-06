@@ -52,7 +52,7 @@ public partial class AggroFollowGaze : AggroBehaviour
 
             // if player is to the left of dummy
             // considering flip
-            if ((direction.X < 0 && !entity.FlipSpriteHorizontally) || (direction.X > 0 && entity.FlipSpriteHorizontally))
+            if (direction.X < 0)
             {
                 entity.FacingDirection = Vector2.Left;
                 animationName += "left";

@@ -7,7 +7,8 @@ public partial class WanderRandomWalk : WanderBehaviour
 
 	public override Vector2 GetWanderVelocity(EnemyEntity entity, float delta)
 	{
-		return _currentWanderDirection * entity.BaseSpeed * WanderSpeedMultiplier * delta;
+		// Don't multiply by delta - MoveAndSlide() handles that internally
+		return _currentWanderDirection * entity.BaseSpeed * WanderSpeedMultiplier;
 	}
 
 	public override void OnEnterWander(EnemyEntity entity)

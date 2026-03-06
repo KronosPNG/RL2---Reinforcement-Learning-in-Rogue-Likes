@@ -27,12 +27,12 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 	[Export] public AggroBehaviour Behaviour;
 
 	// ---- Animation properties ----
-	EntityVisualController<ProjectileState> VisualController;
+	ProjectileVisualController VisualController;
 
 	public override void _Ready()
 	{
 		StateMachine = new StateMachine<ProjectileState>(this, ProjectileState.Idle);
-		VisualController = GetNodeOrNull<EntityVisualController<ProjectileState>>("EntityVisualController");
+		VisualController = GetNodeOrNull<ProjectileVisualController>("VisualController");
 		
 		// Get node references
 		_hitArea = GetNodeOrNull<Area2D>("HitArea");
@@ -44,6 +44,11 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 			// GD.Print("Projectile: HitArea found");
 			_hitArea.BodyEntered += OnBodyEntered;
 			_hitArea.AreaEntered += OnAreaEntered;
+		}
+		
+		if (VisualController != null)
+		{
+			VisualController.AnimationFinished += OnAnimationFinished;
 		}
 	}
 
@@ -141,13 +146,15 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		
 		if (DestroyOnWallHit)
 		{
-			TransitionToState(ProjectileState.Fading);
+			TransitionToState(ProjectileState.Hit);
 		}
 		else
 		{
 			// stop the projectile on collision with walls/obstacles
 			Velocity = Vector2.Zero;
 
+			VisualController.StopAnimation();
+			
 			if (_hitArea != null)
 			{
 				_hitArea.Monitoring = false; // Disable further hit detection
@@ -251,7 +258,10 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 
 	public override void OnExitState(ProjectileState state)
 	{
-		return;
+		if (state == ProjectileState.Hit || state == ProjectileState.Fading)
+		{
+			VisualController.StopAnimation();
+		}
 	}
 
 	public override void HandleStateTransitions()
@@ -281,15 +291,13 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 
 	public void OnAnimationFinished()
 	{
-		string animName = VisualController.GetCurrentAnimation();
-
-		switch (animName)
+		switch (CurrentState)
 		{
-			case "hit":
+			case ProjectileState.Hit:
 				TransitionToState(ProjectileState.Destroyed);
 				break;
 
-			case "fading":
+			case ProjectileState.Fading:
 				TransitionToState(ProjectileState.Destroyed);
 				break;
 

@@ -1,10 +1,11 @@
+using System;
 using Godot;
 
-public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth, INavigable, IStateful<EntityState>
+public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth, INavigable, IStateful<EntityState>, IAnimatable<EntityState>
 {
 	// ---- Node references ----
 	public NavigationAgent2D NavAgent{ get; protected set; }
-	public WeaponEntity Weapon { get; set; }
+	public EntityAttackManager AttackManager { get; set; }
 
 	// ---- Health properties ----
 	[ExportGroup("Health Properties")]
@@ -35,22 +36,13 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 	// ---- Visual properties ----
 	[ExportGroup("Visual Effects")]
-	protected Color OriginalModulate;
-	[Export] public bool FlipSpriteHorizontally = false;
 	[Export] public bool IsUnflippable = false;
-	[Export] public VisualFlash _damageEffect = new();
-	[Export] public VisualFading _deathEffect = new();
 
 	// ---- Animation properties ----
-	EntityVisualController<EntityState> VisualController;
-
-	// ---- Death color transition ----
-	[Export] public float DeathColorTransitionDuration { get; set; } = 1.0f;
-	protected float _deathColorTimer = 0f;
-	protected bool _isTransitioningToDeath = false;
+	[Export] EntityVisualController<EntityState> VisualController;
 
 	// ---- Timers ----
-	protected float _hitStunDuration = 0.25f;
+	protected float _hitStunDuration = 1f;
 	protected float _idleToWanderTimer = 0f;
 
 	// ---- Signals ----
@@ -63,11 +55,12 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		base._Ready();
 		InitializeBehaviours();
 
-		OriginalModulate = VisualController.Modulate;
+		VisualController = GetNodeOrNull<EntityVisualController<EntityState>>("VisualController");
+		
+		if (VisualController == null)
+			GD.PrintErr("EnemyEntity: Missing EntityVisualController node.");
 
-		InitializeVisuals();
-
-		if (FlipSpriteHorizontally)
+		if (!IsUnflippable)
 		{
 			VisualController.UpdateFlip(true);
 		}
@@ -78,6 +71,8 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		CurrentHealth = MaxHealth;
 		TransitionToState(EntityState.Idle);
 
+		VisualController.AnimationFinished += OnAnimationFinished;
+
 		TargetType = "Player"; // Enemies target the player by default
 	}
 
@@ -85,7 +80,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 	{
 		base.InitializeNodes();
 		NavAgent = GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
-		Weapon = GetNodeOrNull<WeaponEntity>("Weapon");
+		AttackManager = GetNodeOrNull<EntityAttackManager>("AttackManager");
 	}
 
 	protected virtual void InitializeBehaviours()
@@ -95,16 +90,9 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		if (WanderingBehavior == null)
 			WanderingBehavior = new WanderImmovable();
 		if (AggroBehavior == null)
-			AggroBehavior = new AggroFollowGaze();
+			AggroBehavior = new AggroFollowTarget();
 		if (AttackBehavior == null)
 			AttackBehavior = new AttackInoffensive();
-	}
-
-	protected virtual void InitializeVisuals()
-	{
-		VisualController = GetNodeOrNull<EntityVisualController<EntityState>>("EntityVisualController");
-		if (VisualController == null)
-			GD.PrintErr("EnemyEntity: Missing EntityVisualController node.");
 	}
 
 	// ---- Public methods to change behaviours at runtime ----
@@ -141,13 +129,6 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 	{
 		StateTimer += delta;
 		_idleToWanderTimer -= delta;
-		_damageEffect.UpdateTimer(delta);
-
-		// Update death color transition
-		if (_isTransitioningToDeath)
-		{
-			_deathEffect.UpdateTimer(delta);
-		}
 	}
 
 	protected override void UpdateAI(float delta)
@@ -239,7 +220,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		}
 
 		// Close enough to attack
-		if (AttackBehavior.CanAttack(this) && Weapon.CanStartAttack())
+		if (AttackBehavior.CanAttack(this) && AttackManager.CanStartAttack())
 		{
 			// GD.Print("Entity: HandleAggroTransitions() - CanAttack is true");
 			TransitionToState(EntityState.AttackPrepare);
@@ -306,39 +287,50 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		switch (state)
 		{
 			case EntityState.Idle:
+				VisualController.PlayState(state);
 				_idleToWanderTimer = WanderingBehavior.WanderCooldown;
 				break;
 
 			case EntityState.Wandering:
+				VisualController.PlayState(state);
 				WanderingBehavior.OnEnterWander(this);
 				_idleToWanderTimer = WanderingBehavior.WanderCooldown;
 				break;
 
 			case EntityState.Aggro:
+				VisualController.PlayState(state);
 				AggroBehavior.OnEnterNotice(this);
 				AggroBehavior.PerformAggroBehaviour(this);
+				break;
+
+			case EntityState.AttackPrepare:
+				VisualController.PlayState(state);
+				break;
+
+			case EntityState.AttackCharging:
+				VisualController.PlayState(state);
 				break;
 
 			case EntityState.Attacking:
 				// GD.Print("Entity: Entered Attacking state");
 				AttackBehavior.OnEnterAttack(this);
 				AttackBehavior.PerformAttack(this);
+				VisualController.PlayState(state);
 				break;
 
 			case EntityState.Hit:
 				VisualController.PlayState(state);
-				// Apply damage flash effect
-				// _damageEffect.PlayEffect(_baseSprite);
 				break;
 
 			case EntityState.Dying:
 				_hitArea.SetDeferred("monitoring", false);
+				_hitArea.SetDeferred("monitorable", false);
 				_physicalCollision.SetDeferred("disabled", true);
+				VisualController.PlayState(state);
 				break;
 
 			case EntityState.Dead:
-				// Darken the sprite 
-				// _deathEffect.PlayEffect(_baseSprite);
+				SetPhysicsProcess(false);
 				break;
 		}
 	}
@@ -360,8 +352,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				break;
 
 			case EntityState.Hit:
-				// Clear damage flash effect
-				// _damageEffect.ClearEffect(_baseSprite);
+				VisualController.ClearEffects();
 				break;
 		}
 	}
@@ -375,108 +366,32 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 			return;
 		}
 
-		bool stateChanged = CurrentState != PreviousState;
-
-		// Update sprite facing - only update if we're in a state where movement affects facing
-		// Don't update facing during Hit, Dying, or Attacking states to preserve direction
-		switch (CurrentState)
-		{
-			case EntityState.Idle:
-			case EntityState.Wandering:
-			case EntityState.Aggro:
-				// These states allow facing updates
-				if (!Mathf.IsEqualApprox(Velocity.X, 0))
-				{
-					FlipEntity(Velocity.X < 0);
-					_lastHorizontalFacing = (sbyte)(Velocity.X < 0 ? -1 : 1);
-				}
-				else
-				{
-					// When not moving, check if we have a facing direction set
-					if (!Mathf.IsEqualApprox(FacingDirection.X, 0))
-					{
-						// Use FacingDirection to determine sprite flip
-						FlipEntity(FacingDirection.X < 0);
-						_lastHorizontalFacing = (sbyte)(FacingDirection.X < 0 ? -1 : 1);
-					}
-					else
-					{
-						// For entities that don't move (like dummies), respect the FlipSpriteHorizontally setting
-						// Otherwise use the last horizontal facing direction
-						FlipEntity(FlipSpriteHorizontally || _lastHorizontalFacing < 0);
-					}
-				}
-				break;
-			default:
-				// Preserve current facing
-				break;
-		}
-
-		// Set animation based on state
-		string targetAnimation = GetAnimationForState(CurrentState);
-
-		if (stateChanged)
-		{
-			VisualController.PlayState(CurrentState);
-		}
-	}
-
-	protected virtual string GetAnimationForState(EntityState state)
-	{
-		return state switch
-		{
-			EntityState.Idle => "idle",
-			EntityState.Wandering => "walk",
-			EntityState.Aggro => AggroBehavior.animationName,
-			EntityState.AttackPrepare => "attack_prepare",
-			EntityState.AttackCharging => "attack_charge",
-			EntityState.Attacking => "attack",
-			EntityState.Hit => "hit",
-			EntityState.Dying => "die",
-			EntityState.Dead => "die",
-			_ => "idle"
-		};
+		VisualController.FacingDirection = FacingDirection;
+		VisualController.UpdateAnimationIfNeeded();
 	}
 
 	public void OnAnimationFinished()
 	{
-		string animName = VisualController.GetCurrentAnimation();
-		// GD.Print($"Entity: OnAnimationFinished() - Animation: {animName}, State: {_currentState}");
-
+		
 		switch (CurrentState)
 		{
 			case EntityState.AttackPrepare:
-				if (animName == "attack_prepare")
-				{
-					// GD.Print("Entity: Transitioning AttackPrepare -> AttackCharge");
-					TransitionToState(EntityState.AttackCharging);
-				}
+				TransitionToState(EntityState.AttackCharging);
 				break;
 
 			case EntityState.AttackCharging:
-				if (animName == "attack_charge")
-				{
-					// GD.Print("Entity: Transitioning AttackCharge -> Attacking");
-					TransitionToState(EntityState.Attacking);
-				}
+				TransitionToState(EntityState.Attacking);
 				break;
 
 			case EntityState.Attacking:
-				if (animName == "attack")
-				{
-					// GD.Print("Entity: Attack animation finished, transitioning back...");
-					if (AggroBehavior.CanSeeTarget(this))
+				if (AggroBehavior.CanSeeTarget(this))
 						TransitionToState(EntityState.Aggro);
 					else
 						TransitionToState(EntityState.Idle);
-				}
 				break;
 
 			case EntityState.Dying:
-				if (animName == "die")
-				{
-					TransitionToState(EntityState.Dead);
-				}
+				TransitionToState(EntityState.Dead);
 				break;
 		}
 	}

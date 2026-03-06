@@ -8,8 +8,8 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 	private Sprite2D _helmetArmorSprite;
 	public Node2D HandNode { get; set; }
 
-	[Export] private VisualFlash _damageFlash;
-	[Export] private VisualFlash _dodgeFlash;
+	[Export] private VisualEffect _damageEffect;
+	[Export] private VisualEffect _dodgeEffect;
 
 	public override void _Ready()
 	{
@@ -21,16 +21,15 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 		_helmetArmorSprite = GetNodeOrNull<Sprite2D>("BodyLayers/Helmet");
 
 		// Initialize visual effects
-		if (_damageFlash == null)
-			_damageFlash = new VisualFlash();
-		if (_dodgeFlash == null)
-			_dodgeFlash = new VisualFlash();
+		if (_damageEffect == null)
+			_damageEffect = new VisualFlash();
+		if (_dodgeEffect == null)
+			_dodgeEffect = new VisualFlash();
 			
-		_damageFlash.InitializeVisuals(_baseSprite);
-		_dodgeFlash.InitializeVisuals(_baseSprite);
+		_damageEffect.InitializeVisuals(_baseSprite);
+		_dodgeEffect.InitializeVisuals(_baseSprite);
 
 		_currentState = EntityState.Idle;
-		_previousState = _currentState;
 
 		if (_animationPlayer != null)
 		{
@@ -83,32 +82,21 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 	{
 	   if(state == EntityState.Dead)
 		{
+			HandNode?.Visible = false; // Hide hand on death
 			_animationPlayer.Play(GetAnimationNameForState(state));
 			return; // Skip the rest of the method to avoid changing animations after death
 		} 
 
 		base.PlayState(state);
 
-		switch (_previousState)
-		{
-			case EntityState.Dodging:
-			case EntityState.DodgePrep:
-			case EntityState.ConsumableUse:
-			case EntityState.ConsumableCharging:
-				HandNode?.Visible = true; // Show hand when exiting dodge state
-				break;
-			default:
-				break;
-		}
-
 		switch (state)
 		{
 			case EntityState.Hit:
-				_damageFlash.PlayEffect(_spriteContainer);
+				_damageEffect.PlayEffect(_spriteContainer);
 				break;
 			case EntityState.Dodging:
 			case EntityState.DodgePrep:
-				_dodgeFlash.PlayEffect(_spriteContainer);
+				_dodgeEffect.PlayEffect(_spriteContainer);
 				HandNode?.Visible = false; // Hide hand during dodge
 				break;
 			case EntityState.ConsumableUse:
@@ -125,6 +113,19 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 	public override void UpdateAnimationIfNeeded()
 	{
 		base.UpdateAnimationIfNeeded();
+
+		switch (_currentState)
+		{
+			case EntityState.Dodging:
+			case EntityState.DodgePrep:
+			case EntityState.ConsumableUse:
+			case EntityState.ConsumableCharging:
+				HandNode?.Visible = false;
+				break;
+			default:
+				HandNode?.Visible = true;
+				break;
+		}
 
 		if (FacingDirection.Y < 0)
 		{
@@ -177,7 +178,7 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 
 	public override void ClearEffects()
 	{
-		_damageFlash.ClearEffect(_spriteContainer);
-		_dodgeFlash.ClearEffect(_spriteContainer);
+		_damageEffect.ClearEffect(_spriteContainer);
+		_dodgeEffect.ClearEffect(_spriteContainer);
 	}
 }

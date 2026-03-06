@@ -34,6 +34,7 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 	{
 		UpdateTimers((float)delta);
 		UpdateAI((float)delta);
+		UpdateFacing();
 		HandleStateTransitions();
 		ApplyMovementByState((float)delta);
 		UpdateAnimationIfNeeded();

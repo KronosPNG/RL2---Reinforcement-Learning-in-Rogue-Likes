@@ -25,10 +25,10 @@ public partial class AttackInRange : AttackBehaviour
 
 	public override void PerformAttack(EnemyEntity entity)
 	{
-		if (entity.Weapon.CanStartAttack())
+		if (entity.AttackManager.CanStartAttack())
 		{
 			// GD.Print("AttackInRange: PerformAttack() called");
-			entity.Weapon.Attack();
+			entity.AttackManager.Attack();
 		}
 	}
 }
