@@ -123,6 +123,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 			return;
 
 		base._PhysicsProcess(delta);
+		UpdateAnimationIfNeeded();
 	}
 
 	protected override void UpdateTimers(float delta)
@@ -357,7 +358,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		}
 	}
 
-	public override void UpdateAnimationIfNeeded()
+	public void UpdateAnimationIfNeeded()
 	{
 		if (VisualController == null) return;
 
@@ -453,6 +454,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		TransitionToState(EntityState.Dying);
 		CurrentHealth = 0;
 		VisualController.PlayState(EntityState.Dying);
+		EmitSignal(SignalName.EntityDied);
 	}
 
 	// ---- IHasHealth Implementation ----

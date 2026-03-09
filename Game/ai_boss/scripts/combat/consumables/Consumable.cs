@@ -77,7 +77,7 @@ public partial class Consumable : Node2D, IPedestalItem
 				// Calculate FPS needed for animation to complete in UsageTime
 				float desiredFps = frameCount / EffectConfig.UsageTime;
 				ActiveSprite.SpriteFrames.SetAnimationSpeed("use", desiredFps);
-				GD.Print($"[Consumable] Set animation FPS to {desiredFps:F2} ({frameCount} frames / {EffectConfig.UsageTime}s)");
+				// GD.Print($"[Consumable] Set animation FPS to {desiredFps:F2} ({frameCount} frames / {EffectConfig.UsageTime}s)");
 			}
 		}
 	}

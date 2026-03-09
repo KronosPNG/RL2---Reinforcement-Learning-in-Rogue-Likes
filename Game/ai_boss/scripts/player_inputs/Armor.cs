@@ -55,9 +55,8 @@ public partial class Armor : Node2D, IPedestalItem
     public void Equip(PlayerController player)
     {
         OwnerCharacter = player;
+        
         // Logic to equip armor to the player
-        GD.Print("Armor equipped to player.");
-
         player.UpdateArmorVisuals(this);
         EmitSignal(SignalName.Equipped);
     }

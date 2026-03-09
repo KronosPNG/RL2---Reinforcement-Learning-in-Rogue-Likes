@@ -39,6 +39,8 @@ folder_colors={
 [global_group]
 
 Player=""
+Room="Scene that handles the room logic, door opening, enemy spawning"
+Enemy="Enemy entities that are aggressive towards player"
 
 [input]
 

@@ -37,7 +37,6 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 		UpdateFacing();
 		HandleStateTransitions();
 		ApplyMovementByState((float)delta);
-		UpdateAnimationIfNeeded();
 	}
 
 	protected virtual void InitializeNodes()
@@ -55,8 +54,6 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 	protected abstract void UpdateFacing();
 	
 	protected abstract void ApplyMovementByState(float delta);
-
-	public abstract void UpdateAnimationIfNeeded();
 
 	protected virtual Node2D FindTarget()
 	{
@@ -85,7 +82,7 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 
 	public abstract void OnExitState(TState state);
 
-	protected virtual void TransitionToState(TState newState)
+	public virtual void TransitionToState(TState newState)
 	{
 		StateMachine.TransitionToState(newState, OnExitState, OnEnterState);
 	}

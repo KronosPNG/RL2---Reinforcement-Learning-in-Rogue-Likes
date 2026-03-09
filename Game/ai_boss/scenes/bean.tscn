@@ -1595,7 +1595,7 @@ _data = {
 }
 
 [node name="Bean" type="CharacterBody2D" unique_id=627311338 groups=["Player"]]
-z_index = 1
+z_index = 2
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_vdqyq")

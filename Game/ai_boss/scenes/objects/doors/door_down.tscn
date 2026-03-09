@@ -1,0 +1,95 @@
+[gd_scene format=3 uid="uid://c1fqi244my31e"]
+
+[ext_resource type="Script" uid="uid://c5kce3pgopsf2" path="res://scripts/entities/Doors/Door.cs" id="1_2fupb"]
+[ext_resource type="Texture2D" uid="uid://bhfyom7ws4bu6" path="res://art/objects/door-sheet.png" id="1_bnwjs"]
+[ext_resource type="Script" uid="uid://bagkv333ais2s" path="res://scripts/visual_effects/VisualControllers/DoorVisualController.cs" id="2_pke25"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mf21l"]
+size = Vector2(32, 24)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rymai"]
+size = Vector2(22, 32)
+
+[sub_resource type="Animation" id="Animation_sdm6a"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_y24aa"]
+resource_name = "open"
+step = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [3, 2, 1, 0]
+}
+
+[sub_resource type="Animation" id="Animation_aqc3i"]
+resource_name = "open"
+step = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ju70t"]
+_data = {
+&"RESET": SubResource("Animation_sdm6a"),
+&"close": SubResource("Animation_y24aa"),
+&"open": SubResource("Animation_aqc3i")
+}
+
+[node name="DoorDown" type="CharacterBody2D" unique_id=695948323]
+z_index = 10
+script = ExtResource("1_2fupb")
+
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=662439809]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_mf21l")
+
+[node name="HitArea" type="Area2D" parent="." unique_id=649750036]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=466756076]
+position = Vector2(0, -13)
+shape = SubResource("RectangleShape2D_rymai")
+debug_color = Color(1, 0, 1, 0.42000002)
+
+[node name="VisualController" type="Node2D" parent="." unique_id=488791659]
+script = ExtResource("2_pke25")
+
+[node name="Sprite2D" type="Sprite2D" parent="VisualController" unique_id=424621092]
+texture = ExtResource("1_bnwjs")
+offset = Vector2(0, -16)
+hframes = 4
+region_enabled = true
+region_rect = Rect2(0, 64, 128, 64)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualController" unique_id=281578131]
+libraries/ = SubResource("AnimationLibrary_ju70t")

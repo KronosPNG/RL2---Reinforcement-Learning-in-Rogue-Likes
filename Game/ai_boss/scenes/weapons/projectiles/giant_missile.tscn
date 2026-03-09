@@ -109,7 +109,7 @@ _data = {
 collision_layer = 8
 script = ExtResource("1_imdjo")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=858462405]
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=858462405]
 visible = false
 shape = SubResource("CircleShape2D_86edt")
 debug_color = Color(1, 1, 0, 0.419608)

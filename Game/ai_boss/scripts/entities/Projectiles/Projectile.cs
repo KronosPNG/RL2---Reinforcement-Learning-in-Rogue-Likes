@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileState>
+public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileState>, IAnimatable<ProjectileState>
 {
 	[Signal] public delegate void ProjectileHitEventHandler(Node2D target, float damage);
 	[Signal] public delegate void ProjectileDestroyedEventHandler();
@@ -31,12 +31,9 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 
 	public override void _Ready()
 	{
-		StateMachine = new StateMachine<ProjectileState>(this, ProjectileState.Idle);
+		base._Ready();
 		VisualController = GetNodeOrNull<ProjectileVisualController>("VisualController");
 		
-		// Get node references
-		_hitArea = GetNodeOrNull<Area2D>("HitArea");
-		_physicalCollision = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
 		TargetType = (ProjectileOwner as EnemyEntity)?.TargetType ?? "Enemy";
 
 		if (_hitArea != null)
@@ -229,11 +226,6 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		}
 	}
 
-	public override void UpdateAnimationIfNeeded()
-	{
-		return;
-	}
-
 	public override void OnEnterState(ProjectileState state)
 	{
 		switch (state)
@@ -305,4 +297,10 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 				break;
 		}
 	}
+
+    public void UpdateAnimationIfNeeded()
+    {
+        return;
+    }
+
 }

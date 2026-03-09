@@ -96,7 +96,7 @@ _data = {
 collision_layer = 8
 script = ExtResource("1_di1w4")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1579341511]
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1579341511]
 visible = false
 position = Vector2(4, 2.98023e-08)
 scale = Vector2(7, 7)

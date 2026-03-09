@@ -13,7 +13,7 @@ public partial class Main : Node2D
 		PackedScene weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/sword.tscn");
 		PackedScene armorScene = ResourceLoader.Load<PackedScene>("res://scenes/armors/shirt.tscn");
 		// Get the SortSceneElements node
-		sortSceneElements = GetNode<Node2D>("SortSceneElements");
+		sortSceneElements = GetNode<Node2D>("Room/SortSceneElements");
 
 		// Instantiate Bean in sorting area
 		PlayerController beanInstance = beanScene.Instantiate<PlayerController>();

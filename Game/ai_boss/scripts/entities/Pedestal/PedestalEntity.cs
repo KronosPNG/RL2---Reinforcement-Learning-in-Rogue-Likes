@@ -1,6 +1,6 @@
 using Godot;
 using System;
-public  abstract partial class PedestalEntity<ItemType> : Entity<PedestalEntityState>, IInteractable, IStateful<PedestalEntityState> where ItemType : IPedestalItem
+public  abstract partial class PedestalEntity<ItemType> : Entity<PedestalEntityState>, IPedestal, IInteractable, IStateful<PedestalEntityState> where ItemType : IPedestalItem
 {
 	// ---- Signals ----
 	[Signal] public delegate void StateChangedEventHandler(string newState);
@@ -124,11 +124,6 @@ public  abstract partial class PedestalEntity<ItemType> : Entity<PedestalEntityS
 				Interact(_playerInRange);
 			}
 		}
-	}
-
-	public override void UpdateAnimationIfNeeded()
-	{
-		return;
 	}
 
 	protected override void UpdateFacing()

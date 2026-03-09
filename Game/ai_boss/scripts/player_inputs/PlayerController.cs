@@ -657,7 +657,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	// --- Animation ------------------------------
 
 
-	public override void UpdateAnimationIfNeeded()
+	public void UpdateAnimationIfNeeded()
 	{
 		// Always keep IsMoving synced for states that allow movement
 		switch (CurrentState)
@@ -813,7 +813,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 	public void EquipArmor(PackedScene armorScene)
 	{
-		GD.Print("Equipping new armor");
+		// GD.Print("Equipping new armor");
+
 		// If we reach this point, we have a new armor to equip
 		if (EquippedArmor != null)
 		{
@@ -877,7 +878,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	// ---- Consumable ----
 	public void EquipConsumable(PackedScene consumableScene)
 	{
-		GD.Print("Equipping new consumable");
+		// GD.Print("Equipping new consumable");
+
 		// If we have an existing consumable, unequip it
 		if (EquippedConsumable != null)
 		{
