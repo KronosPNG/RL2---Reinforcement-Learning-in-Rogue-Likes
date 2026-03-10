@@ -1,12 +1,14 @@
 using Godot;
+using System;
 
 public partial class Door : Entity<DoorState>, IStateful<DoorState>, IAnimatable<DoorState>
 {
 	[Signal] public delegate void StateChangedEventHandler(string newState);
-
+	[Signal] public delegate void DoorEnteredEventHandler(string doorId, string targetScenePath);
 	// ---- Room Transition Properties ----
-	[Export] public PackedScene TargetRoomScene; // The scene to load when the door is entered
-	
+	[Export] public string TargetRoomPath; // The scene path to load when the door is entered (use string to avoid circular references)
+	[Export] public DoorIDEnum DoorID; // Unique identifier for this door, used for saving/loading and room transitions
+
 	// ---- Animation properties ----
 	protected DoorVisualController VisualController;
 
@@ -95,11 +97,16 @@ public partial class Door : Entity<DoorState>, IStateful<DoorState>, IAnimatable
 
 	protected void OnBodyEntered(Node body)
 	{
-		if (body.IsInGroup(TargetType))
+		if (body.IsInGroup(TargetType) && CurrentState == DoorState.Open)
 		{
-			GD.Print($"Player entered door {Name}, transitioning to target room...");
-			EmitSignal(nameof(StateChanged), "Entered");
-			// Additional logic for room transition can be added here
+			if (string.IsNullOrEmpty(TargetRoomPath))
+			{
+				GD.PrintErr($"Door {Name} has no TargetRoomPath set!");
+				return;
+			}
+			
+			GD.Print($"Player entered door {Name} (ID: {DoorID}), transitioning to: {TargetRoomPath}");
+			EmitSignal(SignalName.DoorEntered, DoorID.ToString().ToLower(), TargetRoomPath);
 		}
 	}
 }

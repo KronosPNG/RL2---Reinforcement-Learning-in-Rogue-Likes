@@ -71,6 +71,10 @@ script = ExtResource("1_sdm6a")
 position = Vector2(0, -20)
 shape = SubResource("RectangleShape2D_mf21l")
 
+[node name="ImmutablePhysicalCollision" type="CollisionShape2D" parent="." unique_id=885670595]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_mf21l")
+
 [node name="HitArea" type="Area2D" parent="." unique_id=649750036]
 collision_layer = 0
 collision_mask = 4

@@ -4,7 +4,7 @@ using Godot;
 public partial class Room : Node2D, IStateful<RoomState>
 {
 	[Signal] public delegate void StateChangedEventHandler(string newState);
-
+	[Signal] public delegate void TransitionToSceneEventHandler(string doorId, string targetScenePath);
 	// ---- State Machine ----
 	public StateMachine<RoomState> StateMachine { get; private set; }
 	public RoomState CurrentState => StateMachine.CurrentState;
@@ -13,6 +13,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 	// ---- Spawning points for mobs and pedestals ----
 	protected Node2D[] _spawningPoints;
 	protected Node2D[] _pedestalPoints;
+	protected Node2D[] _doorPoints;
 	protected EnemyEntity[] _spawnedMobs;
 	[Export] protected PackedScene[] MobScenes; // List of mob scenes to spawn in this room
 	[Export] protected PackedScene[] PedestalScenes; // List of pedestal scenes to spawn in this room
@@ -30,10 +31,17 @@ public partial class Room : Node2D, IStateful<RoomState>
 		StateMachine = new StateMachine<RoomState>(this, RoomState.Inactive);
 		_spawningPoints =  GetNodeOrNull<Node2D>("SpawningPoints")?.GetChildren().OfType<Node2D>().ToArray() ?? [];
 		_pedestalPoints = GetNodeOrNull<Node2D>("PedestalPoints")?.GetChildren().OfType<Node2D>().ToArray() ?? [];
+		_doorPoints = GetNodeOrNull<Node2D>("DoorSpawnPoints")?.GetChildren().OfType<Node2D>().ToArray() ?? [];
 		_doors = sortedSceneElements?.GetNodeOrNull<Node2D>("Doors")?.GetChildren().OfType<Door>().ToArray() ?? [];
 		_spawnedMobs = [];
 
-		GD.Print($"Room {Name} initialized with {MobsToSpawn} mobs to spawn, {_spawningPoints.Length} spawning points, {_pedestalPoints.Length} pedestal points, and {_doors.Length} doors.");
+		GD.Print($"Room {Name} initialized with {MobsToSpawn} mobs to spawn, {_spawningPoints.Length} spawning points, {_pedestalPoints.Length} pedestal points, and {_doors.Length} doors with {_doorPoints.Length} door spawn points.");
+		
+		foreach (var door in _doors)
+		{
+			door.DoorEntered += OnDoorEntered;
+		}
+		
 		OnEnterState(CurrentState);
 	}
 
@@ -89,6 +97,11 @@ public partial class Room : Node2D, IStateful<RoomState>
 	{
 		GD.Print($"Spawning mobs in room {Name}...");
 
+		if(MobScenes == null || MobScenes.Length <= 0){
+			TransitionToState(RoomState.Cleared);
+			return;
+		}
+
 		for (int i = 0; i < MobsToSpawn && i < _spawningPoints.Length; i++)
 		{
 			// Spawn random mob from the list of mob scenes
@@ -125,6 +138,11 @@ public partial class Room : Node2D, IStateful<RoomState>
 
 	protected void SpawnPedestalsWithItems(PackedScene[] itemScenes)
 	{
+		if (PedestalScenes == null || PedestalScenes.Length < 0)
+		{
+			return;
+		}
+
 		for (int i = 0; i < _pedestalPoints.Length; i++)
 		{
 			var pedestalInstance = PedestalScenes[i % PedestalScenes.Length].Instantiate<Node2D>();
@@ -163,6 +181,31 @@ public partial class Room : Node2D, IStateful<RoomState>
 		{
 			door.TransitionToState(DoorState.Closed);
 		}
+	}
+
+	protected void OnDoorEntered(string doorId, string targetScenePath)
+	{
+		GD.Print($"Room.OnDoorEntered - Door ID: '{doorId}', TargetPath: '{targetScenePath}'");
+		
+		if (string.IsNullOrEmpty(targetScenePath))
+		{
+			GD.PrintErr($"Door {doorId} passed empty scene path!");
+			return;
+		}
+
+		CallDeferred(MethodName.EmitSignal, SignalName.TransitionToScene, EntranceFromDoorID(doorId), targetScenePath);
+	}
+
+	public string EntranceFromDoorID(string doorId)
+	{
+		return doorId switch
+		{
+			"up" => "down",
+			"down" => "up",
+			"left" => "right",
+			"right" => "left",
+			_ => "center"
+		};
 	}
 
 }

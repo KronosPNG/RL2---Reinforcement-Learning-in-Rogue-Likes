@@ -1,0 +1,156 @@
+using Godot;
+using System.Collections.Generic;
+
+public partial class RoomManager : Node2D
+{
+	private Dictionary<string, Room> _visitedRooms = [];
+
+	private PlayerController _player;
+	private Room _currentRoom;
+	private bool _isTransitioning = false;
+
+	public override void _Ready()
+	{
+		var firstRoom = ResourceLoader.Load<PackedScene>("res://scenes/rooms/starting_room.tscn");
+		LoadInitialRoom(firstRoom);
+	}
+
+	private void LoadInitialRoom(PackedScene roomScene)
+	{
+		_currentRoom = roomScene.Instantiate<Room>();
+		AddChild(_currentRoom);
+
+		_currentRoom.TransitionToScene += OnTransitionToScene;
+
+		// Load player and spawn in the center of the first room
+		var _beanScene = ResourceLoader.Load<PackedScene>("res://scenes/bean.tscn");
+		_player = _beanScene.Instantiate<PlayerController>();
+
+		// Spawn into sorted elements to ensure correct layering with doors and mobs
+		var sortedElements = _currentRoom.GetNodeOrNull<Node2D>("SortSceneElements");
+		sortedElements.AddChild(_player);
+		_player.Position = Vector2.Zero; // Center of the room
+		
+
+		// Wait for Bean to be ready, then spawn sword in hand and no armor
+		PackedScene weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/sword.tscn");
+		PackedScene armorScene = ResourceLoader.Load<PackedScene>("res://scenes/armors/shirt.tscn");
+
+		_player.CallDeferred("EquipWeapon", weaponScene);
+		_player.CallDeferred("EquipArmor", armorScene);
+	}
+
+	private void OnTransitionToScene(string spawnPointName, string targetScenePath)
+	{
+		// Prevent double transitions
+		if (_isTransitioning)
+		{
+			GD.Print("Already transitioning, ignoring door trigger");
+			return;
+		}
+		
+		GD.Print($"RoomManager.OnTransitionToScene - SpawnPoint: '{spawnPointName}', TargetPath: '{targetScenePath}'");
+		
+		if (string.IsNullOrEmpty(targetScenePath))
+		{
+			GD.PrintErr("RoomManager received empty target scene path!");
+			return;
+		}
+		
+		_isTransitioning = true;
+		// Pass spawn point NAME, not position - we'll calculate position from NEW room
+		CallDeferred(MethodName.TransitionToRoom, targetScenePath, spawnPointName);
+	}
+
+	private void TransitionToRoom(string targetScenePath, string spawnPointName)
+	{
+		// Remove player from current room
+		_player.GetParent().RemoveChild(_player);
+
+		// Deactivate current room
+		string currentRoomPath = _currentRoom.SceneFilePath;
+		EnableRoom(_currentRoom, false);
+		_visitedRooms[currentRoomPath] = _currentRoom;
+
+		_currentRoom.TransitionToScene -= OnTransitionToScene;
+
+		if (_visitedRooms.ContainsKey(targetScenePath))
+		{
+			_currentRoom = _visitedRooms[targetScenePath];
+			EnableRoom(_currentRoom);
+		}
+		else
+		{
+			var targetRoom = ResourceLoader.Load<PackedScene>(targetScenePath);
+			_currentRoom = targetRoom.Instantiate<Room>();
+			// Disable navigation BEFORE adding to tree to prevent overlap
+			DisableRoomNavigation(_currentRoom);
+			AddChild(_currentRoom);
+			// Re-enable after it's in the tree
+			EnableRoomNavigation(_currentRoom);
+		}
+
+		_currentRoom.TransitionToScene += OnTransitionToScene;
+
+		// Get spawn point from NEW room
+		var spawnNode = _currentRoom.GetNodeOrNull<Node2D>($"DoorSpawnPoints/{spawnPointName}");
+		Vector2 spawnPoint = spawnNode?.Position ?? Vector2.Zero;
+		
+		if (spawnNode == null)
+		{
+			GD.PrintErr($"Spawn point '{spawnPointName}' not found in room! Using center.");
+		}
+		else
+		{
+			GD.Print($"Spawning player at '{spawnPointName}': {spawnPoint}");
+		}
+
+		// Set position BEFORE adding to scene tree to avoid triggering door collisions
+		_player.Position = spawnPoint;
+		
+		var sortedElements = _currentRoom.GetNodeOrNull<Node2D>("SortSceneElements");
+		sortedElements.AddChild(_player);
+		
+		// Re-enable door transitions after a brief delay
+		GetTree().CreateTimer(0.3).Timeout += () => _isTransitioning = false;
+	}
+
+	private void EnableRoom(Room room, bool enable=true)
+	{
+		room.Visible = enable;
+		room.ProcessMode = enable ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
+
+		
+		if (enable)
+			EnableRoomNavigation(room);
+		else
+			DisableRoomNavigation(room);
+	}
+
+	private void DisableRoomNavigation(Room room)
+	{
+		// Recursively find all TileMapLayers in the room
+		var tileMaps = room.FindChildren("*", "TileMapLayer", recursive: true, owned: false);
+		foreach (var node in tileMaps)
+		{
+			if (node is TileMapLayer layer)
+			{
+				layer.NavigationEnabled = false;
+			}
+		}
+	}
+
+	private void EnableRoomNavigation(Room room)
+	{
+		// Recursively find all TileMapLayers in the room
+		var tileMaps = room.FindChildren("*", "TileMapLayer", recursive: true, owned: false);
+		foreach (var node in tileMaps)
+		{
+			if (node is TileMapLayer layer)
+			{
+				layer.NavigationEnabled = true;
+			}
+		}
+	}
+
+}

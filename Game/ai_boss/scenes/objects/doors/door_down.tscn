@@ -7,6 +7,9 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mf21l"]
 size = Vector2(32, 24)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pke25"]
+size = Vector2(32, 16)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rymai"]
 size = Vector2(22, 32)
 
@@ -67,10 +70,15 @@ _data = {
 [node name="DoorDown" type="CharacterBody2D" unique_id=695948323]
 z_index = 10
 script = ExtResource("1_2fupb")
+DoorID = 1
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=662439809]
 position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_mf21l")
+
+[node name="ImmutablePhysicalCollision" type="CollisionShape2D" parent="." unique_id=1237249892]
+position = Vector2(0, 2)
+shape = SubResource("RectangleShape2D_pke25")
 
 [node name="HitArea" type="Area2D" parent="." unique_id=649750036]
 collision_layer = 0

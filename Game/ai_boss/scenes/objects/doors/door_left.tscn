@@ -67,10 +67,15 @@ _data = {
 [node name="DoorLeft" type="CharacterBody2D" unique_id=1249815654]
 z_index = 10
 script = ExtResource("1_1hxq5")
+DoorID = 2
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=662439809]
 position = Vector2(-8, 0)
 shape = SubResource("RectangleShape2D_mf21l")
+
+[node name="ImmutablePhysicalCollision" type="CollisionPolygon2D" parent="." unique_id=1314464471]
+position = Vector2(-8, 0)
+polygon = PackedVector2Array(8, -32, -8, -16, -8, 16, 8, 32, -24, 32, -24, -32)
 
 [node name="HitArea" type="Area2D" parent="." unique_id=649750036]
 collision_layer = 0

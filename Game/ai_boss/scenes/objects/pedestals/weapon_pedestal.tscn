@@ -25,7 +25,7 @@ animations = [{
 radius = 14.0357
 
 [node name="WeaponPedestal" type="CharacterBody2D" unique_id=1584743976]
-z_index = 1
+z_index = 2
 collision_mask = 14
 script = ExtResource("1_klygf")
 
@@ -49,6 +49,7 @@ shape = SubResource("CircleShape2D_hsd6d")
 z_index = 1
 
 [node name="InteractPrompt" type="Label" parent="." unique_id=1669965104]
+z_index = 1
 offset_left = -15.0
 offset_top = -20.0
 offset_right = 85.0

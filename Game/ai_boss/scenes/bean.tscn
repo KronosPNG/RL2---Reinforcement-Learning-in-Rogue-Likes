@@ -1602,6 +1602,9 @@ script = ExtResource("1_vdqyq")
 InvulnerabilityDuration = 1.5
 BaseSpeed = 100.0
 
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1124969451]
+zoom = Vector2(3, 3)
+
 [node name="HitArea" type="Area2D" parent="." unique_id=410506795]
 visible = false
 collision_layer = 64
