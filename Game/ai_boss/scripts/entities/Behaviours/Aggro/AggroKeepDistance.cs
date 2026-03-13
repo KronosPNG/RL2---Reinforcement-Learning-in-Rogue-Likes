@@ -11,7 +11,7 @@ public partial class AggroKeepDistance : AggroBehaviour
 	[ExportGroup("Distance Keeping Properties")]
 	[Export] public float PreferredDistance { get; set; } = 150f;
 	[Export] public float DistanceTolerance { get; set; } = 20f;
-	[Export] public float StrafeSpeed { get; set; } = 300f;
+	[Export] public float StrafeSpeed { get; set; } = 12f;
 	[Export] public bool EnableStrafing { get; set; } = true;
 	[Export] public float MinStrafeDuration { get; set; } = 1.0f;
 	[Export] public float MaxStrafeDuration { get; set; } = 2.5f;
@@ -41,18 +41,18 @@ public partial class AggroKeepDistance : AggroBehaviour
 		if (distance > PreferredDistance + DistanceTolerance)
 		{
 			// Too far - move closer
-			velocity = direction * entity.BaseSpeed * ChaseSpeedModifier * delta;
+			velocity = direction * entity.BaseSpeed * ChaseSpeedModifier;
 		}
 		else if (distance < PreferredDistance - DistanceTolerance)
 		{
 			// Too close - move away
-			velocity = -direction * ChaseSpeedModifier * entity.BaseSpeed * delta;
+			velocity = -direction * entity.BaseSpeed * ChaseSpeedModifier;
 		}
 		else if (EnableStrafing)
 		{
 			// At good distance - strafe sideways
 			Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
-			velocity = perpendicular * _strafeDirection * StrafeSpeed * delta;
+			velocity = perpendicular * _strafeDirection * StrafeSpeed;
 		}
 		else
 		{

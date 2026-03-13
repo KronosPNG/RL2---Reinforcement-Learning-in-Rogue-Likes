@@ -42,7 +42,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 	[Export] EntityVisualController<EntityState> VisualController;
 
 	// ---- Timers ----
-	protected float _hitStunDuration = 1f;
+	protected float _hitStunDuration = .5f;
 	protected float _idleToWanderTimer = 0f;
 
 	// ---- Signals ----

@@ -11,7 +11,7 @@ size = Vector2(32, 24)
 size = Vector2(32, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rymai"]
-size = Vector2(22, 32)
+size = Vector2(22, 38)
 
 [sub_resource type="Animation" id="Animation_sdm6a"]
 length = 0.001
@@ -73,19 +73,22 @@ script = ExtResource("1_2fupb")
 DoorID = 1
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=662439809]
+visible = false
 position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_mf21l")
 
 [node name="ImmutablePhysicalCollision" type="CollisionShape2D" parent="." unique_id=1237249892]
+visible = false
 position = Vector2(0, 2)
 shape = SubResource("RectangleShape2D_pke25")
 
 [node name="HitArea" type="Area2D" parent="." unique_id=649750036]
+visible = false
 collision_layer = 0
 collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=466756076]
-position = Vector2(0, -13)
+position = Vector2(0, -10)
 shape = SubResource("RectangleShape2D_rymai")
 debug_color = Color(1, 0, 1, 0.42000002)
 
@@ -101,3 +104,6 @@ region_rect = Rect2(0, 64, 128, 64)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="VisualController" unique_id=281578131]
 libraries/ = SubResource("AnimationLibrary_ju70t")
+
+[node name="down" type="Node2D" parent="." unique_id=1112731476 groups=["DoorSpawnPoint"]]
+position = Vector2(0, 12)

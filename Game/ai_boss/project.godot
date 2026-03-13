@@ -23,10 +23,6 @@ config/icon="res://icon.svg"
 
 project/assembly_name="AI_Boss"
 
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg")
-
 [file_customization]
 
 folder_colors={
@@ -41,6 +37,7 @@ folder_colors={
 Player=""
 Room="Scene that handles the room logic, door opening, enemy spawning"
 Enemy="Enemy entities that are aggressive towards player"
+DoorSpawnPoint="Spawnpoints for player when entering a room"
 
 [input]
 
@@ -104,3 +101,5 @@ consumable_use={
 
 textures/canvas_textures/default_texture_filter=0
 environment/defaults/default_clear_color=Color(0.16862746, 0.16862746, 0.23529412, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true

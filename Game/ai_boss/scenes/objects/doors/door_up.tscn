@@ -68,18 +68,22 @@ _data = {
 script = ExtResource("1_sdm6a")
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=662439809]
+visible = false
 position = Vector2(0, -20)
 shape = SubResource("RectangleShape2D_mf21l")
 
 [node name="ImmutablePhysicalCollision" type="CollisionShape2D" parent="." unique_id=885670595]
+visible = false
 position = Vector2(0, -20)
 shape = SubResource("RectangleShape2D_mf21l")
 
 [node name="HitArea" type="Area2D" parent="." unique_id=649750036]
+visible = false
 collision_layer = 0
 collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=466756076]
+visible = false
 position = Vector2(0, -13)
 shape = SubResource("RectangleShape2D_rymai")
 debug_color = Color(1, 0, 1, 0.42000002)
@@ -96,3 +100,6 @@ region_rect = Rect2(0, 0, 128, 64)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="VisualController" unique_id=281578131]
 libraries/ = SubResource("AnimationLibrary_ju70t")
+
+[node name="up" type="Node2D" parent="." unique_id=1925060015 groups=["DoorSpawnPoint"]]
+position = Vector2(0, -32)

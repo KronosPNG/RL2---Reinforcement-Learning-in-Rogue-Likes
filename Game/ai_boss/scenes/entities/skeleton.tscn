@@ -37,7 +37,7 @@ size = Vector2(1.42857, 2.57143)
 [sub_resource type="Resource" id="Resource_5gv7q"]
 script = ExtResource("7_jsnsc")
 ProjectileScene = ExtResource("7_sb2t5")
-ProjectileSpeed = 200.0
+ProjectileSpeed = 150.0
 ProjectileRange = 150.0
 Damage = 15.0
 Cooldown = 2.0
@@ -202,12 +202,13 @@ _data = {
 
 [node name="Skeleton" type="CharacterBody2D" unique_id=685011258 groups=["Enemy"]]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 7
 script = ExtResource("1_sb2t5")
 MaxHealth = 75.0
 WanderingBehavior = SubResource("Resource_87w4c")
 AggroBehavior = SubResource("Resource_mr1eg")
 AttackBehavior = SubResource("Resource_ptmnq")
+BaseSpeed = 16.0
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1964196401]
 visible = false
@@ -228,17 +229,17 @@ debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=322266064]
 
-[node name="Weapon" type="Node2D" parent="." unique_id=447470933]
+[node name="AttackManager" type="Node2D" parent="." unique_id=447470933]
 script = ExtResource("6_jsnsc")
 AttackConfig = SubResource("Resource_5gv7q")
 
-[node name="AttackArea" type="Area2D" parent="Weapon" unique_id=1754407103]
+[node name="AttackArea" type="Area2D" parent="AttackManager" unique_id=1754407103]
 collision_layer = 2
 collision_mask = 64
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Weapon/AttackArea" unique_id=155946233]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="AttackManager/AttackArea" unique_id=155946233]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Weapon" unique_id=1470310650]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AttackManager" unique_id=1470310650]
 
 [node name="VisualController" type="Node2D" parent="." unique_id=582616260]
 script = ExtResource("8_mr1eg")

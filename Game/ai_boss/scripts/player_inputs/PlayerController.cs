@@ -26,7 +26,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	public bool IsInvulnerable => _invulnerabilityTimer > 0 || CurrentState == EntityState.Dodging;
 	
 	//---- Movement Data ----
-	[Export] public float DodgeSpeed { get; set; } = 250f; // speed during dodge
+	[Export] public float DodgeSpeed { get; set; } = 150f; // speed during dodge
 	[Export] public float ChargeMoveModifier { get; set; } = .5f; // speed modifier during charge
 	private Vector2 _dodgeDirection = Vector2.Zero;
 
@@ -169,7 +169,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 			if (_invulnerabilityTimer <= 0)
 			{
 				_invulnerabilityTimer = 0;
-				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
 				// End of invulnerability - can add visual effect here if desired	
 			}
 		}	
@@ -529,7 +529,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 				
 				CancelChargingAttack();
 				CancelChargingConsumable();
-				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 
 				EquippedWeapon.SetPhysicsProcess(false);
 				SetPhysicsProcess(false);
@@ -568,7 +568,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		// _dodgeFlash.PlayEffect(_spriteContainer);
 
 		// Make player invulnerable during dodge (can't be detected by enemy weapons)
-		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 		
 		// Disable collision with enemies during dodge - remove Layer 2 from mask
 		CollisionMask = _normalCollisionMask & ~2u; // Remove Layer 2 (enemies)
@@ -590,7 +590,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 				VisualController.ClearEffects();
 
 				// Restore vulnerability after dodge
-				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
 				
 				// Restore normal collision properties after dodge
 				CollisionMask = _normalCollisionMask;
@@ -947,7 +947,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
 	{
 		_invulnerabilityTimer = InvulnerabilityDuration;
-		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 
 		amount *= EquippedArmor.DamageModifier; // apply damage reduction
 

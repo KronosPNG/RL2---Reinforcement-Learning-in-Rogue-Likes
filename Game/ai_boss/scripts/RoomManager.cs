@@ -93,8 +93,8 @@ public partial class RoomManager : Node2D
 		_currentRoom.TransitionToScene += OnTransitionToScene;
 
 		// Get spawn point from NEW room
-		var spawnNode = _currentRoom.GetNodeOrNull<Node2D>($"DoorSpawnPoints/{spawnPointName}");
-		Vector2 spawnPoint = spawnNode?.Position ?? Vector2.Zero;
+		var spawnNode = FindRoomSpawnPoint(_currentRoom, spawnPointName);
+		Vector2 spawnPoint = spawnNode?.GlobalPosition ?? Vector2.Zero;
 		
 		if (spawnNode == null)
 		{
@@ -115,16 +115,79 @@ public partial class RoomManager : Node2D
 		GetTree().CreateTimer(0.3).Timeout += () => _isTransitioning = false;
 	}
 
+	private Node2D FindRoomSpawnPoint(Room room, string spawnPointName)
+	{
+		var groupNodes = GetTree().GetNodesInGroup("DoorSpawnPoint");
+
+		foreach (var node in groupNodes)
+		{
+			if (node is Node2D spawnNode && room.IsAncestorOf(spawnNode) && spawnNode.Name == spawnPointName)
+			{
+				return spawnNode;
+			}
+		}
+
+		return null;
+	}
+
 	private void EnableRoom(Room room, bool enable=true)
 	{
 		room.Visible = enable;
 		room.ProcessMode = enable ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
 
-		
 		if (enable)
+		{
 			EnableRoomNavigation(room);
+			EnableRoomCollision(room);
+		}
 		else
+		{
 			DisableRoomNavigation(room);
+			DisableRoomCollision(room);
+		}
+	}
+
+	private void DisableRoomCollision(Room room)
+	{
+		// Disable tilemap physics so inactive rooms stop producing collisions.
+		var tileMaps = room.FindChildren("*", "TileMapLayer", recursive: true, owned: false);
+		foreach (var node in tileMaps)
+		{
+			if (node is TileMapLayer layer)
+			{
+				layer.CollisionEnabled = false;
+			}
+		}
+
+		var colliders = room.FindChildren("*", "CollisionShape2D", recursive: true, owned: false);
+		foreach (var node in colliders)
+		{
+			if (node is CollisionShape2D collider)
+			{
+				collider.Disabled = true;
+			}
+		}
+	}
+
+	private void EnableRoomCollision(Room room)
+	{
+		var tileMaps = room.FindChildren("*", "TileMapLayer", recursive: true, owned: false);
+		foreach (var node in tileMaps)
+		{
+			if (node is TileMapLayer layer)
+			{
+				layer.CollisionEnabled = true;
+			}
+		}
+
+		var colliders = room.FindChildren("*", "CollisionShape2D", recursive: true, owned: false);
+		foreach (var node in colliders)
+		{
+			if (node is CollisionShape2D collider)
+			{
+				collider.Disabled = false;
+			}
+		}
 	}
 
 	private void DisableRoomNavigation(Room room)

@@ -88,6 +88,12 @@ public partial class Room : Node2D, IStateful<RoomState>
 		StateMachine.TransitionToState(newState, OnExitState, OnEnterState);
 	}
 
+	// Wrapper method for CallDeferred to transition states (CallDeferred requires Variant-compatible types)
+	private void DeferredTransitionToState(int stateValue)
+	{
+		TransitionToState((RoomState)stateValue);
+	}
+
 	public void HandleStateTransitions()
 	{
 		throw new System.NotImplementedException();
@@ -95,12 +101,12 @@ public partial class Room : Node2D, IStateful<RoomState>
 
 	protected void SpawnMobs()
 	{
-		GD.Print($"Spawning mobs in room {Name}...");
-
 		if(MobScenes == null || MobScenes.Length <= 0){
 			TransitionToState(RoomState.Cleared);
 			return;
 		}
+
+		GD.Print($"Spawning mobs in room {Name}...");
 
 		for (int i = 0; i < MobsToSpawn && i < _spawningPoints.Length; i++)
 		{
@@ -127,7 +133,8 @@ public partial class Room : Node2D, IStateful<RoomState>
 		_spawnedMobs = _spawnedMobs.Where(m => m != mob).ToArray();
 		if (_spawnedMobs.Length == 0)
 		{
-			TransitionToState(RoomState.Cleared);
+			// Defer state transition to avoid modifying physics state during query flushing
+			CallDeferred(nameof(DeferredTransitionToState), (int)RoomState.Cleared);
 		}
 	}
 

@@ -8,7 +8,7 @@
 size = Vector2(16, 64)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rymai"]
-size = Vector2(13, 27)
+size = Vector2(21, 27)
 
 [sub_resource type="Animation" id="Animation_sdm6a"]
 length = 0.001
@@ -75,6 +75,7 @@ position = Vector2(8, 0)
 shape = SubResource("RectangleShape2D_mf21l")
 
 [node name="ImmutablePhysicalCollision" type="CollisionPolygon2D" parent="." unique_id=467628165]
+visible = false
 position = Vector2(8, 0)
 polygon = PackedVector2Array(8, -16, 8, 16, -8, 32, 24, 32, 24, -32, -8, -32)
 
@@ -83,7 +84,8 @@ collision_layer = 0
 collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=466756076]
-position = Vector2(1.5, 8.5)
+visible = false
+position = Vector2(5.5, 8.5)
 shape = SubResource("RectangleShape2D_rymai")
 debug_color = Color(1, 0, 1, 0.42000002)
 
@@ -99,3 +101,6 @@ region_rect = Rect2(0, 192, 128, 64)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="VisualController" unique_id=281578131]
 libraries/ = SubResource("AnimationLibrary_ju70t")
+
+[node name="right" type="Node2D" parent="." unique_id=708087625 groups=["DoorSpawnPoint"]]
+position = Vector2(-16, 0)

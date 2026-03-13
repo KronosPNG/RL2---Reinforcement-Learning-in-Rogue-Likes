@@ -201,7 +201,7 @@ _data = {
 [node name="Zombie" type="CharacterBody2D" unique_id=681170650 groups=["Enemy"]]
 z_index = 1
 collision_layer = 2
-collision_mask = 5
+collision_mask = 7
 script = ExtResource("1_47c00")
 MaxHealth = 100.0
 WanderingBehavior = SubResource("Resource_rv1jy")
