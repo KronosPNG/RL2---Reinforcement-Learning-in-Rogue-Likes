@@ -262,8 +262,8 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				break;
 
 			case EntityState.Aggro:
-				Velocity = AggroBehavior.GetChaseVelocity(this, delta);
 				AggroBehavior.PerformAggroBehaviour(this);
+				Velocity = AggroBehavior.GetChaseVelocity(this, delta);
 				break;
 
 			case EntityState.Attacking:
@@ -328,6 +328,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				_hitArea.SetDeferred("monitorable", false);
 				_physicalCollision.SetDeferred("disabled", true);
 				VisualController.PlayState(state);
+				NavAgent.SetDeferred("enabled", false);
 				break;
 
 			case EntityState.Dead:

@@ -787,11 +787,9 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 			
 			if (shouldAutoswing)
 			{
-				// Trigger another attack immediately
-				if (isLightAttack)
-					OnLightAttack();
-				else if (isHeavyAttack)
-					OnHeavyAttack();
+				// Queue the next attack to start after a tiny delay to ensure animation and cooldown are fully cleared
+				// This prevents rapid-fire hit area creation from overlapping attacks
+				_ = ProcessAutoswing(isLightAttack, isHeavyAttack);
 				// Stay in Attacking state
 				return;
 			}
@@ -806,6 +804,21 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 			{
 				TransitionToState(EntityState.Idle);
 			}
+		}
+	}
+
+	private async System.Threading.Tasks.Task ProcessAutoswing(bool isLightAttack, bool isHeavyAttack)
+	{
+		// Wait one frame to let cooldown and state fully reset
+		await ToSignal(GetTree(), "process_frame");
+		
+		// Only trigger autoswing if weapon can actually start a new attack
+		if (EquippedWeapon.CanStartAttack())
+		{
+			if (isLightAttack)
+				OnLightAttack();
+			else if (isHeavyAttack)
+				OnHeavyAttack();
 		}
 	}
 
@@ -856,13 +869,13 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	// --- Armor Signal Handlers ----------------
 	private void OnArmorEquipped()
 	{
-		GD.Print($"[PlayerController] Armor equipped: {EquippedArmor.ItemName}");
+		// GD.Print($"[PlayerController] Armor equipped: {EquippedArmor.ItemName}");
 		// Can add visual/audio feedback here
 	}
 
 	private void OnArmorUnequipped()
 	{
-		GD.Print($"[PlayerController] Armor unequipped");
+		// GD.Print($"[PlayerController] Armor unequipped");
 		// Can add visual/audio feedback here
 	}
 
@@ -922,7 +935,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	private void OnConsumableUsed(string consumableName)
 	{
 		// Consumable has been used
-		GD.Print($"[PlayerController] Consumable used: {consumableName}");
+		// GD.Print($"[PlayerController] Consumable used: {consumableName}");
 	}
 
 	private void OnConsumableCompleted(string consumableName)
@@ -952,7 +965,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		amount *= EquippedArmor.DamageModifier; // apply damage reduction
 
 		CurrentHealth -= amount;
-		GD.Print($"Player took {amount} damage from {attacker.Name}");
+		// GD.Print($"Player took {amount} damage from {attacker.Name}");
 
 		// Check if damage is lethal
 		bool isLethalDamage = CurrentHealth <= 0;
@@ -993,7 +1006,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		if (CurrentHealth > MaxHealth)
 			CurrentHealth = MaxHealth;
 
-		GD.Print($"Player healed {amount} health.");
+		// GD.Print($"Player healed {amount} health.");
 
 		// Emit health changed signal
 		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
@@ -1019,7 +1032,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		}
 
 		_activeEffects.Add(effect);
-		GD.Print($"[PlayerController] Added active effect: {effect.GetType().Name}");
+		// GD.Print($"[PlayerController] Added active effect: {effect.GetType().Name}");
 	}
 
 	// Remove a consumable effect from the player's active effects
@@ -1029,7 +1042,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 		if (_activeEffects.Remove(effect))
 		{
-			GD.Print($"[PlayerController] Removed active effect: {effect.GetType().Name}");
+			// GD.Print($"[PlayerController] Removed active effect: {effect.GetType().Name}");
 		}
 	}
 

@@ -110,6 +110,7 @@ script = ExtResource("1_pqfyw")
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1023759995]
 visible = false
+y_sort_enabled = true
 position = Vector2(5, -0.1875)
 scale = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_di1w4")

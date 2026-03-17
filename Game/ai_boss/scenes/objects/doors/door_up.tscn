@@ -102,4 +102,4 @@ region_rect = Rect2(0, 0, 128, 64)
 libraries/ = SubResource("AnimationLibrary_ju70t")
 
 [node name="up" type="Node2D" parent="." unique_id=1925060015 groups=["DoorSpawnPoint"]]
-position = Vector2(0, -32)
+position = Vector2(0, 16)

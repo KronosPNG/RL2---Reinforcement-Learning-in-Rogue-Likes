@@ -38,7 +38,7 @@ public partial class Armor : Node2D, IPedestalItem
 
         if (PedestalDisplaySprite == null)
         {
-            GD.PrintErr("Armor: could not find PedestalDisplaySprite");
+            // GD.PrintErr("Armor: could not find PedestalDisplaySprite");
             return;
         }
         else
@@ -66,7 +66,7 @@ public partial class Armor : Node2D, IPedestalItem
         if (OwnerCharacter != null)
         {
             // Logic to unequip armor from the player
-            GD.Print("Armor unequipped from player.");
+            // GD.Print("Armor unequipped from player.");
             OwnerCharacter.UpdateArmorVisuals(null);
             OwnerCharacter = null;
             EmitSignal(SignalName.Unequipped);

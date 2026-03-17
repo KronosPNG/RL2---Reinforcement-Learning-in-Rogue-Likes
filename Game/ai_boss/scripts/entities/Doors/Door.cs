@@ -105,7 +105,7 @@ public partial class Door : Entity<DoorState>, IStateful<DoorState>, IAnimatable
 				return;
 			}
 			
-			GD.Print($"Player entered door {Name} (ID: {DoorID}), transitioning to: {TargetRoomPath}");
+			// GD.Print($"Player entered door {Name} (ID: {DoorID}), transitioning to: {TargetRoomPath}");
 			EmitSignal(SignalName.DoorEntered, DoorID.ToString().ToLower(), TargetRoomPath);
 		}
 	}

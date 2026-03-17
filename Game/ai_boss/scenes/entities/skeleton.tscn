@@ -28,8 +28,8 @@ script = ExtResource("4_sb2t5")
 AttackRange = 150.0
 metadata/_custom_type_script = "uid://7wl1bqipf4t"
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_khxps"]
-size = Vector2(1.14286, 2.28571)
+[sub_resource type="CircleShape2D" id="CircleShape2D_mr1eg"]
+radius = 0.5
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj17u"]
 size = Vector2(1.42857, 2.57143)
@@ -201,6 +201,7 @@ _data = {
 }
 
 [node name="Skeleton" type="CharacterBody2D" unique_id=685011258 groups=["Enemy"]]
+z_index = 2
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_sb2t5")
@@ -212,11 +213,13 @@ BaseSpeed = 16.0
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1964196401]
 visible = false
+z_index = 1
 position = Vector2(-1.90735e-06, 1.43051e-06)
 scale = Vector2(7, 7)
-shape = SubResource("RectangleShape2D_khxps")
+shape = SubResource("CircleShape2D_mr1eg")
 
 [node name="HitArea" type="Area2D" parent="." unique_id=2145860150]
+visible = false
 scale = Vector2(7, 7)
 collision_layer = 32
 collision_mask = 0
@@ -228,6 +231,10 @@ shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=322266064]
+path_desired_distance = 5.0
+target_desired_distance = 5.0
+avoidance_enabled = true
+debug_enabled = true
 
 [node name="AttackManager" type="Node2D" parent="." unique_id=447470933]
 script = ExtResource("6_jsnsc")

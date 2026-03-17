@@ -13,26 +13,42 @@ public partial class AggroFollowTarget : AggroBehaviour
         if (entity.Target == null || !IsInstanceValid(entity.Target))
             return Vector2.Zero;
 
-        Vector2 direction = (entity.Target.GlobalPosition - entity.GlobalPosition).Normalized();
+        Vector2 direction = entity.GlobalPosition.DirectionTo(entity.Target.GlobalPosition);
 
         if (entity is INavigable navigableEntity)
         {
             NavigationAgent2D navAgent = navigableEntity.NavAgent;
 
-            // Use navigation path if available and ready, otherwise move directly toward target
-            if (navAgent != null && !navAgent.IsNavigationFinished() && navAgent.IsTargetReachable())
-            {
+            if (navAgent != null && !navAgent.IsNavigationFinished())
+            {   
                 Vector2 nextPos = navAgent.GetNextPathPosition();
-                // Only use nav path if it's valid (not at current position)
+                    
                 if (entity.GlobalPosition.DistanceSquaredTo(nextPos) > 1.0f)
                 {
+                    // GD.Print($"AggroFollowTarget: Using pathfinding direction towards next path position {nextPos}");
                     direction = entity.GlobalPosition.DirectionTo(nextPos);
+                    return direction * entity.BaseSpeed * ChaseSpeedModifier;
                 }
+
+                else
+                {
+                    return Vector2.Zero; // Close enough to next path point, wait for next frame to update path
+                }
+            } 
+            
+            else
+            {
+                GD.PrintErr($"AggroFollowTarget: Entity is missing a NavigationAgent2D for pathfinding!");
+                return direction * entity.BaseSpeed * ChaseSpeedModifier; // Fallback to direct movement if no nav agent
             }
         }
 
-        // Don't multiply by delta - MoveAndSlide() handles that internally
-        return direction * entity.BaseSpeed * ChaseSpeedModifier;
+        else
+        {
+            GD.PrintErr($"AggroFollowTarget: Entity is not navigable but is using AggroFollowTarget behaviour!");
+            return direction * entity.BaseSpeed * ChaseSpeedModifier;
+        }
+
     }
 
     public override void OnEnterNotice(IEntity entity)
@@ -47,8 +63,6 @@ public partial class AggroFollowTarget : AggroBehaviour
 
     public override void PerformAggroBehaviour(IEntity entity)
     {
-        // Setup navigation if available
-        // Note: Velocity is already set by GetChaseVelocity, don't override it here
         if (entity.Target == null || !IsInstanceValid(entity.Target))
             return;
             
@@ -59,7 +73,6 @@ public partial class AggroFollowTarget : AggroBehaviour
 
 		if (navAgent != null)
         {
-            // Update navigation target
             navAgent.TargetPosition = entity.Target.GlobalPosition;
         }
     }

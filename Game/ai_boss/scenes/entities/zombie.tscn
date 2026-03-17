@@ -24,11 +24,11 @@ metadata/_custom_type_script = "uid://cl5nwfa1ckc4i"
 
 [sub_resource type="Resource" id="Resource_5va6l"]
 script = ExtResource("4_y3gxn")
-AttackRange = 15.0
+AttackRange = 8.0
 metadata/_custom_type_script = "uid://7wl1bqipf4t"
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_khxps"]
-size = Vector2(0.857145, 1.42857)
+[sub_resource type="CircleShape2D" id="CircleShape2D_rv1jy"]
+radius = 0.5
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj17u"]
 size = Vector2(1.14286, 2.28571)
@@ -199,7 +199,7 @@ _data = {
 }
 
 [node name="Zombie" type="CharacterBody2D" unique_id=681170650 groups=["Enemy"]]
-z_index = 1
+z_index = 2
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_47c00")
@@ -211,9 +211,10 @@ BaseSpeed = 16.0
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=459632793]
 visible = false
-position = Vector2(-1.00001, 2)
+z_index = 1
+position = Vector2(0, 3)
 scale = Vector2(7, 7)
-shape = SubResource("RectangleShape2D_khxps")
+shape = SubResource("CircleShape2D_rv1jy")
 
 [node name="HitArea" type="Area2D" parent="." unique_id=637478987]
 scale = Vector2(7, 7)
@@ -227,6 +228,10 @@ shape = SubResource("RectangleShape2D_fj17u")
 debug_color = Color(0.533056, 0.411323, 1, 0.42)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1368074876]
+path_desired_distance = 5.0
+target_desired_distance = 5.0
+avoidance_enabled = true
+debug_enabled = true
 
 [node name="AttackManager" type="Node2D" parent="." unique_id=1636446052]
 script = ExtResource("5_qs2ru")

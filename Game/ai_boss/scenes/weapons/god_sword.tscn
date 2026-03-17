@@ -1,23 +1,22 @@
-[gd_scene format=3 uid="uid://cqiyycxt5b10s"]
+[gd_scene format=3 uid="uid://b3ulf43cs1r0v"]
 
-[ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_58ehi"]
-[ext_resource type="Script" uid="uid://du1cukgdxdir" path="res://scripts/attack_types/SweepingCrescentMeleeAttack.cs" id="2_gwb47"]
-[ext_resource type="Texture2D" uid="uid://diffyoy8gok5y" path="res://art/animations/weapons/sword_sprite_sheet.png" id="3_11jj1"]
-[ext_resource type="Script" uid="uid://be81cyox7ag2q" path="res://scripts/attack_types/ChargedMeleeAttack.cs" id="3_dx2j5"]
-[ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="4_gwb47"]
+[ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_27ayr"]
+[ext_resource type="Script" uid="uid://du1cukgdxdir" path="res://scripts/attack_types/SweepingCrescentMeleeAttack.cs" id="2_e0eh6"]
+[ext_resource type="Script" uid="uid://be81cyox7ag2q" path="res://scripts/attack_types/ChargedMeleeAttack.cs" id="3_j4qet"]
+[ext_resource type="Texture2D" uid="uid://diffyoy8gok5y" path="res://art/animations/weapons/sword_sprite_sheet.png" id="4_kkibt"]
+[ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="5_7qa5c"]
 
 [sub_resource type="Resource" id="Resource_s4ec8"]
-script = ExtResource("2_gwb47")
+script = ExtResource("2_e0eh6")
 SweepStepDelay = 0.016
 InnerRadius = 0.0
 OuterRadius = 17.5
-Damage = 35.0
-Cooldown = 1.0
+Damage = 1000.0
 Active = 0.5
 Knockback = 16.0
 
 [sub_resource type="Resource" id="Resource_xs7jb"]
-script = ExtResource("2_gwb47")
+script = ExtResource("2_e0eh6")
 SweepStepDelay = 0.016
 InnerRadius = 10.0
 OuterRadius = 26.0
@@ -27,157 +26,157 @@ Cooldown = 1.0
 Active = 0.5
 
 [sub_resource type="Resource" id="Resource_w46s4"]
-script = ExtResource("3_dx2j5")
+script = ExtResource("3_j4qet")
 MeleeAttack = SubResource("Resource_xs7jb")
 MinChargeTime = 2.75
 MaxChargeTime = 2.75
 MinChargeDamagePercentage = 1.0
-Damage = 65.0
+Damage = 1000.0
 Cooldown = 1.0
 Active = 0.5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gwb47"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(0, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dx2j5"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(48, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xs7jb"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(96, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_w46s4"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(144, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lax51"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(192, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q1t1k"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(240, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xdw8x"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(288, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yyhql"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(336, 96, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7fekk"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(0, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_11inp"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(48, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_a6vdm"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(96, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wsjdv"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(144, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_08kei"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(192, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_o6bf0"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(240, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_eovsr"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(288, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dq6mf"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(336, 144, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_58dyp"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(0, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mcvv2"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(48, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_v0t5x"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(96, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pdvii"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(144, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_affrr"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(192, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_e6ss0"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(240, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6flrl"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(288, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_blfha"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(336, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_l0d1i"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(384, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_moxeu"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(432, 48, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j7ork"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(0, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1rrt5"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(0, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_25ivx"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(48, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_thj75"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(96, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q6xif"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(144, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_u61xx"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(192, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7842i"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(240, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2p5q6"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(288, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3nqqw"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(336, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gp608"]
-atlas = ExtResource("3_11jj1")
+atlas = ExtResource("4_kkibt")
 region = Rect2(384, 0, 48, 48)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_jvvga"]
@@ -317,7 +316,7 @@ animations = [{
 }]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_11jj1"]
-atlas = ExtResource("4_gwb47")
+atlas = ExtResource("5_7qa5c")
 region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_dx2j5"]
@@ -331,9 +330,9 @@ animations = [{
 "speed": 0.0
 }]
 
-[node name="Sword" type="Node2D" unique_id=1704924115 node_paths=PackedStringArray("PedestalDisplaySprite")]
-script = ExtResource("1_58ehi")
-ItemName = "Longsword"
+[node name="GodSword" type="Node2D" unique_id=1704924115 node_paths=PackedStringArray("PedestalDisplaySprite")]
+script = ExtResource("1_27ayr")
+ItemName = "Godsword"
 Description = "A well balanced two-handed melee weapon with good melee range."
 PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
@@ -342,12 +341,14 @@ HeavyAttackConfig = SubResource("Resource_w46s4")
 EnableLightAutoswing = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=106185956]
+modulate = Color(0.6864975, 0, 0, 1)
 sprite_frames = SubResource("SpriteFrames_jvvga")
 animation = &"idle"
 
 [node name="Pivot" type="Node2D" parent="." unique_id=1484761435]
 
 [node name="HitArea" type="Area2D" parent="." unique_id=966691943]
+visible = false
 collision_layer = 16
 collision_mask = 32
 

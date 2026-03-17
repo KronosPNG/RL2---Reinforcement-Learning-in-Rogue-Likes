@@ -28,7 +28,7 @@ public partial class RegenerationEffect : ConsumableEffectBase
 		_elapsedTime = 0f;
 		_nextTickTime = TickInterval;
 
-		GD.Print($"[RegenerationEffect] Started regeneration: {HealPerTick} HP every {TickInterval}s for {Duration}s");
+		// GD.Print($"[RegenerationEffect] Started regeneration: {HealPerTick} HP every {TickInterval}s for {Duration}s");
 
 		// Apply first heal immediately
 		player.Heal(HealPerTick);
@@ -61,7 +61,7 @@ public partial class RegenerationEffect : ConsumableEffectBase
 		// Check if effect duration is complete
 		if (_elapsedTime >= Duration)
 		{
-			GD.Print($"[RegenerationEffect] Regeneration complete after {Duration}s");
+			// GD.Print($"[RegenerationEffect] Regeneration complete after {Duration}s");
 			Interrupt(null, _targetPlayer);
 		}
 	}
@@ -74,7 +74,7 @@ public partial class RegenerationEffect : ConsumableEffectBase
 		_elapsedTime = 0f;
 		_nextTickTime = 0f;
 
-		GD.Print("[RegenerationEffect] Regeneration interrupted or completed");
+		// GD.Print("[RegenerationEffect] Regeneration interrupted or completed");
 
 		// Remove this effect from the player's active effects list
 		if (_targetPlayer != null)

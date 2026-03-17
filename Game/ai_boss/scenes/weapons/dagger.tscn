@@ -159,6 +159,7 @@ animations = [{
 
 [node name="Dagger" type="Node2D" unique_id=1324437424 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_j34lm")
+ItemName = "Dagger"
 Description = "A short blade,  nimble and fast for quick attacks."
 PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
@@ -173,12 +174,10 @@ animation = &"idle"
 [node name="Pivot" type="Node2D" parent="." unique_id=1730259982]
 
 [node name="HitArea" type="Area2D" parent="." unique_id=1225872288]
-visible = false
 collision_layer = 16
 collision_mask = 32
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea" unique_id=701585787]
-visible = false
 
 [node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=355969656]
 visible = false

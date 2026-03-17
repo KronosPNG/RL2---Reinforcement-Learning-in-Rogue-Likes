@@ -15,6 +15,8 @@ public partial class Room : Node2D, IStateful<RoomState>
 	protected Node2D[] _pedestalPoints;
 	protected Node2D[] _doorPoints;
 	protected EnemyEntity[] _spawnedMobs;
+	protected int _aliveMobs = 0;
+	public bool JustCleared => CurrentState == RoomState.Cleared && PreviousState != RoomState.Cleared;
 	[Export] protected PackedScene[] MobScenes; // List of mob scenes to spawn in this room
 	[Export] protected PackedScene[] PedestalScenes; // List of pedestal scenes to spawn in this room
 	[Export] protected int MobsToSpawn = 3; // Number of mobs to spawn when the room is activated
@@ -35,7 +37,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 		_doors = sortedSceneElements?.GetNodeOrNull<Node2D>("Doors")?.GetChildren().OfType<Door>().ToArray() ?? [];
 		_spawnedMobs = [];
 
-		GD.Print($"Room {Name} initialized with {MobsToSpawn} mobs to spawn, {_spawningPoints.Length} spawning points, {_pedestalPoints.Length} pedestal points, and {_doors.Length} doors with {_doorPoints.Length} door spawn points.");
+		// GD.Print($"Room {Name} initialized with {MobsToSpawn} mobs to spawn, {_spawningPoints.Length} spawning points, {_pedestalPoints.Length} pedestal points, and {_doors.Length} doors with {_doorPoints.Length} door spawn points.");
 		
 		foreach (var door in _doors)
 		{
@@ -47,7 +49,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 
 	public void OnEnterState(RoomState newState)
 	{
-		GD.Print($"Room {Name} entered state: {newState}");
+		// GD.Print($"Room {Name} entered state: {newState}");
 
 		switch (newState)
 		{
@@ -73,7 +75,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 				break;
 
 			default:
-				GD.PrintErr($"Unhandled state: {newState}");
+				// GD.PrintErr($"Unhandled state: {newState}");
 				break;
 		}
 	}
@@ -106,7 +108,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 			return;
 		}
 
-		GD.Print($"Spawning mobs in room {Name}...");
+		// GD.Print($"Spawning mobs in room {Name}...");
 
 		for (int i = 0; i < MobsToSpawn && i < _spawningPoints.Length; i++)
 		{
@@ -123,6 +125,8 @@ public partial class Room : Node2D, IStateful<RoomState>
 			mobInstance.GlobalPosition = _spawningPoints[i].GlobalPosition;
 			sortedSceneElements.AddChild(mobInstance);
 			_spawnedMobs = _spawnedMobs.Append(mobInstance).ToArray();
+			_aliveMobs++;
+
 			mobInstance.Connect(nameof(EnemyEntity.EntityDied), Callable.From(() => OnMobDied(mobInstance)));
 		}
 	}
@@ -130,12 +134,27 @@ public partial class Room : Node2D, IStateful<RoomState>
 	protected void OnMobDied(EnemyEntity mob)
 	{
 		// Remove the mob from the list of spawned mobs
-		_spawnedMobs = _spawnedMobs.Where(m => m != mob).ToArray();
-		if (_spawnedMobs.Length == 0)
+		// _spawnedMobs = _spawnedMobs.Where(m => m != mob).ToArray();
+		
+		_aliveMobs--;
+
+		if (_aliveMobs <= 0)
 		{
 			// Defer state transition to avoid modifying physics state during query flushing
 			CallDeferred(nameof(DeferredTransitionToState), (int)RoomState.Cleared);
 		}
+	}
+
+	public void ClearMobs()
+	{
+		foreach (var mob in _spawnedMobs)
+		{
+			if (IsInstanceValid(mob))
+			{
+				mob.QueueFree();
+			}
+		}
+		_spawnedMobs = [];
 	}
 
 	protected virtual void SpawnPedestals()
@@ -174,10 +193,10 @@ public partial class Room : Node2D, IStateful<RoomState>
 
 	protected void OpenDoors()
 	{
-		GD.Print($"Opening {_doors.Length} doors in room {Name}...");
+		// GD.Print($"Opening {_doors.Length} doors in room {Name}...");
 		foreach (var door in _doors)
 		{
-			GD.Print($"Opening door: {door.Name}");
+			// GD.Print($"Opening door: {door.Name}");
 			door.TransitionToState(DoorState.Open);
 		}
 	}
@@ -192,7 +211,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 
 	protected void OnDoorEntered(string doorId, string targetScenePath)
 	{
-		GD.Print($"Room.OnDoorEntered - Door ID: '{doorId}', TargetPath: '{targetScenePath}'");
+		// GD.Print($"Room.OnDoorEntered - Door ID: '{doorId}', TargetPath: '{targetScenePath}'");
 		
 		if (string.IsNullOrEmpty(targetScenePath))
 		{

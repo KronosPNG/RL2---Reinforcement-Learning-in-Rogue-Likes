@@ -36,7 +36,7 @@ public partial class AggroKeepDistance : AggroBehaviour
 		Vector2 direction = toTarget.Normalized();
 		
 		Vector2 velocity;
-		
+
 		// Move closer or away to maintain preferred distance
 		if (distance > PreferredDistance + DistanceTolerance)
 		{
@@ -63,6 +63,8 @@ public partial class AggroKeepDistance : AggroBehaviour
 			// The IEntity class will use this to flip the sprite when velocity is zero
 			entity.FacingDirection = direction;
 		}
+		
+		
 
 		lastDistanceFromTarget = distance;
 

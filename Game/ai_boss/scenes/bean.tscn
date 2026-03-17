@@ -1606,7 +1606,7 @@ BaseSpeed = 100.0
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1124969451]
 zoom = Vector2(3, 3)
 position_smoothing_enabled = true
-position_smoothing_speed = 30.0
+position_smoothing_speed = 16.0
 
 [node name="HitArea" type="Area2D" parent="." unique_id=410506795]
 visible = false

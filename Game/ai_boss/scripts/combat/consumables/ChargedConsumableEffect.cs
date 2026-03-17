@@ -35,7 +35,7 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 			consumable.AddChild(_chargeEffect);
 		}
 
-		GD.Print($"[ChargedConsumableEffect] Started charging consumable (charge time: {UsageTime}s)");
+		// GD.Print($"[ChargedConsumableEffect] Started charging consumable (charge time: {UsageTime}s)");
 	}
 
 	public void UpdateCharge(Consumable consumable, PlayerController player, float delta)
@@ -58,7 +58,7 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 				{
 					consumable.ActiveSprite.Play(FullyChargedAnimation);
 				}
-				GD.Print($"[ChargedConsumableEffect] Fully charged!");
+				// GD.Print($"[ChargedConsumableEffect] Fully charged!");
 			}
 		}
 
@@ -83,12 +83,12 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 		// Verify full charge was reached
 		if (_currentChargeTime < UsageTime)
 		{
-			GD.Print("[ChargedConsumableEffect] Charge time too short, cancelling");
+			// GD.Print("[ChargedConsumableEffect] Charge time too short, cancelling");
 			Interrupt(consumable, player);
 			return;
 		}
 
-		GD.Print($"[ChargedConsumableEffect] Executing charged effect after {_currentChargeTime:F2}s of charging");
+		// GD.Print($"[ChargedConsumableEffect] Executing charged effect after {_currentChargeTime:F2}s of charging");
 
 		// Clean up charging effects
 		StopCharging(consumable);

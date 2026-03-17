@@ -102,7 +102,7 @@ public partial class Consumable : Node2D, IPedestalItem
 			// Auto-release when max charge is reached
 			if (chargeableEffect.GetCurrentChargeTime() >= chargeableEffect.GetMaxChargeTime())
 			{
-				GD.Print("[Consumable] Max charge reached, auto-releasing");
+				// GD.Print("[Consumable] Max charge reached, auto-releasing");
 				ExecuteCharged();
 			}
 		}
@@ -145,7 +145,7 @@ public partial class Consumable : Node2D, IPedestalItem
 	{
 		if (!CanUse())
 		{
-			GD.Print($"[Consumable] Cannot use {ItemName}: state={State}, cooldown={_cooldownTimer}");
+			// GD.Print($"[Consumable] Cannot use {ItemName}: state={State}, cooldown={_cooldownTimer}");
 			return;
 		}
 
@@ -203,7 +203,7 @@ public partial class Consumable : Node2D, IPedestalItem
 			}
 			catch (System.Threading.Tasks.TaskCanceledException)
 			{
-				GD.Print($"[Consumable] Windup task cancelled for {ItemName}");
+				// GD.Print($"[Consumable] Windup task cancelled for {ItemName}");
 				return;
 			}
 		}
@@ -211,7 +211,7 @@ public partial class Consumable : Node2D, IPedestalItem
 		// Check if the windup was cancelled (e.g., player got hit)
 		if (cancellationToken.IsCancellationRequested)
 		{
-			GD.Print($"[Consumable] Windup cancelled for {ItemName}");
+			// GD.Print($"[Consumable] Windup cancelled for {ItemName}");
 			return;
 		}
 
@@ -318,14 +318,14 @@ public partial class Consumable : Node2D, IPedestalItem
 	{
 		if (!_isChargingConsumable || _activeEffect is not IChargeableConsumable)
 		{
-			GD.Print("[Consumable] Cannot execute charge: not charging");
+			// GD.Print("[Consumable] Cannot execute charge: not charging");
 			return;
 		}
 
 		// Set cooldown
 		_cooldownTimer = EffectConfig.Cooldown;
 
-		GD.Print($"[Consumable] Executing charged consumable: {ItemName}");
+		// GD.Print($"[Consumable] Executing charged consumable: {ItemName}");
 		
 		EmitSignal(nameof(ConsumableUsed), ItemName);
 		EmitSignal(nameof(ChargeReleased), ItemName);
@@ -337,7 +337,7 @@ public partial class Consumable : Node2D, IPedestalItem
 		// Clean up charging state
 		_isChargingConsumable = false;
 		
-		GD.Print($"[Consumable] Charged consumable execution complete: {ItemName}, waiting for effect completion");
+		// GD.Print($"[Consumable] Charged consumable execution complete: {ItemName}, waiting for effect completion");
 	}
 
 	public void CancelCharge()
@@ -371,7 +371,7 @@ public partial class Consumable : Node2D, IPedestalItem
 	/// </summary>
 	public void InterruptUse()
 	{
-		GD.Print($"[Consumable] Interrupting consumable use: {ItemName}, State: {State}");
+		// GD.Print($"[Consumable] Interrupting consumable use: {ItemName}, State: {State}");
 
 		// If we're in windup phase, cancel the async task
 		if (State == ConsumableState.Windup)
@@ -396,7 +396,7 @@ public partial class Consumable : Node2D, IPedestalItem
 			ActiveSprite.Stop();
 		}
 
-		GD.Print($"[Consumable] Use interrupted for {ItemName}");
+		// GD.Print($"[Consumable] Use interrupted for {ItemName}");
 	}
 
 	// ---- IPedestalItem Implementation ----

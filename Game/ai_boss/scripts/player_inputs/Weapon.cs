@@ -409,14 +409,14 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	protected override void OnBodyEntered(Node body)
 	{
 
-		GD.Print($"Weapon hit detected on body: {body.Name}");
+		// GD.Print($"Weapon hit detected on body: {body.Name}");
 		// Called when a physics body enters the hit area while Monitoring=true.
 		if (body == null) return;
 		if (_alreadyHit.Contains(body)) return;
 
 		_alreadyHit.Add(body);
 
-		GD.Print($"Weapon registering hit on body: {body.Name}");
+		// GD.Print($"Weapon registering hit on body: {body.Name}");
 
 		float damage = IsCurrentAttackHeavy ? HeavyAttackConfig.Damage : LightAttackConfig.Damage;
 		float knockback = IsCurrentAttackHeavy ? HeavyAttackConfig.Knockback : LightAttackConfig.Knockback;
@@ -428,7 +428,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		// Optionally auto-apply damage directly.
 		if (AutoApplyDamage)
 		{
-			GD.Print($"Weapon auto-applying {damage} damage with {knockback} knockback to {body.Name}");
+			// GD.Print($"Weapon auto-applying {damage} damage with {knockback} knockback to {body.Name}");
 
 			// Attempt to call configured method
 			if (body is IDamageable damageable)
@@ -447,8 +447,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		}
 
 		// Otherwise, use a smaller scale for the main sprite to account for animation sizing
-		// Since weapons are typically scaled 7x for animations, we'll use 2x for pedestal display
-		return new Vector2(7f, 7f);
+		return new Vector2(1f, 1f);
 	}
 
 	public bool CanSwapWith(IPedestalItem otherItem)

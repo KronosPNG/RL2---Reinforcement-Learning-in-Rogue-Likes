@@ -13,7 +13,7 @@ public partial class InstantHealEffect : ConsumableEffectBase
 
 		// Apply instant healing
 		player.Heal(EffectValue);
-		GD.Print($"[InstantHealEffect] Healed player for {EffectValue} HP");
+		// GD.Print($"[InstantHealEffect] Healed player for {EffectValue} HP");
 
 		// Mark consumable as complete
 		consumable.CompleteEffect();

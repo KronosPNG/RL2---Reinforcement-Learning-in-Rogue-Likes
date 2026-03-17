@@ -45,11 +45,11 @@ public partial class RoomManager : Node2D
 		// Prevent double transitions
 		if (_isTransitioning)
 		{
-			GD.Print("Already transitioning, ignoring door trigger");
+			// GD.Print("Already transitioning, ignoring door trigger");
 			return;
 		}
 		
-		GD.Print($"RoomManager.OnTransitionToScene - SpawnPoint: '{spawnPointName}', TargetPath: '{targetScenePath}'");
+		// GD.Print($"RoomManager.OnTransitionToScene - SpawnPoint: '{spawnPointName}', TargetPath: '{targetScenePath}'");
 		
 		if (string.IsNullOrEmpty(targetScenePath))
 		{
@@ -69,26 +69,31 @@ public partial class RoomManager : Node2D
 
 		// Deactivate current room
 		string currentRoomPath = _currentRoom.SceneFilePath;
-		EnableRoom(_currentRoom, false);
+		DisableRoom(_currentRoom);
 		_visitedRooms[currentRoomPath] = _currentRoom;
 
 		_currentRoom.TransitionToScene -= OnTransitionToScene;
 
+		if (_currentRoom.JustCleared)
+		{
+			_currentRoom.ClearMobs();
+		}
+
 		if (_visitedRooms.ContainsKey(targetScenePath))
 		{
 			_currentRoom = _visitedRooms[targetScenePath];
-			EnableRoom(_currentRoom);
+			
 		}
 		else
 		{
+			// Load new room and add to tree
 			var targetRoom = ResourceLoader.Load<PackedScene>(targetScenePath);
 			_currentRoom = targetRoom.Instantiate<Room>();
-			// Disable navigation BEFORE adding to tree to prevent overlap
-			DisableRoomNavigation(_currentRoom);
+			
 			AddChild(_currentRoom);
-			// Re-enable after it's in the tree
-			EnableRoomNavigation(_currentRoom);
 		}
+
+		EnableRoom(_currentRoom);
 
 		_currentRoom.TransitionToScene += OnTransitionToScene;
 
@@ -96,14 +101,14 @@ public partial class RoomManager : Node2D
 		var spawnNode = FindRoomSpawnPoint(_currentRoom, spawnPointName);
 		Vector2 spawnPoint = spawnNode?.GlobalPosition ?? Vector2.Zero;
 		
-		if (spawnNode == null)
-		{
-			GD.PrintErr($"Spawn point '{spawnPointName}' not found in room! Using center.");
-		}
-		else
-		{
-			GD.Print($"Spawning player at '{spawnPointName}': {spawnPoint}");
-		}
+		// if (spawnNode == null)
+		// {
+		// 	GD.PrintErr($"Spawn point '{spawnPointName}' not found in room! Using center.");
+		// }
+		// else
+		// {
+		// 	GD.Print($"Spawning player at '{spawnPointName}': {spawnPoint}");
+		// }
 
 		// Set position BEFORE adding to scene tree to avoid triggering door collisions
 		_player.Position = spawnPoint;
@@ -130,21 +135,23 @@ public partial class RoomManager : Node2D
 		return null;
 	}
 
-	private void EnableRoom(Room room, bool enable=true)
+	private void EnableRoom(Room room)
 	{
-		room.Visible = enable;
-		room.ProcessMode = enable ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
+		room.Visible = true;
+		room.ProcessMode = ProcessModeEnum.Inherit;
 
-		if (enable)
-		{
-			EnableRoomNavigation(room);
-			EnableRoomCollision(room);
-		}
-		else
-		{
-			DisableRoomNavigation(room);
-			DisableRoomCollision(room);
-		}
+		Callable.From(() => EnableRoomNavigation(_currentRoom)).CallDeferred();
+		EnableRoomCollision(room);
+
+	}
+
+	private void DisableRoom(Room room)
+	{
+		room.Visible = false;
+		room.ProcessMode = ProcessModeEnum.Disabled;
+		
+		DisableRoomNavigation(room);
+		DisableRoomCollision(room);
 	}
 
 	private void DisableRoomCollision(Room room)
@@ -192,26 +199,24 @@ public partial class RoomManager : Node2D
 
 	private void DisableRoomNavigation(Room room)
 	{
-		// Recursively find all TileMapLayers in the room
-		var tileMaps = room.FindChildren("*", "TileMapLayer", recursive: true, owned: false);
-		foreach (var node in tileMaps)
+		var regions = room.FindChildren("*", "NavigationRegion2D", recursive: true, owned: false);
+		foreach (var node in regions)
 		{
-			if (node is TileMapLayer layer)
+			if (node is NavigationRegion2D region)
 			{
-				layer.NavigationEnabled = false;
+				region.Enabled = false;
 			}
 		}
 	}
 
 	private void EnableRoomNavigation(Room room)
 	{
-		// Recursively find all TileMapLayers in the room
-		var tileMaps = room.FindChildren("*", "TileMapLayer", recursive: true, owned: false);
-		foreach (var node in tileMaps)
+		var regions = room.FindChildren("*", "NavigationRegion2D", recursive: true, owned: false);
+		foreach (var node in regions)
 		{
-			if (node is TileMapLayer layer)
+			if (node is NavigationRegion2D region)
 			{
-				layer.NavigationEnabled = true;
+				region.Enabled = true;
 			}
 		}
 	}

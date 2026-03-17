@@ -111,6 +111,7 @@ script = ExtResource("1_imdjo")
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=858462405]
 visible = false
+y_sort_enabled = true
 shape = SubResource("CircleShape2D_86edt")
 debug_color = Color(1, 1, 0, 0.419608)
 

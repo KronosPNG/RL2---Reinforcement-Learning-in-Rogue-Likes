@@ -173,7 +173,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 
 		if (_remainingRange <= 0f)
 		{
-			GD.Print("Projectile reached max range, destroying.");
+			// GD.Print("Projectile reached max range, destroying.");
 			TransitionToState(ProjectileState.Fading);
 		}
 

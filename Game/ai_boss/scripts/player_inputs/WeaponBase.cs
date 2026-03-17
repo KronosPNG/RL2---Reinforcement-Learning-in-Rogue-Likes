@@ -110,7 +110,7 @@ public abstract partial class WeaponBase : Node2D
 
 		if (targetEntity == null)
 		{
-			GD.Print($"Weapon: Area {area.Name} has no valid owner or parent to damage");
+			// GD.Print($"Weapon: Area {area.Name} has no valid owner or parent to damage");
 			return;
 		}
 
