@@ -18,6 +18,7 @@ Knockback = 16.0
 
 [sub_resource type="Resource" id="Resource_xs7jb"]
 script = ExtResource("2_gwb47")
+SweepFromStartEdge = false
 SweepStepDelay = 0.016
 InnerRadius = 10.0
 OuterRadius = 26.0
@@ -35,6 +36,7 @@ MinChargeDamagePercentage = 1.0
 Damage = 65.0
 Cooldown = 1.0
 Active = 0.5
+Knockback = 64.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gwb47"]
 atlas = ExtResource("3_11jj1")

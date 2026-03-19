@@ -40,7 +40,7 @@ OuterRadius = 16.0
 Damage = 10.0
 Cooldown = 1.0
 Active = 0.5
-Knockback = 16.0
+Knockback = 32.0
 metadata/_custom_type_script = "uid://cxhoobqojkn42"
 
 [sub_resource type="Resource" id="Resource_b0fnr"]
@@ -231,7 +231,6 @@ debug_color = Color(0.533056, 0.411323, 1, 0.42)
 path_desired_distance = 5.0
 target_desired_distance = 5.0
 avoidance_enabled = true
-debug_enabled = true
 
 [node name="AttackManager" type="Node2D" parent="." unique_id=1636446052]
 script = ExtResource("5_qs2ru")

@@ -1,4 +1,3 @@
-using System;
 using Godot;
 
 public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth, INavigable, IStateful<EntityState>, IAnimatable<EntityState>
@@ -44,6 +43,10 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 	// ---- Timers ----
 	protected float _hitStunDuration = .5f;
 	protected float _idleToWanderTimer = 0f;
+	
+	// ---- Knockback Smoothing ----
+	private Vector2 _knockbackVelocity = Vector2.Zero;
+	private Tween _knockbackTween;
 
 	// ---- Signals ----
 	[Signal] public delegate void StateChangedEventHandler(string newState);
@@ -144,6 +147,10 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 	protected override void UpdateFacing()
 	{
+		// Don't update facing direction while being knocked back
+		if (CurrentState == EntityState.Hit)
+			return;
+
 		// Update facing direction based on movement
 		if (Velocity.LengthSquared() > 0.1f)
 		{
@@ -254,25 +261,28 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		switch (CurrentState)
 		{
 			case EntityState.Idle:
-				Velocity = Vector2.Zero;
+				Velocity = Vector2.Zero + _knockbackVelocity;
 				break;
 
 			case EntityState.Wandering:
-				Velocity = WanderingBehavior.GetWanderVelocity(this, delta);
+				Velocity = WanderingBehavior.GetWanderVelocity(this, delta) + _knockbackVelocity;
 				break;
 
 			case EntityState.Aggro:
 				AggroBehavior.PerformAggroBehaviour(this);
-				Velocity = AggroBehavior.GetChaseVelocity(this, delta);
+				Velocity = AggroBehavior.GetChaseVelocity(this, delta) + _knockbackVelocity;
 				break;
 
 			case EntityState.Attacking:
 			case EntityState.AttackPrepare:
 			case EntityState.AttackCharging:
-				Velocity = AttackBehavior.GetAttackVelocity(this, delta);
+				Velocity = AttackBehavior.GetAttackVelocity(this, delta) + _knockbackVelocity;
 				break;
 
-			case EntityState.Hit:
+			case EntityState.Hit:			
+				Velocity = _knockbackVelocity;
+				break;
+
 			case EntityState.Dying:
 			case EntityState.Dead:
 			default:
@@ -324,7 +334,6 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				break;
 
 			case EntityState.Dying:
-				_hitArea.SetDeferred("monitoring", false);
 				_hitArea.SetDeferred("monitorable", false);
 				_physicalCollision.SetDeferred("disabled", true);
 				VisualController.PlayState(state);
@@ -400,7 +409,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 
 	// ---- IDamageable Implementation ----
-	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
+	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 0f)
 	{
 		if (!IsAlive) return;
 
@@ -424,10 +433,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 		if (attacker != null)
 		{
-			// Apply knockback or other effects based on the attacker
-			Vector2 knockbackDir = (GlobalPosition - attacker.GlobalPosition).Normalized();
-			Velocity += knockbackDir * (1 - KnockbackResistance) * knockbackStrength;
-			MoveAndSlide();
+			ApplyKnockback(attacker.GlobalPosition, knockbackStrength);
 		}
 
 		// Emit health changed signal
@@ -438,6 +444,28 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 			CurrentHealth = 0;
 			Die();
 		}
+	}
+
+	protected void ApplyKnockback(Vector2 attackerPosition, float strength)
+	{
+		// Apply smooth knockback using tween
+		// Kill existing tween if one is active
+		if (_knockbackTween != null && _knockbackTween.IsValid())
+		{
+			_knockbackTween.Kill();
+		}
+		
+		// Calculate knockback direction and apply initial velocity
+		Vector2 knockbackDir = (GlobalPosition - attackerPosition).Normalized();
+		Vector2 knockbackForce = knockbackDir * (1 - KnockbackResistance) * strength*5;
+		_knockbackVelocity = knockbackForce;
+
+		GD.Print($"EnemyEntity: Applying knockback with strength {strength}, resistance {KnockbackResistance}, resulting velocity {knockbackForce}");
+		
+		// Tween knockback velocity back to zero over 0.2 seconds
+		_knockbackTween = CreateTween();
+		_knockbackTween.SetTrans(Tween.TransitionType.Linear);
+		_knockbackTween.TweenProperty(this, "_knockbackVelocity", Vector2.Zero, 0.2f);
 	}
 
 	public void Heal(float amount)

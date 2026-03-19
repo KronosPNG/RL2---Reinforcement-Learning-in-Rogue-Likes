@@ -1,6 +1,11 @@
 [gd_scene format=3 uid="uid://1nf46nrhiyd1"]
 
 [ext_resource type="Script" uid="uid://gnunlfswgkq0" path="res://scripts/RoomManager.cs" id="1_yc10j"]
+[ext_resource type="Script" uid="uid://dmw4cugteb6vt" path="res://scripts/visual_effects/camera/CameraController.cs" id="2_0wfyh"]
 
 [node name="Main" type="Node2D" unique_id=318667351 groups=["Room"]]
 script = ExtResource("1_yc10j")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2005641649]
+zoom = Vector2(3, 3)
+script = ExtResource("2_0wfyh")

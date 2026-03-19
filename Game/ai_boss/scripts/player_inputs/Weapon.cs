@@ -167,6 +167,12 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		return true;
 	}
 
+	// Get the remaining cooldown time for the specified attack type
+	public float GetRemainingCooldown(bool isHeavy)
+	{
+		return isHeavy ? _heavyCooldownTimer : _lightCooldownTimer;
+	}
+
 	// Master sequence control (windup -> rely on animation call -> idle)
 	protected override System.Threading.Tasks.Task StartAttackSequence()
 	{

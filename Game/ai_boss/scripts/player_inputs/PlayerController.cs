@@ -17,11 +17,12 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	// ---- Signals ----
 	[Signal] public delegate void StateChangedEventHandler(string newState);
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
+	[Signal] public delegate void PlayerDamagedEventHandler(float intensity, float duration);
 	[Signal] public delegate void PlayerDiedEventHandler();
 
 	//---- Health Data ----
 	[Export] public float MaxHealth { get; set; } = 100;
-	public float CurrentHealth { get; private set; } = 100f;
+	public float CurrentHealth { get; private set; }
 	public bool IsAlive => CurrentHealth > 0;
 	public bool IsInvulnerable => _invulnerabilityTimer > 0 || CurrentState == EntityState.Dodging;
 	
@@ -54,6 +55,10 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	[Export] public float HitStunDuration = 0.5f; // time for hit stun duration
 	private float _invulnerabilityTimer = 0f; // timer for invulnerability after hit
 	[Export] public float InvulnerabilityDuration = 1f; // time for invulnerability after hit
+	
+	// ---- Knockback Smoothing ----
+	private Vector2 _knockbackVelocity = Vector2.Zero;
+	private Tween _knockbackTween;
 
 	// ---- Active Consumable Effects ----
 	private List<ConsumableEffectBase> _activeEffects = new List<ConsumableEffectBase>();
@@ -64,6 +69,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	public override void _Ready()
 	{
 		StateMachine = new StateMachine<EntityState>(this, EntityState.Idle);
+		CurrentHealth = MaxHealth;
 
 		// Initialize node references
 		InitializeNodes();
@@ -613,8 +619,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		switch (CurrentState)
 		{
 			case EntityState.Dodging:
-				// move using dodge vector & speed
-				Velocity = _dodgeDirection * DodgeSpeed * armorSpeedModifier;
+				// move using dodge vector & speed, plus any active knockback
+				Velocity = _dodgeDirection * DodgeSpeed * armorSpeedModifier + _knockbackVelocity;
 				MoveAndSlide();
 				break;
 			
@@ -623,9 +629,9 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 			case EntityState.Attacking:
 			// allow movement while attacking
 			case EntityState.Walking:
-				// move using input vector, speed and modifier
+				// move using input vector, speed and modifier, plus any active knockback
 				// Velocity = input * BaseSpeed * EquippedArmor.SpeedModifier;
-				Velocity = _inputDirection * BaseSpeed * armorSpeedModifier;
+				Velocity = _inputDirection * BaseSpeed * armorSpeedModifier + _knockbackVelocity;
 				MoveAndSlide();
 				break;
 
@@ -641,9 +647,9 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 			case EntityState.AttackCharging:
 			case EntityState.ConsumableCharging: // Allow movement while charging consumable
-												 // allow movement while charging (at reduced speed or full speed)
+												 // allow movement while charging (at reduced speed or full speed), plus any active knockback
 												 // Velocity = input * BaseSpeed * ChargeMoveModifier * EquippedArmor.SpeedModifier;
-				Velocity = _inputDirection * BaseSpeed * ChargeMoveModifier * armorSpeedModifier;
+				Velocity = _inputDirection * BaseSpeed * ChargeMoveModifier * armorSpeedModifier + _knockbackVelocity;
 				MoveAndSlide();
 				break;
 		}
@@ -809,11 +815,15 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 	private async System.Threading.Tasks.Task ProcessAutoswing(bool isLightAttack, bool isHeavyAttack)
 	{
-		// Wait one frame to let cooldown and state fully reset
-		await ToSignal(GetTree(), "process_frame");
+		// Wait for the remaining cooldown to fully elapse
+		float remainingCooldown = EquippedWeapon.GetRemainingCooldown(isHeavyAttack);
+		if (remainingCooldown > 0f)
+		{
+			await ToSignal(GetTree().CreateTimer(remainingCooldown), "timeout");
+		}
 		
 		// Only trigger autoswing if weapon can actually start a new attack
-		if (EquippedWeapon.CanStartAttack())
+		if (EquippedWeapon.CanStartAttack(isHeavyAttack))
 		{
 			if (isLightAttack)
 				OnLightAttack();
@@ -957,7 +967,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	}
 
 	// ---- Damage & Health ----
-	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 400f)
+	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 0f)
 	{
 		_invulnerabilityTimer = InvulnerabilityDuration;
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
@@ -976,19 +986,36 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 			TransitionToState(EntityState.Hit);
 		}
 
-		// Apply knockback or other effects based on the attacker
-		Vector2 knockbackDir = (GlobalPosition - attacker.GlobalPosition).Normalized();
-		Velocity += knockbackDir * EquippedArmor.KnockbackModifier * knockbackStrength;
-		MoveAndSlide();
+		ApplyKnockback(attacker.GlobalPosition, knockbackStrength);
 
-		// Emit health changed signal
+		// Emit health changed signal and damage taken signal
 		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+		EmitSignal(SignalName.PlayerDamaged, 5, .25);
 
 		if (isLethalDamage)
 		{
 			CurrentHealth = 0;
 			Die();
 		}
+	}
+
+	protected void ApplyKnockback(Vector2 attackerPosition, float strength)
+	{
+		// Kill existing tween if one is active (allows new knockback to override)
+		if (_knockbackTween != null && _knockbackTween.IsValid())
+		{
+			_knockbackTween.Kill();
+		}
+		
+		// Calculate knockback direction and apply initial velocity
+		Vector2 knockbackDir = (GlobalPosition - attackerPosition).Normalized();
+		Vector2 knockbackForce = knockbackDir * EquippedArmor.KnockbackModifier * strength*5;
+		_knockbackVelocity = knockbackForce;
+		
+		// Tween knockback velocity back to zero over 0.2 seconds
+		_knockbackTween = CreateTween();
+		_knockbackTween.SetTrans(Tween.TransitionType.Linear);
+		_knockbackTween.TweenProperty(this, "_knockbackVelocity", Vector2.Zero, 0.2f);
 	}
 	
 	public void Die()

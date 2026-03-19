@@ -13,8 +13,9 @@ OuterRadius = 15.0
 AngleDeg = 30.0
 ArcCenterOffsetDeg = 5.0
 Damage = 20.0
-Cooldown = 0.05
+Cooldown = 0.5
 Active = 0.25
+Knockback = 8.0
 
 [sub_resource type="Resource" id="Resource_siec8"]
 script = ExtResource("3_2j8e1")
@@ -25,6 +26,7 @@ AngleDeg = 120.0
 Damage = 50.0
 Cooldown = 1.0
 Active = 0.5
+Knockback = 32.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5mald"]
 atlas = ExtResource("4_syark")

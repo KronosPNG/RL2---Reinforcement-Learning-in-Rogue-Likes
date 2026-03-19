@@ -17,6 +17,7 @@ SpawnDistanceFromPlayer = 16.0
 Damage = 20.0
 Windup = 0.25
 Active = 0.5
+Knockback = 8.0
 
 [sub_resource type="Resource" id="Resource_j3civ"]
 script = ExtResource("3_j3civ")
@@ -37,6 +38,7 @@ MinChargeTime = 2.0
 MinChargeDamagePercentage = 1.0
 Damage = 75.0
 Windup = 0.65
+Knockback = 64.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j3civ"]
 atlas = ExtResource("3_52f0k")

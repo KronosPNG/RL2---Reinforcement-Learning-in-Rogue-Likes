@@ -1599,14 +1599,9 @@ z_index = 2
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_vdqyq")
-MaxHealth = 5.0
+MaxHealth = 100000.0
 InvulnerabilityDuration = 1.5
 BaseSpeed = 100.0
-
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1124969451]
-zoom = Vector2(3, 3)
-position_smoothing_enabled = true
-position_smoothing_speed = 16.0
 
 [node name="HitArea" type="Area2D" parent="." unique_id=410506795]
 visible = false

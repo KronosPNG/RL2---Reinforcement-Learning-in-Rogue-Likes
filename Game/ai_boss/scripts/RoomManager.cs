@@ -6,6 +6,7 @@ public partial class RoomManager : Node2D
 	private Dictionary<string, Room> _visitedRooms = [];
 
 	private PlayerController _player;
+	private CameraController _camera;
 	private Room _currentRoom;
 	private bool _isTransitioning = false;
 
@@ -38,6 +39,9 @@ public partial class RoomManager : Node2D
 
 		_player.CallDeferred("EquipWeapon", weaponScene);
 		_player.CallDeferred("EquipArmor", armorScene);
+
+		_camera = GetNode<CameraController>("Camera2D");
+		_camera.SetTarget(_player);
 	}
 
 	private void OnTransitionToScene(string spawnPointName, string targetScenePath)

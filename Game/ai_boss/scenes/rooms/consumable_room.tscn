@@ -20,7 +20,7 @@ agent_radius = 7.0
 script = ExtResource("1_fdsbc")
 MobScenes = Array[PackedScene]([ExtResource("2_mtkno"), ExtResource("3_t06it")])
 PedestalScenes = Array[PackedScene]([ExtResource("4_cnu15")])
-MobsToSpawn = 0
+MobsToSpawn = 5
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=254729100]
 navigation_polygon = SubResource("NavigationPolygon_dca20")
