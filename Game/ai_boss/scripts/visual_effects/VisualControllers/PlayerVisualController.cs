@@ -7,6 +7,7 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 	private Sprite2D _bodyArmorSprite;
 	private Sprite2D _helmetArmorSprite;
 	public Node2D HandNode { get; set; }
+	public Node2D ConsumableContainer { get; private set; }
 
 	[Export] private VisualEffect _damageEffect;
 	[Export] private VisualEffect _dodgeEffect;
@@ -19,6 +20,8 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 		_baseSprite = GetNodeOrNull<Sprite2D>("BodyLayers/BaseSprite");
 		_bodyArmorSprite = GetNodeOrNull<Sprite2D>("BodyLayers/BodyArmor");
 		_helmetArmorSprite = GetNodeOrNull<Sprite2D>("BodyLayers/Helmet");
+
+		ConsumableContainer = GetNodeOrNull<Node2D>("Consumable");
 
 		// Initialize visual effects
 		if (_damageEffect == null)
@@ -139,10 +142,11 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 
 	public override void UpdateFlip(bool shouldFlip)
 	{
-		_spriteContainer.Scale = new Vector2(
-			shouldFlip ? -1 : 1, 
-			1
-		);
+		Vector2 flipScale = new Vector2(shouldFlip ? -1 : 1, 1);
+
+		_spriteContainer.Scale = flipScale;
+
+		ConsumableContainer.Scale = flipScale;
 	}
 
 	public void UpdateArmorVisuals(Armor armor)

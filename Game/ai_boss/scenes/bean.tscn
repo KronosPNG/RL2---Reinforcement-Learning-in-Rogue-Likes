@@ -1624,6 +1624,8 @@ script = ExtResource("5_mjp81")
 _damageEffect = SubResource("Resource_dqsbe")
 _dodgeEffect = SubResource("Resource_d16vh")
 
+[node name="Consumable" type="Node2D" parent="VisualController" unique_id=2065480189]
+
 [node name="BodyLayers" type="Node2D" parent="VisualController" unique_id=1884146494]
 
 [node name="BaseSprite" type="Sprite2D" parent="VisualController/BodyLayers" unique_id=159510408]

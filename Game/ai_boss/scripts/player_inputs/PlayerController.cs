@@ -932,7 +932,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 	private void CallEquipConsumableDeferred(Consumable consumable)
 	{
-		AddChild(consumable);
+		VisualController.ConsumableContainer.AddChild(consumable);
 		consumable.Equip(this);
 		EquippedConsumable = consumable;
 

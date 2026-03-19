@@ -188,6 +188,7 @@ animations = [{
 }]
 
 [node name="Potion" type="Node2D" unique_id=1166084879 node_paths=PackedStringArray("PedestalDisplaySprite")]
+z_index = 1
 script = ExtResource("1_consumable")
 ItemName = "Healing Potion"
 Description = "A magic potion that instantly heals any kind of wound."
