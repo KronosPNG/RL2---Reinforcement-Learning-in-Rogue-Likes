@@ -17,8 +17,6 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	// ---- Signals ----
 	[Signal] public delegate void StateChangedEventHandler(string newState);
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
-	[Signal] public delegate void PlayerDamagedEventHandler(float intensity, float duration);
-	[Signal] public delegate void PlayerDiedEventHandler();
 
 	//---- Health Data ----
 	[Export] public float MaxHealth { get; set; } = 100;
@@ -115,6 +113,9 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 	public override void _PhysicsProcess(double delta)
 	{
+		// Check for other commands
+		HandleCommands();
+
 		// Read input direction
 		_inputDirection = ReadDirection();
 
@@ -152,6 +153,14 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	{
 		// No AI for player - all behavior is input-driven
 		return;
+	}
+
+	protected void HandleCommands()
+	{
+		if (Input.IsActionJustPressed("pause"))
+		{
+			EventBus.RaiseGamePaused();
+		}
 	}
 
 	// Update the player's facing direction based on input
@@ -990,7 +999,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 		// Emit health changed signal and damage taken signal
 		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
-		EmitSignal(SignalName.PlayerDamaged, 5, .25);
+		EventBus.RaisePlayerDamaged(5, .25f);
 
 		if (isLethalDamage)
 		{
@@ -1024,7 +1033,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		
 		CurrentHealth = 0;
 		TransitionToState(EntityState.Dead);
-		EmitSignal(SignalName.PlayerDied);
+		EventBus.RaisePlayerDied();
 	}
 
 	public void Heal(float amount)

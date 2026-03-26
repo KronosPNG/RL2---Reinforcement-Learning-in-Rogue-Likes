@@ -29,6 +29,7 @@ folder_colors={
 "res://art/": "pink",
 "res://assets/": "blue",
 "res://scenes/": "purple",
+"res://scenes/GUI/": "green",
 "res://scripts/": "blue"
 }
 
@@ -39,6 +40,7 @@ Room="Scene that handles the room logic, door opening, enemy spawning"
 Enemy="Enemy entities that are aggressive towards player"
 DoorSpawnPoint="Spawnpoints for player when entering a room"
 navigation_polygon_source_geometry_group="group for navigation baking"
+CurrentRoom="Room currently being navigated"
 
 [input]
 
@@ -107,4 +109,5 @@ pause={
 
 textures/canvas_textures/default_texture_filter=0
 environment/defaults/default_clear_color=Color(0.16862746, 0.16862746, 0.23529412, 1)
-
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true

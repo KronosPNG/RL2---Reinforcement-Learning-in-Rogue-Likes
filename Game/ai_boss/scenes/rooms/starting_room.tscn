@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://sm7x2ti2du3j" path="res://scenes/objects/doors/door_right.tscn" id="20_8ivjd"]
 [ext_resource type="PackedScene" uid="uid://c1fqi244my31e" path="res://scenes/objects/doors/door_down.tscn" id="21_kqrsg"]
 
-[node name="Room" type="Node2D" unique_id=1632839248]
+[node name="Room" type="Node2D" unique_id=1632839248 groups=["CurrentRoom"]]
 script = ExtResource("2_rab6q")
 MobScenes = Array[PackedScene]([ExtResource("3_urmdg"), ExtResource("4_roh45")])
 PedestalScenes = Array[PackedScene]([])

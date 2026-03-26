@@ -18,7 +18,7 @@ public partial class Armor : Node2D, IPedestalItem
     [Export(PropertyHint.Range, "0,1.5,0.1")]
     public float KnockbackModifier { get; set; } = 0.8f; // Reduces knockback by 20%
 
-    [Export(PropertyHint.Range, "0,1,0.1")]
+    [Export(PropertyHint.Range, "0,1.5,0.05")]
     public float DamageModifier { get; set; } = 0.9f; // Reduces damage by 10%
 
     [Export(PropertyHint.Range, "0,1.5,0.05")]

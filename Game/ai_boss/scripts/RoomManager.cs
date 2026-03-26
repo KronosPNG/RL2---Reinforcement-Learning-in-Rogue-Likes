@@ -21,7 +21,7 @@ public partial class RoomManager : Node2D
 		_currentRoom = roomScene.Instantiate<Room>();
 		AddChild(_currentRoom);
 
-		_currentRoom.TransitionToScene += OnTransitionToScene;
+		EventBus.OnSceneTransition += OnTransitionToScene;
 
 		// Load player and spawn in the center of the first room
 		var _beanScene = ResourceLoader.Load<PackedScene>("res://scenes/bean.tscn");
@@ -34,7 +34,7 @@ public partial class RoomManager : Node2D
 		
 
 		// Wait for Bean to be ready, then spawn sword in hand and no armor
-		PackedScene weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/sword.tscn");
+		PackedScene weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/god_sword.tscn");
 		PackedScene armorScene = ResourceLoader.Load<PackedScene>("res://scenes/armors/shirt.tscn");
 
 		_player.CallDeferred("EquipWeapon", weaponScene);
@@ -76,8 +76,6 @@ public partial class RoomManager : Node2D
 		DisableRoom(_currentRoom);
 		_visitedRooms[currentRoomPath] = _currentRoom;
 
-		_currentRoom.TransitionToScene -= OnTransitionToScene;
-
 		if (_currentRoom.JustCleared)
 		{
 			_currentRoom.ClearMobs();
@@ -98,8 +96,6 @@ public partial class RoomManager : Node2D
 		}
 
 		EnableRoom(_currentRoom);
-
-		_currentRoom.TransitionToScene += OnTransitionToScene;
 
 		// Get spawn point from NEW room
 		var spawnNode = FindRoomSpawnPoint(_currentRoom, spawnPointName);
@@ -143,6 +139,7 @@ public partial class RoomManager : Node2D
 	{
 		room.Visible = true;
 		room.ProcessMode = ProcessModeEnum.Inherit;
+		room.AddToGroup("CurrentRoom");
 
 		Callable.From(() => EnableRoomNavigation(_currentRoom)).CallDeferred();
 		EnableRoomCollision(room);
@@ -153,6 +150,7 @@ public partial class RoomManager : Node2D
 	{
 		room.Visible = false;
 		room.ProcessMode = ProcessModeEnum.Disabled;
+		room.RemoveFromGroup("CurrentRoom");
 		
 		DisableRoomNavigation(room);
 		DisableRoomCollision(room);
@@ -225,4 +223,8 @@ public partial class RoomManager : Node2D
 		}
 	}
 
+	public override void _ExitTree()
+	{
+		EventBus.OnSceneTransition -= OnTransitionToScene;
+	}
 }

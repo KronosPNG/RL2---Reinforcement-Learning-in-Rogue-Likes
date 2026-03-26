@@ -105,6 +105,7 @@ _data = {
 }
 
 [node name="MagicMissile" type="CharacterBody2D" unique_id=998086778]
+z_index = 2
 collision_layer = 8
 script = ExtResource("1_pqfyw")
 

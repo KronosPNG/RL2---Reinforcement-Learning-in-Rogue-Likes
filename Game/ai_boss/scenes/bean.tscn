@@ -1599,7 +1599,6 @@ z_index = 2
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_vdqyq")
-MaxHealth = 100000.0
 InvulnerabilityDuration = 1.5
 BaseSpeed = 100.0
 

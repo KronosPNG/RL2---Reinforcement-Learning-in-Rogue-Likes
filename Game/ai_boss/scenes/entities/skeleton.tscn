@@ -37,7 +37,7 @@ size = Vector2(1.42857, 2.57143)
 [sub_resource type="Resource" id="Resource_5gv7q"]
 script = ExtResource("7_jsnsc")
 ProjectileScene = ExtResource("7_sb2t5")
-ProjectileSpeed = 150.0
+ProjectileSpeed = 100.0
 ProjectileRange = 150.0
 Damage = 15.0
 Cooldown = 2.0

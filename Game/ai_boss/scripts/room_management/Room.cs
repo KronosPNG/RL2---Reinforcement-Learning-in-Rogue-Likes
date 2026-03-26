@@ -1,10 +1,11 @@
+using System;
 using System.Linq;
 using Godot;
 
 public partial class Room : Node2D, IStateful<RoomState>
 {
 	[Signal] public delegate void StateChangedEventHandler(string newState);
-	[Signal] public delegate void TransitionToSceneEventHandler(string doorId, string targetScenePath);
+
 	// ---- State Machine ----
 	public StateMachine<RoomState> StateMachine { get; private set; }
 	public RoomState CurrentState => StateMachine.CurrentState;
@@ -219,7 +220,9 @@ public partial class Room : Node2D, IStateful<RoomState>
 			return;
 		}
 
-		CallDeferred(MethodName.EmitSignal, SignalName.TransitionToScene, EntranceFromDoorID(doorId), targetScenePath);
+		Callable.From(() => 
+			EventBus.RaiseSceneTransition(EntranceFromDoorID(doorId), targetScenePath)
+		).CallDeferred();
 	}
 
 	public string EntranceFromDoorID(string doorId)

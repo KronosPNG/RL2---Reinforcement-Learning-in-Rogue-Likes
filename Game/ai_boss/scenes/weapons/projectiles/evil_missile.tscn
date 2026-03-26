@@ -86,6 +86,7 @@ _data = {
 }
 
 [node name="EvilMissile" type="CharacterBody2D" unique_id=811999087]
+z_index = 2
 y_sort_enabled = true
 collision_layer = 8
 script = ExtResource("1_lxf1j")

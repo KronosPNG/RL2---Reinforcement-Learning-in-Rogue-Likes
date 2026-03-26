@@ -19,6 +19,8 @@ public partial class CameraController : Camera2D
 		// Initial position
 		GlobalPosition = TargetNode.GlobalPosition;
 		MakeCurrent();
+
+		EventBus.OnPlayerDamaged += Shake;
 	}
 
 	public override void _Process(double delta)
@@ -30,17 +32,7 @@ public partial class CameraController : Camera2D
 	}
 
 	public void SetTarget(Node2D newTarget)
-	{
-		if(TargetNode is PlayerController player)
-		{
-			player.PlayerDamaged -= Shake;
-		}
-
-		if (newTarget is PlayerController newPlayer)
-		{
-			newPlayer.PlayerDamaged += Shake;
-		}
-		
+	{	
 		TargetNode = newTarget;
 	}
 

@@ -69,11 +69,12 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 			return;
 		}
 
-		// Add projectiles to scene tree
-		weapon.GetTree().CurrentScene.AddChild(projectile);
-
-		// Get weapon owner (parent entity) to avoid self-damage
+		// Add projectiles to the room's SortSceneElements to ensure correct layering and pause handling
 		Node2D weaponOwner = weapon.GetParent() as Node2D;
+		
+		var currentRoom = weaponOwner.GetTree().GetNodesInGroup("CurrentRoom")[0];
+		var sortedElements = currentRoom.GetNodeOrNull<Node2D>("SortSceneElements");
+		sortedElements.AddChild(projectileInstance);
 
 		// Initialize the projectile
 		projectile.Initialize(
