@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://cv0uu3fevcwqb"]
+
+[ext_resource type="Texture2D" uid="uid://bue1x68uhani1" path="res://art/hud/light_attack_cooldown.png" id="1_lg00w"]
+
+[sub_resource type="SystemFont" id="SystemFont_lg00w"]
+font_names = PackedStringArray("Cascadia Code")
+
+[sub_resource type="LabelSettings" id="LabelSettings_cpwpp"]
+font = SubResource("SystemFont_lg00w")
+font_size = 3
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+
+[node name="LightAttackCooldown" type="Control" unique_id=251948909]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1136.0
+offset_bottom = -632.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1899765200]
+layout_mode = 0
+offset_right = 16.0
+offset_bottom = 16.0
+texture = ExtResource("1_lg00w")
+
+[node name="Label" type="Label" parent="." unique_id=1998094127]
+layout_mode = 0
+offset_top = 16.0
+offset_right = 16.0
+offset_bottom = 39.0
+text = "1,25s"
+label_settings = SubResource("LabelSettings_cpwpp")
+horizontal_alignment = 1

@@ -94,6 +94,7 @@ _data = {
 
 [node name="Arrow" type="CharacterBody2D" unique_id=1710382349]
 z_index = 2
+y_sort_enabled = true
 collision_layer = 8
 script = ExtResource("1_di1w4")
 

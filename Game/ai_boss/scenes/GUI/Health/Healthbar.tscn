@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://dqjwsn7g8fpdv"]
+
+[ext_resource type="PackedScene" uid="uid://bxj74s3k6eolb" path="res://scenes/GUI/Health/HeartContainer.tscn" id="1_iwxrg"]
+[ext_resource type="Script" uid="uid://ba2002occ2v04" path="res://scripts/hud/healthbar/Healthbar.cs" id="1_ysyr2"]
+
+[node name="Healthbar" type="HBoxContainer" unique_id=1933731018]
+custom_minimum_size = Vector2(80, 16)
+offset_right = 96.0
+offset_bottom = 16.0
+scale = Vector2(3, 3)
+mouse_filter = 2
+accessibility_name = "Healthbar"
+accessibility_description = "Healthbar for player"
+accessibility_live = 2
+script = ExtResource("1_ysyr2")
+
+[node name="HeartContainer0" parent="." unique_id=885061721 instance=ExtResource("1_iwxrg")]
+layout_mode = 2
+
+[node name="HeartContainer1" parent="." unique_id=987092514 instance=ExtResource("1_iwxrg")]
+layout_mode = 2
+
+[node name="HeartContainer2" parent="." unique_id=1635584138 instance=ExtResource("1_iwxrg")]
+layout_mode = 2
+
+[node name="HeartContainer3" parent="." unique_id=1154979489 instance=ExtResource("1_iwxrg")]
+layout_mode = 2
+
+[node name="HeartContainer4" parent="." unique_id=1935235675 instance=ExtResource("1_iwxrg")]
+layout_mode = 2

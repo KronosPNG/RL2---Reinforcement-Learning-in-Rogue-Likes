@@ -27,6 +27,7 @@ project/assembly_name="AI_Boss"
 
 folder_colors={
 "res://art/": "pink",
+"res://art/hud/": "green",
 "res://assets/": "blue",
 "res://scenes/": "purple",
 "res://scenes/GUI/": "green",

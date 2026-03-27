@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://bxj74s3k6eolb"]
+
+[ext_resource type="Script" uid="uid://giys1snvgx4f" path="res://scripts/hud/healthbar/HeartContainer.cs" id="1_kr80v"]
+[ext_resource type="Texture2D" uid="uid://dbl6k572pgqt1" path="res://art/hud/empty_heart.png" id="2_y22ib"]
+[ext_resource type="Texture2D" uid="uid://dc3ol45q5swtd" path="res://art/hud/quarter_heart.png" id="3_gm616"]
+[ext_resource type="Texture2D" uid="uid://fqx1774ce2rf" path="res://art/hud/half_heart.png" id="4_2pxfr"]
+[ext_resource type="Texture2D" uid="uid://eu52dfsh22tq" path="res://art/hud/three_quarters_heart.png" id="5_5ckdc"]
+[ext_resource type="Texture2D" uid="uid://sootw6mctv7c" path="res://art/hud/full_heart.png" id="6_q4ykl"]
+
+[node name="HeartContainer" type="Control" unique_id=885061721]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1136.0
+offset_bottom = -632.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+accessibility_name = "Heart Container"
+accessibility_description = "Heart Container containing the health of a single heart"
+accessibility_live = 2
+script = ExtResource("1_kr80v")
+TextureEmpty = ExtResource("2_y22ib")
+TextureQuarter = ExtResource("3_gm616")
+TextureHalf = ExtResource("4_2pxfr")
+TextureThreeQuarters = ExtResource("5_5ckdc")
+TextureFull = ExtResource("6_q4ykl")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2009635882]
+z_index = 10
+layout_mode = 0
+offset_right = 16.0
+offset_bottom = 16.0
+mouse_filter = 2
+accessibility_name = "HeartContainer"
+accessibility_description = "Container for hearts in healthbar"
+texture = ExtResource("6_q4ykl")
+stretch_mode = 2

@@ -19,6 +19,7 @@ public static class EventBus
     // Player Events
     public static event Action OnPlayerDied;
     public static event Action<float, float> OnPlayerDamaged; // intensity, duration
+    public static event Action<float> OnPlayerHealthChanged; // current health
 
     public static void RaisePlayerDied()
     {
@@ -28,6 +29,11 @@ public static class EventBus
     public static void RaisePlayerDamaged(float intensity, float duration)
     {
         OnPlayerDamaged?.Invoke(intensity, duration);
+    }
+    
+    public static void RaisePlayerHealthChanged(float currentHealth)
+    {
+        OnPlayerHealthChanged?.Invoke(currentHealth);
     }
 
 

@@ -1,14 +1,7 @@
 [gd_scene format=3 uid="uid://dga6m0jed3vlt"]
 
-[node name="Hud" type="Control" unique_id=80002818]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[ext_resource type="PackedScene" uid="uid://dqjwsn7g8fpdv" path="res://scenes/GUI/Health/Healthbar.tscn" id="1_fsbs6"]
 
-[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=724247820]
-layout_mode = 0
-offset_right = 256.0
-offset_bottom = 64.0
+[node name="Hud" type="CanvasLayer" unique_id=2069667942]
+
+[node name="Healthbar" parent="." unique_id=1933731018 instance=ExtResource("1_fsbs6")]

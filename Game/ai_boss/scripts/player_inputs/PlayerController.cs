@@ -19,7 +19,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
 
 	//---- Health Data ----
-	[Export] public float MaxHealth { get; set; } = 100;
+	[Export] public float MaxHealth { get; set; } = 20;
 	public float CurrentHealth { get; private set; }
 	public bool IsAlive => CurrentHealth > 0;
 	public bool IsInvulnerable => _invulnerabilityTimer > 0 || CurrentState == EntityState.Dodging;
@@ -998,7 +998,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		ApplyKnockback(attacker.GlobalPosition, knockbackStrength);
 
 		// Emit health changed signal and damage taken signal
-		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+		EventBus.RaisePlayerHealthChanged(CurrentHealth);
+		GD.Print($"Player health: {CurrentHealth}/{MaxHealth}");
 		EventBus.RaisePlayerDamaged(5, .25f);
 
 		if (isLethalDamage)
@@ -1045,7 +1046,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		// GD.Print($"Player healed {amount} health.");
 
 		// Emit health changed signal
-		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+		EventBus.RaisePlayerHealthChanged(CurrentHealth);
 	}
 
 	// ---- Effects Update ----
