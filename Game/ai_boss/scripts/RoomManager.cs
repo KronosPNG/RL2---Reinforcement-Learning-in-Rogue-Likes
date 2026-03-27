@@ -34,7 +34,7 @@ public partial class RoomManager : Node2D
 		
 
 		// Wait for Bean to be ready, then spawn sword in hand and no armor
-		PackedScene weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/god_sword.tscn");
+		PackedScene weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/sword.tscn");
 		PackedScene armorScene = ResourceLoader.Load<PackedScene>("res://scenes/armors/shirt.tscn");
 
 		_player.CallDeferred("EquipWeapon", weaponScene);

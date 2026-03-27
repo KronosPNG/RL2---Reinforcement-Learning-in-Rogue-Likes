@@ -87,7 +87,7 @@ position = Vector2(-144, 48)
 position = Vector2(-80, 48)
 
 [node name="Mob3" type="Node2D" parent="SpawningPoints" unique_id=1910136856]
-position = Vector2(0, 48)
+position = Vector2(4, 48)
 
 [node name="Mob4" type="Node2D" parent="SpawningPoints" unique_id=1255201893]
 position = Vector2(64, 48)

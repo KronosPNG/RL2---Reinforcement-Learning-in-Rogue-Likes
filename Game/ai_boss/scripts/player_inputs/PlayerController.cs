@@ -185,6 +185,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 			{
 				_invulnerabilityTimer = 0;
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
 				// End of invulnerability - can add visual effect here if desired	
 			}
 		}	
@@ -469,6 +470,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 			{
 				TransitionToState(EntityState.ConsumableUse);
 				EquippedConsumable.ExecuteCharged();
+				EventBus.RaiseConsumableUsed();
 			}
 			else
 			{
@@ -492,6 +494,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	{
 		TransitionToState(EntityState.ConsumableUse);
 		EquippedConsumable.Use();
+		EventBus.RaiseConsumableUsed();
 	}
 
 	private void CancelChargingConsumable()
@@ -545,6 +548,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 				CancelChargingAttack();
 				CancelChargingConsumable();
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
 				EquippedWeapon.SetPhysicsProcess(false);
 				SetPhysicsProcess(false);
@@ -584,6 +588,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 		// Make player invulnerable during dodge (can't be detected by enemy weapons)
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
+		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 		
 		// Disable collision with enemies during dodge - remove Layer 2 from mask
 		CollisionMask = _normalCollisionMask & ~2u; // Remove Layer 2 (enemies)
@@ -606,6 +611,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 				// Restore vulnerability after dodge
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
 				
 				// Restore normal collision properties after dodge
 				CollisionMask = _normalCollisionMask;
@@ -758,6 +764,9 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		// Connect to weapon signals
 		weapon.AttackStarted += OnWeaponAttackStarted;
 		weapon.AttackEnded += OnWeaponAttackEnded;
+
+		GD.Print($"[PlayerController] Weapon equipped: {weapon.ItemName}");
+		EventBus.RaiseWeaponEquipped(weapon.LightAttackConfig.Cooldown, weapon.HeavyAttackConfig.Cooldown);
 	}
 
 	private void OnLightAttack()
@@ -945,7 +954,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 		consumable.Equip(this);
 		EquippedConsumable = consumable;
 
-		// Connect to consumable signals
+		// Connect to consumable signalsù
+		EventBus.RaiseConsumableEquipped();
 		consumable.ConsumableUsed += OnConsumableUsed;
 		consumable.ConsumableCompleted += OnConsumableCompleted;
 	}
@@ -980,6 +990,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	{
 		_invulnerabilityTimer = InvulnerabilityDuration;
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
+		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
 		amount *= EquippedArmor.DamageModifier; // apply damage reduction
 

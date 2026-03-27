@@ -34,7 +34,7 @@ MinChargeTime = 2.75
 MaxChargeTime = 2.75
 MinChargeDamagePercentage = 1.0
 Damage = 65.0
-Cooldown = 1.0
+Cooldown = 2.0
 Active = 0.5
 Knockback = 64.0
 
@@ -350,6 +350,7 @@ animation = &"idle"
 [node name="Pivot" type="Node2D" parent="." unique_id=1484761435]
 
 [node name="HitArea" type="Area2D" parent="." unique_id=966691943]
+visible = false
 collision_layer = 16
 collision_mask = 32
 

@@ -122,9 +122,6 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (!IsAlive && CurrentState != EntityState.Dead)
-			return;
-
 		base._PhysicsProcess(delta);
 		UpdateAnimationIfNeeded();
 	}
@@ -279,12 +276,13 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				Velocity = AttackBehavior.GetAttackVelocity(this, delta) + _knockbackVelocity;
 				break;
 
-			case EntityState.Hit:			
+			case EntityState.Hit:
+			case EntityState.Dying:	
+			case EntityState.Dead:		
 				Velocity = _knockbackVelocity;
 				break;
 
-			case EntityState.Dying:
-			case EntityState.Dead:
+			
 			default:
 				Velocity = Vector2.Zero;
 				break;

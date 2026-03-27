@@ -185,6 +185,8 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		else _heavyCooldownTimer = HeavyAttackConfig.Cooldown;
 
 		State = WeaponState.Windup;
+		GD.Print($"[Weapon] Attack sequence started: isHeavy={isHeavyAttack}");
+		EventBus.RaiseWeaponAttackStarted(IsCurrentAttackHeavy ? "heavy" : "light");
 		EmitSignal(nameof(AttackStarted), isHeavyAttack ? "heavy" : "light");
 
 		// Play corresponding animation on the weapon's AnimationPlayer (animations must exist)
@@ -286,6 +288,8 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			_lightCooldownTimer = LightAttackConfig.Cooldown;
 
 		// Emit signals
+		GD.Print($"[Weapon] Executing charged {(IsCurrentAttackHeavy ? "heavy" : "light")} attack.");
+		EventBus.RaiseWeaponAttackStarted(IsCurrentAttackHeavy ? "heavy" : "light");
 		EmitSignal(nameof(AttackStarted), IsCurrentAttackHeavy ? "heavy" : "light");
 		EmitSignal(nameof(ChargeReleased), IsCurrentAttackHeavy ? "heavy" : "light");
 
