@@ -361,7 +361,6 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				break;
 
 			case EntityState.Hit:
-				VisualController.ClearEffects();
 				break;
 		}
 	}

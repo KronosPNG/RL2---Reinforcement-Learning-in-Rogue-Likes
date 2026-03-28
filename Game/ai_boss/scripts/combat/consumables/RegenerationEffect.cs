@@ -5,7 +5,6 @@ public partial class RegenerationEffect : ConsumableEffectBase
 {
 	[ExportGroup("Regeneration Properties")]
 	[Export] public float TickInterval = 1f; // Time between heal ticks
-	[Export] public float HealPerTick = 5f; // Amount healed per tick
 
 	private float _elapsedTime = 0f;
 	private float _nextTickTime = 0f;
@@ -31,7 +30,7 @@ public partial class RegenerationEffect : ConsumableEffectBase
 		// GD.Print($"[RegenerationEffect] Started regeneration: {HealPerTick} HP every {TickInterval}s for {Duration}s");
 
 		// Apply first heal immediately
-		player.Heal(HealPerTick);
+		player.Heal(EffectValue);
 
 		// Add this effect to the player's active effects list
 		player.AddActiveEffect(this);
@@ -53,7 +52,7 @@ public partial class RegenerationEffect : ConsumableEffectBase
 		// Check if it's time for next heal tick
 		if (_nextTickTime <= 0f)
 		{
-			_targetPlayer.Heal(HealPerTick);
+			_targetPlayer.Heal(EffectValue);
 			_nextTickTime = TickInterval;
 			// GD.Print($"[RegenerationEffect] Heal tick: {HealPerTick} HP ({_elapsedTime:F1}s / {Duration}s)");
 		}

@@ -7,7 +7,7 @@
 
 [sub_resource type="Resource" id="Resource_qqepg"]
 script = ExtResource("2_rmdn2")
-EffectValue = 35.0
+EffectValue = 8.0
 UsageTime = 2.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_prsoh"]

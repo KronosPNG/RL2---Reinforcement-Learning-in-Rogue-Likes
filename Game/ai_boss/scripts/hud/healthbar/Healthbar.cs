@@ -3,9 +3,16 @@ using Godot;
 
 public partial class Healthbar : HBoxContainer
 {
+    // ---- Node references ----
     private HeartContainer[] _heartContainers;
+
+    // ---- Health data ----
     private int _maxHealth;
     private int _currentHealth;
+
+    // ---- Visual effects ----
+    [Export] private VisualEffect _healEffect;
+    [Export] private VisualEffect _damageEffect;
 
     public override void _Ready()
     {
@@ -16,6 +23,10 @@ public partial class Healthbar : HBoxContainer
         }
 
         _currentHealth = _maxHealth; // Initialize current health to max health
+        
+        _healEffect.InitializeVisuals(this);
+        _damageEffect.InitializeVisuals(this);
+        
         EventBus.OnPlayerHealthChanged += OnPlayerHealthChanged;
     }
 
@@ -45,6 +56,8 @@ public partial class Healthbar : HBoxContainer
 
             amount = _heartContainers[i].HealHeart(amount);
         }
+
+        _healEffect.PlayEffect(this);
     }
 
     public void TakeDamage(int amount)
@@ -58,5 +71,7 @@ public partial class Healthbar : HBoxContainer
 
             amount = _heartContainers[i].DamageHeart(amount);
         }
+
+        _damageEffect.PlayEffect(this);
     }
 }

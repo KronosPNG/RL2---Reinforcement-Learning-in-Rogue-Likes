@@ -24,6 +24,7 @@ metadata/_custom_type_script = "uid://hjik14ol648t"
 [sub_resource type="Resource" id="Resource_d16vh"]
 script = ExtResource("4_dqsbe")
 FlashModulate = Color(0.5802277, 0.58022773, 0.58022773, 1)
+EffectDuration = 0.75
 metadata/_custom_type_script = "uid://kvce7e5c5bgh"
 
 [sub_resource type="Animation" id="Animation_mjp81"]

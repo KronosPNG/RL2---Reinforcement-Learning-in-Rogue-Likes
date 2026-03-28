@@ -8,11 +8,9 @@
 
 [sub_resource type="Resource" id="Resource_mkubu"]
 script = ExtResource("2_rmgur")
-TickInterval = 0.2
-HealPerTick = 1.0
-Duration = 10.0
+EffectValue = 1.0
+Duration = 16.0
 UsageTime = 2.0
-metadata/_custom_type_script = "uid://c04t8ebo2dy1o"
 
 [sub_resource type="Resource" id="Resource_b4yia"]
 script = ExtResource("3_c4d2j")

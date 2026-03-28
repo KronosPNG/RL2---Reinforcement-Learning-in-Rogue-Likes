@@ -6,56 +6,23 @@ public partial class VisualFlash : VisualEffect
 {
 	[Export] public Color FlashModulate { get; set; } = new Color(1, 0.75f, 0.75f); // Light red color for damage flash
 	
-	public override void InitializeVisuals(Sprite2D sprite)
+	public override void InitializeVisuals(CanvasItem element)
 	{
-		_originalModulate = sprite.Modulate;
+		_originalModulate = element.Modulate;
 	}
 
-	public override void UpdateTimer(float delta)
-	{
-		EffectTimer -= delta;
-	}
 
-	public override void PlayEffect(Sprite2D sprite)
+	public override void PlayEffect(CanvasItem element)
 	{
-		sprite.Modulate = FlashModulate;
-	}
+		Tween tween = element.CreateTween();
+		tween.SetPauseMode(Tween.TweenPauseMode.Process);
+		
+		tween.TweenProperty(element, "modulate", FlashModulate, 0);
 
-	public override void PlayEffect(Node2D spriteContainer)
-	{
-		foreach (var child in spriteContainer.GetChildren())
-		{
-			if (child is Sprite2D sprite)
-			{
-				PlayEffect(sprite);
-			}
-		}
-	}
+		tween.TweenProperty(element, "modulate", _originalModulate, EffectDuration / 2)
+			.SetDelay(EffectDuration / 2); // Start flash at the midpoint of the effect duration
 
-	public override void ClearEffect(Sprite2D sprite)
-	{
-		sprite.Modulate = _originalModulate;
-	}
-
-	public override void ClearEffect(Node2D spriteContainer)
-	{
-		foreach (var child in spriteContainer.GetChildren())
-		{
-			if (child is Sprite2D sprite)
-			{
-				ClearEffect(sprite);
-			}
-		}
-	}
-
-	public override void ResetTimer()
-	{
-		EffectTimer = EffectDuration;
-	}
-
-	public override void EndTimer()
-	{
-		EffectTimer = 0f;
+		tween.TweenCallback(Callable.From(() => ClearEffect(element)));
 	}
 
 }

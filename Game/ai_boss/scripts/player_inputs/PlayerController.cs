@@ -485,6 +485,13 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 	private void StartChargingConsumable()
 	{
+		if(CurrentHealth == MaxHealth)
+		{
+			// Don't start charging if at full health (can remove this check if we want to allow non-healing consumables)
+			CancelChargingConsumable();
+			return;
+		}
+
 		_isChargingConsumable = true;
 		TransitionToState(EntityState.ConsumableCharging);
 		EquippedConsumable.StartCharging();
@@ -492,6 +499,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 
 	private void UseConsumable()
 	{
+		if(CurrentHealth == MaxHealth) return; // Don't use if at full health (can remove this check if we want to allow non-healing consumables)
+
 		TransitionToState(EntityState.ConsumableUse);
 		EquippedConsumable.Use();
 		EventBus.RaiseConsumableUsed();
@@ -602,13 +611,7 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	{
 		switch (s)
 		{
-			case EntityState.Hit:
-				VisualController.ClearEffects();
-				break;
-
 			case EntityState.Dodging:
-				VisualController.ClearEffects();
-
 				// Restore vulnerability after dodge
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
@@ -988,6 +991,8 @@ public partial class PlayerController : Entity<EntityState>, IDamageable, IHasHe
 	// ---- Damage & Health ----
 	public void ApplyDamage(float amount, Node2D attacker, float knockbackStrength = 0f)
 	{
+		if (IsInvulnerable) return;
+
 		_invulnerabilityTimer = InvulnerabilityDuration;
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
