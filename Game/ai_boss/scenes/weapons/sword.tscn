@@ -12,7 +12,7 @@ SweepStepDelay = 0.016
 InnerRadius = 0.0
 OuterRadius = 17.5
 Damage = 35.0
-Cooldown = 1.0
+Cooldown = 0.75
 Active = 0.5
 Knockback = 16.0
 

@@ -26,7 +26,7 @@ public partial class CooldownIndicator : SimpleIndicator
 
 		GD.Print($"[CooldownIndicator] Starting cooldown for {Name} with duration {_cooldownDuration} seconds.");
 
-		_timerLabel.Text = $"{_cooldownDuration:0.0}s";
+		_timerLabel.Text = $"{_cooldownDuration:0.00}s";
 		_timerLabel.Visible = true;
 
 		_texture.Modulate = CooldownModulate;
@@ -44,7 +44,7 @@ public partial class CooldownIndicator : SimpleIndicator
 
 		tween.Parallel()
 			.TweenMethod(
-				Callable.From<float>(v => _timerLabel.Text = $"{v:0.0}s"),
+				Callable.From<float>(v => _timerLabel.Text = $"{v:0.00}s"),
 				Variant.From<float>(_cooldownDuration),  // from
 				Variant.From<float>(0.0f),               // to
 				_cooldownDuration   // duration matches the value so it's always 1:1

@@ -24,6 +24,7 @@ MinChargeTime = 0.75
 MaxChargeTime = 1.75
 MinChargeDamagePercentage = 0.1
 Damage = 35.0
+Cooldown = 0.1
 Active = 0.75
 Knockback = 24.0
 
@@ -36,6 +37,7 @@ ProjectileCount = 3
 SpreadAngleDeg = 20.0
 DestroyOnWallHit = false
 Damage = 25.0
+Cooldown = 2.0
 Windup = 0.25
 Knockback = 16.0
 
