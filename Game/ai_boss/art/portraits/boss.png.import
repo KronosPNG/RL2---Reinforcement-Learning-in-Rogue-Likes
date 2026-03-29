@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbl6k572pgqt1"
-path="res://.godot/imported/empty_heart.png-f3fb51fc364a8a996b842729b896c14f.ctex"
+uid="uid://bykmokxd0vf5s"
+path="res://.godot/imported/boss.png-d02d1f7f6f1df767668e433e3952af01.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/hud/empty_heart.png"
-dest_files=["res://.godot/imported/empty_heart.png-f3fb51fc364a8a996b842729b896c14f.ctex"]
+source_file="res://art/portraits/boss.png"
+dest_files=["res://.godot/imported/boss.png-d02d1f7f6f1df767668e433e3952af01.ctex"]
 
 [params]
 

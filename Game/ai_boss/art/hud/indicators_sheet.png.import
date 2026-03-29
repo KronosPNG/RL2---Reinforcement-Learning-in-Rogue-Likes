@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://sootw6mctv7c"
-path="res://.godot/imported/full_heart.png-ce176e49a9983b0e306687e5ef6311c3.ctex"
+uid="uid://iay6g18lkqip"
+path="res://.godot/imported/indicators_sheet.png-63ccdcb20983a61026fa31e951e35884.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/hud/full_heart.png"
-dest_files=["res://.godot/imported/full_heart.png-ce176e49a9983b0e306687e5ef6311c3.ctex"]
+source_file="res://art/hud/indicators_sheet.png"
+dest_files=["res://.godot/imported/indicators_sheet.png-63ccdcb20983a61026fa31e951e35884.ctex"]
 
 [params]
 

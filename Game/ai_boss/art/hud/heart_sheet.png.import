@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bue1x68uhani1"
-path="res://.godot/imported/light_attack_cooldown.png-72dbd864eacf84a63854838fbf72bcbf.ctex"
+uid="uid://d1bwonrxukpo8"
+path="res://.godot/imported/heart_sheet.png-6ed7e5f13470a481cecc4e2e9eee34d7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/hud/light_attack_cooldown.png"
-dest_files=["res://.godot/imported/light_attack_cooldown.png-72dbd864eacf84a63854838fbf72bcbf.ctex"]
+source_file="res://art/hud/heart_sheet.png"
+dest_files=["res://.godot/imported/heart_sheet.png-6ed7e5f13470a481cecc4e2e9eee34d7.ctex"]
 
 [params]
 

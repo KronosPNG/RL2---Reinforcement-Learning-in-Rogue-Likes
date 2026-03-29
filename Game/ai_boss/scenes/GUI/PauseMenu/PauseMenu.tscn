@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://c85mcslte1v7i"]
+
+[ext_resource type="Theme" uid="uid://dowfsv6q20axa" path="res://assets/theme/bean_theme.tres" id="1_khven"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_khven"]
+font_size = 35
+
+[node name="PauseMenu" type="VBoxContainer" unique_id=174653834]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 400.0
+offset_right = -512.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_khven")
+theme_override_constants/separation = 25
+alignment = 1
+
+[node name="Label" type="Label" parent="." unique_id=303324933]
+layout_mode = 2
+text = "Pause"
+label_settings = SubResource("LabelSettings_khven")
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="." unique_id=243797627]
+layout_mode = 2
+text = "Resume"
+
+[node name="ExitButton" type="Button" parent="." unique_id=413955532]
+layout_mode = 2
+text = "Exit"

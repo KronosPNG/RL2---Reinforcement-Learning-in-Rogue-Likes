@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drexf3uqi26wm"
-path="res://.godot/imported/heavy_attack_cooldown.png-5254c047e627ddad3503a1525b33bc0b.ctex"
+uid="uid://b76jud7nl55go"
+path="res://.godot/imported/github.png-ab4e0b85c41e1496b530685df53b17af.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/hud/heavy_attack_cooldown.png"
-dest_files=["res://.godot/imported/heavy_attack_cooldown.png-5254c047e627ddad3503a1525b33bc0b.ctex"]
+source_file="res://art/hud/github.png"
+dest_files=["res://.godot/imported/github.png-ab4e0b85c41e1496b530685df53b17af.ctex"]
 
 [params]
 

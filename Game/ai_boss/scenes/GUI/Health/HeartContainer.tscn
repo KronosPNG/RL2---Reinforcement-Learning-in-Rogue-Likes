@@ -1,11 +1,27 @@
 [gd_scene format=3 uid="uid://bxj74s3k6eolb"]
 
 [ext_resource type="Script" uid="uid://giys1snvgx4f" path="res://scripts/hud/healthbar/HeartContainer.cs" id="1_kr80v"]
-[ext_resource type="Texture2D" uid="uid://dbl6k572pgqt1" path="res://art/hud/empty_heart.png" id="2_y22ib"]
-[ext_resource type="Texture2D" uid="uid://dc3ol45q5swtd" path="res://art/hud/quarter_heart.png" id="3_gm616"]
-[ext_resource type="Texture2D" uid="uid://fqx1774ce2rf" path="res://art/hud/half_heart.png" id="4_2pxfr"]
-[ext_resource type="Texture2D" uid="uid://eu52dfsh22tq" path="res://art/hud/three_quarters_heart.png" id="5_5ckdc"]
-[ext_resource type="Texture2D" uid="uid://sootw6mctv7c" path="res://art/hud/full_heart.png" id="6_q4ykl"]
+[ext_resource type="Texture2D" uid="uid://d1bwonrxukpo8" path="res://art/hud/heart_sheet.png" id="2_p2qb7"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sdwjh"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p2qb7"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w51bg"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nfq3i"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ckpkp"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(64, 0, 16, 16)
 
 [node name="HeartContainer" type="Control" unique_id=885061721]
 custom_minimum_size = Vector2(16, 16)
@@ -22,11 +38,11 @@ accessibility_name = "Heart Container"
 accessibility_description = "Heart Container containing the health of a single heart"
 accessibility_live = 2
 script = ExtResource("1_kr80v")
-TextureEmpty = ExtResource("2_y22ib")
-TextureQuarter = ExtResource("3_gm616")
-TextureHalf = ExtResource("4_2pxfr")
-TextureThreeQuarters = ExtResource("5_5ckdc")
-TextureFull = ExtResource("6_q4ykl")
+TextureEmpty = SubResource("AtlasTexture_sdwjh")
+TextureQuarter = SubResource("AtlasTexture_p2qb7")
+TextureHalf = SubResource("AtlasTexture_w51bg")
+TextureThreeQuarters = SubResource("AtlasTexture_nfq3i")
+TextureFull = SubResource("AtlasTexture_ckpkp")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=2009635882]
 z_index = 10
@@ -36,5 +52,4 @@ offset_bottom = 16.0
 mouse_filter = 2
 accessibility_name = "HeartContainer"
 accessibility_description = "Container for hearts in healthbar"
-texture = ExtResource("6_q4ykl")
 stretch_mode = 2

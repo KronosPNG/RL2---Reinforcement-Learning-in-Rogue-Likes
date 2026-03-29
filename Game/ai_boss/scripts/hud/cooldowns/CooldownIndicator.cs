@@ -44,7 +44,7 @@ public partial class CooldownIndicator : SimpleIndicator
 
 		tween.Parallel()
 			.TweenMethod(
-				Callable.From<float>(v => _timerLabel.Text = $"{v:0.00}s"),
+				Callable.From<float>(v => _timerLabel.Text = $" {v:0.00}s"),
 				Variant.From<float>(_cooldownDuration),  // from
 				Variant.From<float>(0.0f),               // to
 				_cooldownDuration   // duration matches the value so it's always 1:1

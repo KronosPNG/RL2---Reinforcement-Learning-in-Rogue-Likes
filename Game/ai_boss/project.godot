@@ -43,6 +43,11 @@ DoorSpawnPoint="Spawnpoints for player when entering a room"
 navigation_polygon_source_geometry_group="group for navigation baking"
 CurrentRoom="Room currently being navigated"
 
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
+theme/custom="uid://dowfsv6q20axa"
+
 [input]
 
 move_left={

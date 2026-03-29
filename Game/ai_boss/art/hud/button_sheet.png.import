@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2ri855wd71bg"
-path="res://.godot/imported/consumables_cooldown.png-2929ad9453db5c45acd59a2986ac31cd.ctex"
+uid="uid://cf7iai22bj4x4"
+path="res://.godot/imported/button_sheet.png-382996841a02bad694f333954b164b40.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/hud/consumables_cooldown.png"
-dest_files=["res://.godot/imported/consumables_cooldown.png-2929ad9453db5c45acd59a2986ac31cd.ctex"]
+source_file="res://art/hud/button_sheet.png"
+dest_files=["res://.godot/imported/button_sheet.png-382996841a02bad694f333954b164b40.ctex"]
 
 [params]
 
