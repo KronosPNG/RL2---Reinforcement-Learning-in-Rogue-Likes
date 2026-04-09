@@ -6,15 +6,23 @@ public static class EventBus
     // Pause/Resume Events
     public static event Action OnGamePaused;
     public static event Action OnGameResumed;
+    public static event Action OnGameExit;
 
     public static void RaiseGamePaused()
     {
+        GD.Print("Game paused");
         OnGamePaused?.Invoke();
     }
 
     public static void RaiseGameResumed()
     {
+        GD.Print("Game resumed");
         OnGameResumed?.Invoke();
+    }
+
+    public static void RaiseGameExit()
+    {
+        OnGameExit?.Invoke();
     }
 
     // Player Events
@@ -44,13 +52,11 @@ public static class EventBus
     
     public static void RaiseWeaponAttackStarted(string attackName)
     {
-        GD.Print($"[EventBus] Raising OnWeaponAttackStarted event for '{attackName}' attack.");
         OnWeaponAttackStarted?.Invoke(attackName);
     }
 
     public static void RaiseWeaponEquipped(float lightAttackCooldown, float heavyAttackCooldown)
     {
-        GD.Print($"[EventBus] Raising OnWeaponEquipped event with light attack cooldown: {lightAttackCooldown}s, heavy attack cooldown: {heavyAttackCooldown}s");
         OnWeaponEquipped?.Invoke(lightAttackCooldown, heavyAttackCooldown);
     }
 

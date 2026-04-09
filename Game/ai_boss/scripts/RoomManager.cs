@@ -14,6 +14,10 @@ public partial class RoomManager : Node2D
 	{
 		var firstRoom = ResourceLoader.Load<PackedScene>("res://scenes/rooms/starting_room.tscn");
 		LoadInitialRoom(firstRoom);
+
+		EventBus.OnGamePaused += HandleGamePaused;
+		EventBus.OnGameResumed += HandleGameResumed;
+		EventBus.OnPlayerDied += HandleGamePaused;
 	}
 
 	private void LoadInitialRoom(PackedScene roomScene)
@@ -100,15 +104,6 @@ public partial class RoomManager : Node2D
 		// Get spawn point from NEW room
 		var spawnNode = FindRoomSpawnPoint(_currentRoom, spawnPointName);
 		Vector2 spawnPoint = spawnNode?.GlobalPosition ?? Vector2.Zero;
-		
-		// if (spawnNode == null)
-		// {
-		// 	GD.PrintErr($"Spawn point '{spawnPointName}' not found in room! Using center.");
-		// }
-		// else
-		// {
-		// 	GD.Print($"Spawning player at '{spawnPointName}': {spawnPoint}");
-		// }
 
 		// Set position BEFORE adding to scene tree to avoid triggering door collisions
 		_player.Position = spawnPoint;
@@ -226,5 +221,17 @@ public partial class RoomManager : Node2D
 	public override void _ExitTree()
 	{
 		EventBus.OnSceneTransition -= OnTransitionToScene;
+	}
+
+	// Pause Logic
+
+	private void HandleGamePaused()
+	{
+		Modulate = new Color(0.5f, 0.5f, 0.5f);
+	}
+
+	private void HandleGameResumed()
+	{
+		Modulate = new Color(1f, 1f, 1f);
 	}
 }
