@@ -1,6 +1,7 @@
 [gd_scene format=4 uid="uid://dqpmorckn3wck"]
 
-[ext_resource type="Script" uid="uid://bsjnqrl0i83my" path="res://scripts/room_management/Room.cs" id="1_u6evn"]
+[ext_resource type="Script" uid="uid://j6bttx2q68sq" path="res://scripts/room_management/BossRoom.cs" id="1_u6evn"]
+[ext_resource type="PackedScene" uid="uid://cgqh05v8olart" path="res://scenes/entities/boss_rl.tscn" id="3_gfdek"]
 [ext_resource type="PackedScene" uid="uid://c1fqi244my31e" path="res://scenes/objects/doors/door_down.tscn" id="4_u6evn"]
 [ext_resource type="TileSet" uid="uid://cncwrtmglwj0e" path="res://assets/tileset/main_tileset.tres" id="5_1cvy8"]
 [ext_resource type="PackedScene" uid="uid://cj5cncsddkvuc" path="res://scenes/objects/pillars/pillar.tscn" id="6_4hilx"]
@@ -15,8 +16,7 @@ agent_radius = 7.0
 
 [node name="Room" type="Node2D" unique_id=1632839248 groups=["Room"]]
 script = ExtResource("1_u6evn")
-PedestalScenes = Array[PackedScene]([])
-MobsToSpawn = 1
+MobsToSpawn = 3
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=254729100]
 visible = false
@@ -30,6 +30,9 @@ navigation_enabled = false
 
 [node name="SortSceneElements" type="Node2D" parent="." unique_id=1646673646 groups=["navigation_polygon_source_geometry_group"]]
 y_sort_enabled = true
+
+[node name="BossRL" parent="SortSceneElements" unique_id=1883322666 instance=ExtResource("3_gfdek")]
+position = Vector2(0, -80)
 
 [node name="Pillar" parent="SortSceneElements" unique_id=436886764 instance=ExtResource("6_4hilx")]
 z_index = 2

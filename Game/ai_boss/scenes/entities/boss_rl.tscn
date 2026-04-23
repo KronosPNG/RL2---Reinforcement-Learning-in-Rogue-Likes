@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://cgqh05v8olart"]
+
+[ext_resource type="Texture2D" uid="uid://05shjb47opj5" path="res://art/animations/boss/boss-Sheet.png" id="1_lvxv8"]
+
+[node name="BossRL" type="CharacterBody2D" unique_id=1883322666 groups=["Boss", "Enemy"]]
+
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1559321127]
+
+[node name="HitArea" type="Area2D" parent="." unique_id=1064389255]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=450019970]
+
+[node name="VisualController" type="Node2D" parent="." unique_id=580503889]
+
+[node name="Sprite2D" type="Sprite2D" parent="VisualController" unique_id=1255372778]
+texture = ExtResource("1_lvxv8")
+region_enabled = true
+region_rect = Rect2(0, 0, 48, 48)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualController" unique_id=2085320619]

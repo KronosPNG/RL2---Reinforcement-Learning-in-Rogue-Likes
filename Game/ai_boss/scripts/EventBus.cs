@@ -81,4 +81,18 @@ public static class EventBus
     {
         OnSceneTransition?.Invoke(spawnPointName, targetScenePath);
     }
+
+    // Boss Room Events
+    public static event Action OnBossRoomEntered;
+    public static event Action OnBossKilled;
+
+    public static void RaiseBossRoomEnteredEvent()
+    {
+        OnBossRoomEntered?.Invoke();
+    }
+
+    public static void RaiseBossKilledEvent()
+    {
+        OnBossKilled?.Invoke();
+    }
 }

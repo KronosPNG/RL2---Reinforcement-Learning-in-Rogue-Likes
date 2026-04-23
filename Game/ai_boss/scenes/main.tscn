@@ -6,6 +6,14 @@
 [ext_resource type="PackedScene" uid="uid://dga6m0jed3vlt" path="res://scenes/GUI/HUD.tscn" id="2_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85mcslte1v7i" path="res://scenes/GUI/PauseMenu/PauseMenu.tscn" id="2_tbgi4"]
 
+[sub_resource type="Animation" id="Animation_tbgi4"]
+resource_name = "BossIntro"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tefeu"]
+_data = {
+&"BossIntro": SubResource("Animation_tbgi4")
+}
+
 [node name="Main" type="Node2D" unique_id=1241760868]
 script = ExtResource("1_sugp2")
 
@@ -20,3 +28,6 @@ script = ExtResource("1_yc10j")
 [node name="Camera2D" type="Camera2D" parent="RoomManager" unique_id=2005641649]
 zoom = Vector2(3, 3)
 script = ExtResource("2_0wfyh")
+
+[node name="CutscenePlayer" type="AnimationPlayer" parent="." unique_id=1387689413]
+libraries/ = SubResource("AnimationLibrary_tefeu")

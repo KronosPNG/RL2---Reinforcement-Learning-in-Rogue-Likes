@@ -2,14 +2,20 @@ using Godot;
 
 public partial class MainHandler : Node
 {
+    AnimationPlayer _cutscenePlayer;
+
     public override void _Ready()
     {
+        _cutscenePlayer = GetNode<AnimationPlayer>("CutscenePlayer");
+
         // Subscribe to EventBus events
 
         EventBus.OnGamePaused += HandleGamePaused;
         EventBus.OnGameResumed += HandleGameResumed;
         EventBus.OnPlayerDied += HandlePlayerDied;
         EventBus.OnGameExit += () => GetTree().Quit();
+        EventBus.OnBossRoomEntered += BossCutscene;
+        EventBus.OnBossKilled += EndGameSequence;
     }
 
     private void HandleGamePaused()
@@ -37,5 +43,15 @@ public partial class MainHandler : Node
         player.GetParent().RemoveChild(player);
         AddChild(player);
         player.ProcessMode = ProcessModeEnum.Always; // Ensure player continues processing to show death animation
+    }
+
+    private void BossCutscene()
+    {
+        // Placeholder for boss cutscene logic
+    }
+
+    private void EndGameSequence()
+    {
+        // Placeholder for end game sequence logic
     }
 }

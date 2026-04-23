@@ -42,6 +42,7 @@ Enemy="Enemy entities that are aggressive towards player"
 DoorSpawnPoint="Spawnpoints for player when entering a room"
 navigation_polygon_source_geometry_group="group for navigation baking"
 CurrentRoom="Room currently being navigated"
+Boss="Boss entity"
 
 [gui]
 

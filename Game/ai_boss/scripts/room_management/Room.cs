@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Godot;
 
@@ -20,7 +19,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 	public bool JustCleared => CurrentState == RoomState.Cleared && PreviousState != RoomState.Cleared;
 	[Export] protected PackedScene[] MobScenes; // List of mob scenes to spawn in this room
 	[Export] protected PackedScene[] PedestalScenes; // List of pedestal scenes to spawn in this room
-	[Export] protected int MobsToSpawn = 3; // Number of mobs to spawn when the room is activated
+	[Export] protected int MobsToSpawn = 1; // Number of mobs to spawn when the room is activated
 
 	// ---- Door management ----
 	protected Door[] _doors;
@@ -48,7 +47,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 		OnEnterState(CurrentState);
 	}
 
-	public void OnEnterState(RoomState newState)
+	public virtual void OnEnterState(RoomState newState)
 	{
 		// GD.Print($"Room {Name} entered state: {newState}");
 
@@ -81,7 +80,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 		}
 	}
 
-	public void OnExitState(RoomState oldState)
+	public virtual void OnExitState(RoomState oldState)
 	{
 		return;
 	}
