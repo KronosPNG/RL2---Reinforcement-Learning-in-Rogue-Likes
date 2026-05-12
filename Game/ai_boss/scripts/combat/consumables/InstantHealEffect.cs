@@ -3,7 +3,7 @@ using Godot;
 [GlobalClass]
 public partial class InstantHealEffect : ConsumableEffectBase
 {
-	public override void Execute(Consumable consumable, PlayerController player)
+	public override void Execute(Consumable consumable, PlayableCharacter player)
 	{
 		if (player == null)
 		{
@@ -19,7 +19,7 @@ public partial class InstantHealEffect : ConsumableEffectBase
 		consumable.CompleteEffect();
 	}
 
-	public override void Interrupt(Consumable consumable, PlayerController player)
+	public override void Interrupt(Consumable consumable, PlayableCharacter player)
 	{
 		// Instant effects can't be interrupted
 		// Just mark as complete if it was in progress

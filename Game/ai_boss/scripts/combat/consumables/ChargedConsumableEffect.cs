@@ -17,7 +17,7 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 	private bool _isCharging = false;
 	private bool _isFullyCharged = false;
 
-	public void StartCharging(Consumable consumable, PlayerController player)
+	public void StartCharging(Consumable consumable, PlayableCharacter player)
 	{
 		_isCharging = true;
 		_currentChargeTime = 0f;
@@ -38,7 +38,7 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 		// GD.Print($"[ChargedConsumableEffect] Started charging consumable (charge time: {UsageTime}s)");
 	}
 
-	public void UpdateCharge(Consumable consumable, PlayerController player, float delta)
+	public void UpdateCharge(Consumable consumable, PlayableCharacter player, float delta)
 	{
 		if (!_isCharging) return;
 
@@ -72,7 +72,7 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 		return _isCharging && _currentChargeTime >= UsageTime;
 	}
 
-	public override void Execute(Consumable consumable, PlayerController player)
+	public override void Execute(Consumable consumable, PlayableCharacter player)
 	{
 		if (!_isCharging)
 		{
@@ -105,7 +105,7 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 		}
 	}
 
-	public override void Interrupt(Consumable consumable, PlayerController player)
+	public override void Interrupt(Consumable consumable, PlayableCharacter player)
 	{
 		StopCharging(consumable);
 		consumable.ResetConsumableState();
@@ -139,12 +139,12 @@ public partial class ChargedConsumableEffect : ConsumableEffectBase, IChargeable
 	}
 
 	// ---- IChargeableConsumable Implementation ----
-	void IChargeableConsumable.StartCharging(Consumable consumable, PlayerController player)
+	void IChargeableConsumable.StartCharging(Consumable consumable, PlayableCharacter player)
 	{
 		StartCharging(consumable, player);
 	}
 
-	void IChargeableConsumable.UpdateCharge(Consumable consumable, PlayerController player, float delta)
+	void IChargeableConsumable.UpdateCharge(Consumable consumable, PlayableCharacter player, float delta)
 	{
 		UpdateCharge(consumable, player, delta);
 	}

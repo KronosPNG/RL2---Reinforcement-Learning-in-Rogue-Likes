@@ -2,7 +2,7 @@ using Godot;
 
 public interface IConsumableEffect
 {
-	void Execute(Consumable consumable, PlayerController player);
-	void Interrupt(Consumable consumable, PlayerController player);
-	void Update(Consumable consumable, PlayerController player, float delta);
+	void Execute(Consumable consumable, PlayableCharacter player);
+	void Interrupt(Consumable consumable, PlayableCharacter player);
+	void Update(Consumable consumable, PlayableCharacter player, float delta);
 }

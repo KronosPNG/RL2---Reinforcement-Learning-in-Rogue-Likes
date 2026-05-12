@@ -10,13 +10,13 @@ public abstract partial class ConsumableEffectBase : Resource, IConsumableEffect
 	[Export] public float UsageTime = 0f; // Time taken to consume (windup)
 
 	// Execute the consumable effect on the player
-	public abstract void Execute(Consumable consumable, PlayerController player);
+	public abstract void Execute(Consumable consumable, PlayableCharacter player);
 	
 	// Interrupt the effect (if applicable, e.g., channeled consumables)
-	public abstract void Interrupt(Consumable consumable, PlayerController player);
+	public abstract void Interrupt(Consumable consumable, PlayableCharacter player);
 	
 	// Update for effects that need per-frame updates (e.g., regeneration)
-	public virtual void Update(Consumable consumable, PlayerController player, float delta)
+	public virtual void Update(Consumable consumable, PlayableCharacter player, float delta)
 	{
 		// Default: no update needed for instant effects
 	}

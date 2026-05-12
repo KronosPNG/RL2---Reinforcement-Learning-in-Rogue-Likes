@@ -9,9 +9,9 @@ public partial class RegenerationEffect : ConsumableEffectBase
 	private float _elapsedTime = 0f;
 	private float _nextTickTime = 0f;
 	private bool _isActive = false;
-	private PlayerController _targetPlayer = null;
+	private PlayableCharacter _targetPlayer = null;
 
-	public override void Execute(Consumable consumable, PlayerController player)
+	public override void Execute(Consumable consumable, PlayableCharacter player)
 	{
 		if (player == null)
 		{
@@ -42,7 +42,7 @@ public partial class RegenerationEffect : ConsumableEffectBase
 		}
 	}
 
-	public override void Update(Consumable consumable, PlayerController player, float delta)
+	public override void Update(Consumable consumable, PlayableCharacter player, float delta)
 	{
 		if (!_isActive || _targetPlayer == null) return;
 
@@ -65,7 +65,7 @@ public partial class RegenerationEffect : ConsumableEffectBase
 		}
 	}
 
-	public override void Interrupt(Consumable consumable, PlayerController player)
+	public override void Interrupt(Consumable consumable, PlayableCharacter player)
 	{
 		if (!_isActive) return;
 

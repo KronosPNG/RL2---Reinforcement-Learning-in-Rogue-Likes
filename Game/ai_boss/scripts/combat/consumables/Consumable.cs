@@ -6,7 +6,7 @@ public enum ConsumableState { Available, Windup, InUse }
 public partial class Consumable : Node2D, IPedestalItem
 {
 	public AnimatedSprite2D ActiveSprite { get; private set; }
-	public PlayerController OwnerCharacter { get; protected set; }
+	public PlayableCharacter OwnerCharacter { get; protected set; }
 
 	// ---- Signals ----
 	[Signal] public delegate void EquippedEventHandler();
@@ -115,7 +115,7 @@ public partial class Consumable : Node2D, IPedestalItem
 	}
 
 	// ---- Equip/Unequip ----
-	public virtual void Equip(PlayerController player)
+	public virtual void Equip(PlayableCharacter player)
 	{
 		OwnerCharacter = player;
 		SetPhysicsProcess(true);
