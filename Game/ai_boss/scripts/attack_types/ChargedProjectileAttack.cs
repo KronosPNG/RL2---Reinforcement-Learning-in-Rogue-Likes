@@ -36,7 +36,7 @@ public partial class ChargedProjectileAttack : ChargedAttack, IAttack, IChargeab
 		if (!_originalValuesStored)
 		{
 			_originalProjectileSpeed = ProjectileAttack.ProjectileSpeed;
-			_originalProjectileRange = ProjectileAttack.ProjectileRange;
+			_originalProjectileRange = ProjectileAttack.Range;
 			_originalProjectileCount = ProjectileAttack.ProjectileCount;
 			_originalValuesStored = true;
 		}
@@ -75,7 +75,7 @@ public partial class ChargedProjectileAttack : ChargedAttack, IAttack, IChargeab
 		if (!_originalValuesStored) return;
 		
 		ProjectileAttack.ProjectileSpeed = _originalProjectileSpeed;
-		ProjectileAttack.ProjectileRange = _originalProjectileRange;
+		ProjectileAttack.Range = _originalProjectileRange;
 		ProjectileAttack.ProjectileCount = _originalProjectileCount;
 		// Note: We don't restore damage as it should be recalculated each time
 	}
@@ -131,12 +131,12 @@ public partial class ChargedProjectileAttack : ChargedAttack, IAttack, IChargeab
 				// GD.Print($"[ChargedProjectileAttack] Linear life scaling - chargeRatio: {chargeRatio}");
 			}
 			
-			ProjectileAttack.ProjectileRange = _originalProjectileRange * lifeMultiplier;
+			ProjectileAttack.Range = _originalProjectileRange * lifeMultiplier;
 			// GD.Print($"[ChargedProjectileAttack] Scaled projectile range: {ProjectileAttack.ProjectileRange} (original: {_originalProjectileRange}, multiplier: {lifeMultiplier})");
 		}
 		else
 		{
-			ProjectileAttack.ProjectileRange = _originalProjectileRange;
+			ProjectileAttack.Range = _originalProjectileRange;
 			// GD.Print($"[ChargedProjectileAttack] Using original projectile range: {ProjectileAttack.ProjectileRange}");
 		}
 	}

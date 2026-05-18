@@ -9,7 +9,6 @@ public partial class MainHandler : Node
         _cutscenePlayer = GetNode<AnimationPlayer>("CutscenePlayer");
 
         // Subscribe to EventBus events
-
         EventBus.OnGamePaused += HandleGamePaused;
         EventBus.OnGameResumed += HandleGameResumed;
         EventBus.OnPlayerDied += HandlePlayerDied;

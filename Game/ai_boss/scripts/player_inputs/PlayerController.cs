@@ -23,15 +23,15 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 		base._PhysicsProcess(delta);
 	}
 
-	private static Vector2 ReadDirection()
-	{
-		return Input.GetVector("move_left", "move_right", "move_up", "move_down"); // get already normalized direction vector
-	}
-
 	protected override void UpdateAI(float delta)
 	{
 		// No AI for player - all behavior is input-driven
 		return;
+	}
+
+	private static Vector2 ReadDirection()
+	{
+		return Input.GetVector("move_left", "move_right", "move_up", "move_down"); // get already normalized direction vector
 	}
 
 	protected void HandleCommands()
@@ -40,6 +40,15 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 		{
 			EventBus.RaiseGamePaused();
 		}
+	}
+
+	public override Vector2 GetAimDirection()
+	{
+		Vector2 mousePos = GetGlobalMousePosition();
+		Vector2 direction = (mousePos - GlobalPosition).Normalized();
+		if (direction.LengthSquared() <= 0.000001f) direction = Vector2.Right;
+
+		return direction;
 	}
 
 	// Update the player's facing direction based on input
@@ -140,6 +149,7 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 		if (MovementJustPressed() != Vector2.Zero)
 		{
 			_dodgeDirection = ReadDirection();
+			EventBus.RaisePlayerDodged(_dodgeDirection);
 			TransitionToState(EntityState.Dodging);
 			return;
 		}
@@ -157,6 +167,7 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 			}
 
 			_dodgeDirection = dodgeInput;
+			EventBus.RaisePlayerDodged(_dodgeDirection);
 			TransitionToState(EntityState.Dodging);
 		}
 	}

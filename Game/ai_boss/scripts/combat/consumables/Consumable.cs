@@ -415,7 +415,7 @@ public partial class Consumable : Node2D, IPedestalItem
 		return new Vector2(7f, 7f);
 	}
 
-	public void OnPickedUp(PlayerController player)
+	public void OnPickedUp(PlayableCharacter player)
 	{
 		// Possibly play a sound or effect here
 	}

@@ -22,7 +22,7 @@ public abstract partial class WeaponBase : Node2D
 	// facing direction of the mouse relative to the entity
 	public bool FacingLeft { get; protected set; } = false;
 	// Attack currently being charged, if any
-	protected ChargedAttack _currentChargingAttack;
+	public ChargedAttack CurrentChargingAttack;
 	public bool IsCharging { get; protected set; } = false;
 
 	public override void _Ready()

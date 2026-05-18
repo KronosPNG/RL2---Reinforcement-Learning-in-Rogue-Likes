@@ -524,6 +524,11 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		}
 	}
 
+	public virtual Vector2 GetAimDirection()
+	{
+		return Vector2.Zero; // This can be overridden by specific attack behaviors to provide directional attacks
+	}
+
 	// ---- Armor ----
 
 	public void EquipArmor(PackedScene armorScene)

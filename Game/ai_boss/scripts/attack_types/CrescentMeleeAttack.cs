@@ -7,7 +7,6 @@ public partial class CrescentMeleeAttack : AttackBase, IAttack
 	// Attack hitbox
 	[ExportGroup("Crescent Properties")]
 	[Export] public float InnerRadius = 18f;
-	[Export] public float OuterRadius = 28f;
 	[Export] public float AngleDeg = 70f; // Angle of the attack arc
 	[Export] public float ArcCenterOffsetDeg = 0; // Center offset for  attack arc
 
@@ -50,7 +49,7 @@ public partial class CrescentMeleeAttack : AttackBase, IAttack
 
 	protected virtual void GenerateHitBox(WeaponBase weapon, Vector2 originLocal, float startAngle, float endAngle, bool facingLeft)
 	{
-		Vector2[] poly = BuildCrescentPolygon(originLocal, InnerRadius, OuterRadius, startAngle, endAngle, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
+		Vector2[] poly = BuildCrescentPolygon(originLocal, InnerRadius, Range, startAngle, endAngle, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
 		weapon.HitAreaShape.Polygon = poly;
 	}
 

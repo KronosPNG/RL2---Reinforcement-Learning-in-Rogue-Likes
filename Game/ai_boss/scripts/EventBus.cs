@@ -3,7 +3,7 @@ using Godot;
 
 public static class EventBus
 {
-    // Pause/Resume Events
+    // --- Pause/Resume Events ---
     public static event Action OnGamePaused;
     public static event Action OnGameResumed;
     public static event Action OnGameExit;
@@ -25,11 +25,11 @@ public static class EventBus
         OnGameExit?.Invoke();
     }
 
-    // Player Events
+    // --- Player Events ---
     public static event Action OnPlayerDied;
     public static event Action<float, float> OnPlayerDamaged; // intensity, duration
     public static event Action<float> OnPlayerHealthChanged; // current health
-
+    public static event Action<Vector2> OnPlayerDodged; // dodge direction
     public static void RaisePlayerDied()
     {
         OnPlayerDied?.Invoke();
@@ -45,7 +45,12 @@ public static class EventBus
         OnPlayerHealthChanged?.Invoke(currentHealth);
     }
 
-    // Weapon Events
+    public static void RaisePlayerDodged(Vector2 dodgeDirection)
+    {
+        OnPlayerDodged?.Invoke(dodgeDirection);
+    }
+
+    // --- Weapon Events ---
     public static event Action<string> OnWeaponAttackStarted; // attackName
 
     public static event Action<float, float> OnWeaponEquipped; // lightAttackCooldown, heavyAttackCooldown
@@ -60,7 +65,7 @@ public static class EventBus
         OnWeaponEquipped?.Invoke(lightAttackCooldown, heavyAttackCooldown);
     }
 
-    // Consumable Events
+    // --- Consumable Events ---
     public static event Action OnConsumableEquipped;
     public static event Action OnConsumableUsed;
 
@@ -74,7 +79,7 @@ public static class EventBus
         OnConsumableUsed?.Invoke();
     }
 
-    // Scene Transition Event
+    // --- Scene Transition Event ---
     public static event Action<string, string> OnSceneTransition; // spawnPointName, target
     
     public static void RaiseSceneTransition(string spawnPointName, string targetScenePath)
@@ -82,7 +87,7 @@ public static class EventBus
         OnSceneTransition?.Invoke(spawnPointName, targetScenePath);
     }
 
-    // Boss Room Events
+    // --- Boss Room Events ---
     public static event Action OnBossRoomEntered;
     public static event Action OnBossKilled;
 

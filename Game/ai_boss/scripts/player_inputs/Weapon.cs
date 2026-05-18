@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public partial class Weapon : WeaponBase, IPedestalItem
 {
-	public PlayerController OwnerCharacter { get; protected set; }
+	public PlayableCharacter OwnerCharacter { get; protected set; }
 	// Signals for equipping/unequipping
 	[Signal] public delegate void EquippedEventHandler();
 	[Signal] public delegate void UnequippedEventHandler();
@@ -91,7 +91,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	public virtual void Equip(Node2D owner)
 	{
 		// Logic for equipping the weapon
-		OwnerCharacter = owner as PlayerController;
+		OwnerCharacter = owner as PlayableCharacter;
 		// Enable physics processing now that we have a valid owner
 		SetPhysicsProcess(true);
 		EmitSignal(nameof(Equipped));
@@ -226,7 +226,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 		PendingHitTarget = mouseGlobalPos;
 		IsCurrentAttackHeavy = isHeavy;
-		_currentChargingAttack = chargedAttack;
+		CurrentChargingAttack = chargedAttack;
 		IsCharging = true;
 		State = WeaponState.Windup; // Use Windup state for charging
 
@@ -238,19 +238,19 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	// Update the charging process (called from player controller)
 	public void UpdateCharge(float delta)
 	{
-		if (!IsCharging || _currentChargingAttack == null) return;
+		if (!IsCharging || CurrentChargingAttack == null) return;
 
-		_currentChargingAttack.UpdateCharge(this, delta);
+		CurrentChargingAttack.UpdateCharge(this, delta);
 
 		// Emit charge level updates for UI/feedback
-		float chargeLevel = _currentChargingAttack.getCurrentChargeTime() / _currentChargingAttack.getMaxChargeTime();
+		float chargeLevel = CurrentChargingAttack.getCurrentChargeTime() / CurrentChargingAttack.getMaxChargeTime();
 		EmitSignal(nameof(ChargeUpdated), chargeLevel);
 	}
 
 	// Check if the charge can be released
 	public bool CanReleaseCharge()
 	{
-		return IsCharging && _currentChargingAttack?.CanReleaseCharge() == true;
+		return IsCharging && CurrentChargingAttack?.CanReleaseCharge() == true;
 	}
 
 	// Execute the charged attack
@@ -273,7 +273,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 	private void ExecuteChargedAttack(Vector2 mouseGlobalPos)
 	{
-		if (_currentChargingAttack == null)
+		if (CurrentChargingAttack == null)
 		{
 			// GD.PrintErr("No current charging attack to execute!");
 			return;
@@ -298,11 +298,11 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 		State = WeaponState.Active;
 		// GD.Print($"[Weapon]Executing charged attack: isHeavy={_isCurrentAttackHeavy}, target={_pendingHitTarget}, facingLeft={facingAtStart}");
-		_currentChargingAttack.Execute(this, PendingHitTarget, facingAtStart);
+		CurrentChargingAttack.Execute(this, PendingHitTarget, facingAtStart);
 
 		// Clean up charging state
 		IsCharging = false;
-		_currentChargingAttack = null;
+		CurrentChargingAttack = null;
 
 		// The attack execution will handle state transitions
 	}
@@ -314,15 +314,15 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 		string attackName = IsCurrentAttackHeavy ? "heavy" : "light";
 
-		if (_currentChargingAttack != null)
+		if (CurrentChargingAttack != null)
 		{
-			_currentChargingAttack.Interrupt(this);
+			CurrentChargingAttack.Interrupt(this);
 		}
 
 		EmitSignal(nameof(ChargeCancelled), attackName);
 
 		IsCharging = false;
-		_currentChargingAttack = null;
+		CurrentChargingAttack = null;
 		State = WeaponState.Ready;
 	}
 
@@ -465,17 +465,13 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		return otherItem == null || otherItem is Weapon;
 	}
 
-	public void OnPickedUp(PlayerController player)
+	public void OnPickedUp(PlayableCharacter player)
 	{
 		// Possibly play a sound or effect here
 	}
 
 	protected override Vector2 GetAimDirection()
 	{
-		// No null check needed - physics processing is disabled until OwnerCharacter is set in Equip()
-		Vector2 mousePos = GetGlobalMousePosition();
-		Vector2 direction = (mousePos - OwnerCharacter.GlobalPosition).Normalized();
-		if (direction.LengthSquared() <= 0.000001f) direction = Vector2.Right;
-		return direction;
+		return OwnerCharacter.GetAimDirection();
 	}
 }

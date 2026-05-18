@@ -2,6 +2,7 @@ public enum BossState
 {
     Idle,
     Walking,
+    Cooldown,
     Dying,
     Dead,
     AttackPrepare,

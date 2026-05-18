@@ -95,7 +95,7 @@ public partial class SweepingCrescentMeleeAttack : CrescentMeleeAttack, IAttack
 			}
 
 			// Build polygon for current sector
-			Vector2[] poly = BuildCrescentPolygon(originLocal, InnerRadius, OuterRadius, currentStart, currentEnd, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
+			Vector2[] poly = BuildCrescentPolygon(originLocal, InnerRadius, Range, currentStart, currentEnd, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
 			weapon.HitAreaShape.Polygon = poly;
 
 			// if we've reached final values, stop
@@ -110,7 +110,7 @@ public partial class SweepingCrescentMeleeAttack : CrescentMeleeAttack, IAttack
 		// Ensure final polygon applied (in case we exited early)
 		if (_isSweeping)
 		{
-			Vector2[] finalPoly = BuildCrescentPolygon(originLocal, InnerRadius, OuterRadius, targetStart, targetEnd, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
+			Vector2[] finalPoly = BuildCrescentPolygon(originLocal, InnerRadius, Range, targetStart, targetEnd, segments: Mathf.Max(6, (int)(AngleDeg / 5f)));
 			weapon.HitAreaShape.Polygon = finalPoly;
 		}
 

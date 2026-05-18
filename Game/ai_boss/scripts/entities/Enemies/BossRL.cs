@@ -13,6 +13,8 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
     public NavigationAgent2D NavAgent { get; private set; }
     public BossAttackManager AttackManager { get; set; }
 
+    [Export] private float _cooldownDuration = .25f;
+    public float CooldownTimer { get; private set; }
 
     public override void OnEnterState(BossState state)
     {
