@@ -3,8 +3,9 @@ using Godot;
 [GlobalClass]
 public partial class AttackSpam : PlayerAttackBehaviour
 {
-    public AttackSpam(PlayerMimic player) : base(player){
-        
+    public AttackSpam(PlayerMimic player) : base(player)
+    {
+        Priority = 0.65f;
     }
     
     public override float EvaluateOpportunity(PlayerMimic player)
@@ -20,7 +21,7 @@ public partial class AttackSpam : PlayerAttackBehaviour
         );
 
         if (distanceToTarget > maxRange)
-            return 0.05f;  // Target is out of range, but we want to close the distance
+            return 0f;  // Target is out of range, but we want to close the distance
 
         // Step 3: if we are already in the middle of charging an attack, we are committed to it
         if (player.CurrentState == EntityState.AttackCharging)

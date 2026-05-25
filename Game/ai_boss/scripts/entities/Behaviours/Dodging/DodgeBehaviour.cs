@@ -4,8 +4,18 @@ using Godot;
 
 public abstract partial class DodgeBehaviour : Resource, IDodgeBehaviour
 {
-    public abstract float EvaluateThreat(IEntity entity);
+    public float Priority {get; protected set;}
+    protected IDodgeDirectionStrategy DodgeDirection;
 
-    public abstract Vector2 GetDodgeDirection(IEntity entity);
-    public abstract bool ShouldDodge(IEntity entity);
+    public DodgeBehaviour(IDodgeDirectionStrategy dodgeDirection)
+    {
+        DodgeDirection = dodgeDirection;
+    }
+
+    public virtual Vector2 GetDodgeDirection(PlayerMimic player)
+    {
+        return DodgeDirection.GetDodgeDirection(player, null);
+    }
+    
+    public abstract float EvaluateOpportunity(PlayerMimic player);
 }

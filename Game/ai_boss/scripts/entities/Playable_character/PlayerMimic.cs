@@ -12,14 +12,17 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
     [Export] private ConsumableBehaviour consumableBehaviour;
     [Export] private WanderBehaviour wanderBehaviour;
     [Export] private AggroBehaviour aggroBehaviour;
-
-    List<(float priority, int originalIndex, Action action)> BehaviourPriorityList;
     
+    // --- Utility --- 
+    private List<(float priority, int originalIndex, Action action)> BehaviourPriorityList;
+    public List<Projectile> DetectedProjectiles = new List<Projectile>();
+    
+    // --- Node References ---
     public BossRL BossRef;
+    private Area2D ProjectileDetectionArea;
 
     // --- Constants ---
-    private const float WANDER_PRIORITY = 0.05f;
-    private const float AGGRO_PRIORITY = 0.15f;
+    private const float MIN_PRIORITY_THRESHOLD = 0.25f; // Minimum priority to consider executing a behaviour
     
     public override void _Ready()
     {
@@ -27,11 +30,17 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
         
         // Find the boss in the scene tree
         BossRef = GetTree().Root.GetNodeOrNull<BossRL>("*/" + TargetType);
+        ProjectileDetectionArea = GetNode<Area2D>("ProjectileDetectionArea");
     }
 
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);
+
+        ProjectileDetectionArea.AreaEntered += OnProjectileAreaEntered; 
+        ProjectileDetectionArea.AreaExited += OnProjectileAreaExited;
+        ProjectileDetectionArea.BodyEntered += OnProjectileEntered;
+        ProjectileDetectionArea.BodyExited += OnProjectileExited;
 
         UpdateAI((float)delta);
 
@@ -39,9 +48,19 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 
     protected override void UpdateAI(float delta)
     {
-        var dodgeThreat = dodgeBehaviour.EvaluateThreat(this);
-        var consumableUsefulness = consumableBehaviour.EvaluateUsefulness(this);
+        var dodgeThreat = dodgeBehaviour.EvaluateOpportunity(this);
+        var consumableUsefulness = consumableBehaviour.EvaluateOpportunity(this);
         var attackPriority = attackBehaviour.EvaluateOpportunity(this);
+
+        // Thresholding: if behaviour under minimum threshold, ignore it
+        if (dodgeThreat < MIN_PRIORITY_THRESHOLD) dodgeThreat = 0f;
+        else dodgeThreat += dodgeBehaviour.Priority; // Add base priority if above threshold
+
+        if (consumableUsefulness < MIN_PRIORITY_THRESHOLD) consumableUsefulness = 0f;
+        else consumableUsefulness += consumableBehaviour.Priority;
+
+        if (attackPriority < MIN_PRIORITY_THRESHOLD) attackPriority = 0f;
+        else attackPriority += attackBehaviour.Priority;
 
         // Order priorities based on evaluations
         // Include index to break ties in favor of original order: Dodge > Consumable > Attack > Aggro > Wander
@@ -50,8 +69,6 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
             (dodgeThreat, 0, HandleDodgeControl),
             (consumableUsefulness, 1, HandleConsumableControl),
             (attackPriority, 2, HandleCombatControl),
-            (AGGRO_PRIORITY, 3, HandleAggroControl),
-            (WANDER_PRIORITY, 4, HandleWanderControl)
         };
         
         // Sort by priority descending, then by original order ascending for ties
@@ -59,9 +76,6 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
             .OrderByDescending(a => a.priority)
             .ThenBy(a => a.originalIndex)
             .ToList();
-
-        // Execute highest priority action
-        BehaviourPriorityList[0].action.Invoke(); 
     }
 
     // --- Control ---
@@ -114,7 +128,20 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 
     private void HandleDodgeControl()
     {
-        
+        TransitionToState(EntityState.DodgePrep);
+
+        _dodgeDirection = dodgeBehaviour.GetDodgeDirection(this);
+
+        if(_dodgeDirection == Vector2.Zero)
+        {
+            if (Velocity != Vector2.Zero)
+                TransitionToState(EntityState.Walking);
+            else
+                TransitionToState(EntityState.Idle);
+        }
+
+        EventBus.RaisePlayerDodged(_dodgeDirection);
+        TransitionToState(EntityState.Dodging);
     }
 
     private void HandleConsumableControl()
@@ -152,31 +179,52 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
     // --- "Input" Handling ---
     private void ExecuteAttackDecision(AttackDecision decision)
     {
-        switch (decision.Type)
+        if (CurrentState == EntityState.AttackCharging || decision.Type == AttackType.ChargedHeavy || decision.Type == AttackType.ChargedLight)
         {
-            case AttackType.Light:
-                if (CurrentState == EntityState.AttackCharging)
-                    HandleChargingControl(decision);
-                else
-                    EquippedWeapon.AttackLight(decision.AimDirection);
-                
-                break;
+            HandleChargingControl(decision);
+            return;
+        }
 
-            case AttackType.Heavy:
-                if (CurrentState == EntityState.AttackCharging)
-                    HandleChargingControl(decision);
-                else
-                    EquippedWeapon.AttackHeavy(decision.AimDirection);
+        if (decision.Type == AttackType.Light)
+        {
+            EquippedWeapon.AttackLight(decision.AimDirection);
+        }
 
-                break;
-
-            case AttackType.ChargedLight:
-            case AttackType.ChargedHeavy:
-                HandleChargingControl(decision);
-                break;
+        else if (decision.Type == AttackType.Heavy)
+        {
+            EquippedWeapon.AttackHeavy(decision.AimDirection);
         }
     }
 
+
+    // --- Event Handlers ---
+    private void OnProjectileAreaEntered(Area2D area){
+        Node collider = area.GetParent();
+        OnProjectileEntered(collider);
+    }
+
+    private void OnProjectileAreaExited(Area2D area){
+        Node collider = area.GetParent();
+        OnProjectileExited(collider);
+    }
+
+    private void OnProjectileEntered(Node body)
+    {
+        Projectile proj = body as Projectile;
+        if (proj != null && !DetectedProjectiles.Contains(proj))
+        {
+            DetectedProjectiles.Add(proj);
+        }
+    }
+
+    private void OnProjectileExited(Node body)
+    {
+        Projectile proj = body as Projectile;
+        if (proj != null)
+        {
+            DetectedProjectiles.Remove(proj);
+        }
+    }
 
 
 }

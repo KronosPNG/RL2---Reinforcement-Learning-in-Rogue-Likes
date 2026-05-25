@@ -3,10 +3,11 @@ using Godot;
 [GlobalClass]
 public partial class AttackEdgelord : PlayerAttackBehaviour
 {
+
     public AttackEdgelord(PlayerMimic player) : base(player)
     {
+        Priority = .8f;
     }
-    
 
     public override float EvaluateOpportunity(PlayerMimic player)
     {
@@ -19,7 +20,7 @@ public partial class AttackEdgelord : PlayerAttackBehaviour
         );
 
         if (distanceToTarget > maxRange)
-            return 0.05f;
+            return 0f;
 
         // EDGELORD: Committed to the charge! Priority increases as charge builds
         if (player.CurrentState == EntityState.AttackCharging)

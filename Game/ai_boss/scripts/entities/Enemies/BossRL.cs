@@ -2,6 +2,14 @@ using Godot;
 
 public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavigable, IStateful<BossState>, IAnimatable<BossState>
 {
+    public enum BossAttackType
+    {
+        Melee1,
+        Melee2,
+        Magic1,
+        Magic2
+    }
+
     public float CurrentHealth { get; private set; }
 
     public float MaxHealth => 2000f;

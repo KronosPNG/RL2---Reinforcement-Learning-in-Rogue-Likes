@@ -1,6 +1,6 @@
 public interface IConsumableBehaviour
 {
-    float EvaluateUsefulness(PlayerMimic player);  // 0-1 usefulness
+    float EvaluateOpportunity(PlayerMimic player);  // 0-1 opportunity
     bool ShouldUseConsumable(PlayerMimic player);
     ConsumableUsageMode GetUsageMode(PlayerMimic player);
 }

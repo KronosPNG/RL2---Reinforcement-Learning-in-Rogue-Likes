@@ -4,6 +4,7 @@ using Godot;
 public abstract partial class PlayerAttackBehaviour : Resource, IPlayerAttackBehaviour
 {
     protected Weapon weapon;
+    public float Priority {get; protected set;}
 
     public PlayerAttackBehaviour(PlayerMimic player)
     {

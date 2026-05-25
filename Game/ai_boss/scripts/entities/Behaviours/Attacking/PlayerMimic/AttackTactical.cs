@@ -5,6 +5,7 @@ public partial class AttackTactical : PlayerAttackBehaviour
 {
     public AttackTactical(PlayerMimic player) : base(player)
     {
+        Priority = 0.5f;
     }
 
     public override float EvaluateOpportunity(PlayerMimic player)
@@ -18,7 +19,7 @@ public partial class AttackTactical : PlayerAttackBehaviour
         );
 
         if (distanceToTarget > maxRange)
-            return 0.05f;  // Out of range, close distance
+            return 0f;  // Out of range, close distance
         
         var bossState = player.BossRef.CurrentState;
 

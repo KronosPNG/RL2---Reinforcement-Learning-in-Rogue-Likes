@@ -5,6 +5,7 @@ public partial class AttackCowardly : PlayerAttackBehaviour
 {
     public AttackCowardly(PlayerMimic player) : base(player)
     {
+        Priority = 0.3f;
     }
 
     public override float EvaluateOpportunity(PlayerMimic player)
@@ -18,7 +19,7 @@ public partial class AttackCowardly : PlayerAttackBehaviour
         );
 
         if (distanceToTarget > maxRange)
-            return 0.05f;
+            return 0f;
 
         // COWARDLY: Only attack when boss is clearly not a threat (cooldown window)
         var bossState = player.BossRef.CurrentState;
