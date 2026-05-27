@@ -14,8 +14,8 @@ public partial class AttackCowardly : PlayerAttackBehaviour
 
         float distanceToTarget = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
         float maxRange = Mathf.Max(
-            weapon.LightAttackConfig.Range,
-            weapon.HeavyAttackConfig.Range
+            _weapon.LightAttackConfig.Range,
+            _weapon.HeavyAttackConfig.Range
         );
 
         if (distanceToTarget > maxRange)
@@ -37,15 +37,15 @@ public partial class AttackCowardly : PlayerAttackBehaviour
     {
         Vector2 aim = GetAimDirection(player);
         
-        bool lightAvailable = weapon.CanStartAttack(false);
-        bool heavyAvailable = weapon.CanStartAttack(true);
-        bool lightIsCharged = weapon.LightAttackConfig is ChargedAttack;
-        bool heavyIsCharged = weapon.HeavyAttackConfig is ChargedAttack;
+        bool lightAvailable = _weapon.CanStartAttack(false);
+        bool heavyAvailable = _weapon.CanStartAttack(true);
+        bool lightIsCharged = _weapon.LightAttackConfig is ChargedAttack;
+        bool heavyIsCharged = _weapon.HeavyAttackConfig is ChargedAttack;
         
-        float lightRange = weapon.LightAttackConfig.Range;
-        float heavyRange = weapon.HeavyAttackConfig.Range;
-        float lightCooldown = weapon.LightAttackConfig.Cooldown;
-        float heavyCooldown = weapon.HeavyAttackConfig.Cooldown;
+        float lightRange = _weapon.LightAttackConfig.Range;
+        float heavyRange = _weapon.HeavyAttackConfig.Range;
+        float lightCooldown = _weapon.LightAttackConfig.Cooldown;
+        float heavyCooldown = _weapon.HeavyAttackConfig.Cooldown;
         
         // COWARDLY: Prioritize distance (range) first, then speed (cooldown)
         
@@ -65,42 +65,49 @@ public partial class AttackCowardly : PlayerAttackBehaviour
             AttackType type = pickLight ? 
                 (lightIsCharged ? AttackType.ChargedLight : AttackType.Light) :
                 (heavyIsCharged ? AttackType.ChargedHeavy : AttackType.Heavy);
-            return new AttackDecision { Type = type, AimDirection = aim };
+
+            _lastAttackDecision = new AttackDecision { Type = type, AimDirection = aim };
+
+            return _lastAttackDecision;
         }
         
         // Only one has max range, pick it
         if (lightHasMaxRange)
         {
-            return new AttackDecision 
+            _lastAttackDecision = new AttackDecision 
             { 
                 Type = lightIsCharged ? AttackType.ChargedLight : AttackType.Light, 
                 AimDirection = aim 
             };
+            return _lastAttackDecision;
         }
         
         if (heavyHasMaxRange)
         {
-            return new AttackDecision 
+            _lastAttackDecision = new AttackDecision 
             { 
                 Type = heavyIsCharged ? AttackType.ChargedHeavy : AttackType.Heavy, 
                 AimDirection = aim 
             };
+            return _lastAttackDecision;
         }
         
         // Fallback: whatever is available
         if (lightAvailable)
         {
-            return new AttackDecision 
+            _lastAttackDecision = new AttackDecision 
             { 
                 Type = lightIsCharged ? AttackType.ChargedLight : AttackType.Light, 
                 AimDirection = aim 
             };
+            return _lastAttackDecision;
         }
         
-        return new AttackDecision 
+        _lastAttackDecision = new AttackDecision 
         { 
             Type = heavyIsCharged ? AttackType.ChargedHeavy : AttackType.Heavy, 
             AimDirection = aim 
         };
+        return _lastAttackDecision;
     }
 }

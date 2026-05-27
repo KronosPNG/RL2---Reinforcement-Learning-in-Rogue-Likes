@@ -18,6 +18,4 @@ public abstract partial class AttackBehaviour : Resource, IAttackBehaviour
     }
 	
 	public abstract bool CanAttack(EnemyEntity entity);
-	public abstract Vector2 GetAttackVelocity(EnemyEntity entity, float delta);
-
 }

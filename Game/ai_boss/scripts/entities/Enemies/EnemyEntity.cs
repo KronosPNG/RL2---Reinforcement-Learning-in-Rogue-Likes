@@ -255,6 +255,8 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 
 	protected override void ApplyMovementByState(float delta)
 	{
+		Vector2 direction;
+
 		switch (CurrentState)
 		{
 			case EntityState.Idle:
@@ -262,18 +264,20 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 				break;
 
 			case EntityState.Wandering:
-				Velocity = WanderingBehavior.GetWanderVelocity(this, delta) + _knockbackVelocity;
+				direction = WanderingBehavior.GetWanderDirection(this, delta);
+				Velocity = (direction * BaseSpeed * WanderingBehavior.WanderSpeedMultiplier) + _knockbackVelocity;
 				break;
 
 			case EntityState.Aggro:
 				AggroBehavior.PerformAggroBehaviour(this);
-				Velocity = AggroBehavior.GetChaseVelocity(this, delta) + _knockbackVelocity;
+				direction = AggroBehavior.GetChaseDirection(this, delta);
+				Velocity = (direction * BaseSpeed * AggroBehavior.ChaseSpeedModifier) + _knockbackVelocity;
 				break;
 
 			case EntityState.Attacking:
 			case EntityState.AttackPrepare:
 			case EntityState.AttackCharging:
-				Velocity = AttackBehavior.GetAttackVelocity(this, delta) + _knockbackVelocity;
+				Velocity = Vector2.Zero + _knockbackVelocity;
 				break;
 
 			case EntityState.Hit:

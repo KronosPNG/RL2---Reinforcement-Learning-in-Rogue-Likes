@@ -8,7 +8,7 @@ public partial class AggroFollowTarget : AggroBehaviour
         return base.CanSeeTarget(entity);
     }
 
-    public override Vector2 GetChaseVelocity(IEntity entity, float delta)
+    public override Vector2 GetChaseDirection(IEntity entity, float delta)
     {
         if (entity.Target == null || !IsInstanceValid(entity.Target))
             return Vector2.Zero;
@@ -26,8 +26,7 @@ public partial class AggroFollowTarget : AggroBehaviour
                 if (entity.GlobalPosition.DistanceSquaredTo(nextPos) > 1.0f)
                 {
                     // GD.Print($"AggroFollowTarget: Using pathfinding direction towards next path position {nextPos}");
-                    direction = entity.GlobalPosition.DirectionTo(nextPos);
-                    return direction * entity.BaseSpeed * ChaseSpeedModifier;
+                    return entity.GlobalPosition.DirectionTo(nextPos);
                 }
 
                 else
@@ -39,14 +38,14 @@ public partial class AggroFollowTarget : AggroBehaviour
             else
             {
                 GD.PrintErr($"AggroFollowTarget: Entity is missing a NavigationAgent2D for pathfinding!");
-                return direction * entity.BaseSpeed * ChaseSpeedModifier; // Fallback to direct movement if no nav agent
+                return direction; // Fallback to direct movement if no nav agent
             }
         }
 
         else
         {
             GD.PrintErr($"AggroFollowTarget: Entity is not navigable but is using AggroFollowTarget behaviour!");
-            return direction * entity.BaseSpeed * ChaseSpeedModifier;
+            return direction; // Fallback to direct movement if no nav agent
         }
 
     }

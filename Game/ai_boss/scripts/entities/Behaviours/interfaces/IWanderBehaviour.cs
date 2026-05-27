@@ -2,8 +2,8 @@ using Godot;
 
 public interface IWanderBehaviour
 {
-	void OnEnterWander(EnemyEntity entity);
-	void OnExitWander(EnemyEntity entity);
-	Vector2 GetWanderVelocity(EnemyEntity entity, float delta);
-	bool ShouldStopWandering(EnemyEntity entity);
+	void OnEnterWander(IEntity entity);
+	void OnExitWander(IEntity entity);
+	Vector2 GetWanderDirection(IEntity entity, float delta);
+	bool ShouldStopWandering(IEntity entity);
 }

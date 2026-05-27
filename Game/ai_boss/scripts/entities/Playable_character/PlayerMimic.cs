@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Metadata;
 using Godot;
 
-public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, IStateful<EntityState>, IAnimatable<EntityState>
+public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, IStateful<EntityState>, IAnimatable<EntityState>, INavigable
 {
     // --- Behaviours ---
     [Export] private PlayerAttackBehaviour attackBehaviour;
@@ -20,6 +20,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
     // --- Node References ---
     public BossRL BossRef;
     private Area2D ProjectileDetectionArea;
+    public NavigationAgent2D NavAgent { get; private set; }
 
     // --- Constants ---
     private const float MIN_PRIORITY_THRESHOLD = 0.25f; // Minimum priority to consider executing a behaviour
@@ -31,16 +32,19 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
         // Find the boss in the scene tree
         BossRef = GetTree().Root.GetNodeOrNull<BossRL>("*/" + TargetType);
         ProjectileDetectionArea = GetNode<Area2D>("ProjectileDetectionArea");
+        NavAgent = GetNode<NavigationAgent2D>("NavAgent");
+
+        ProjectileDetectionArea.AreaEntered += OnProjectileAreaEntered; 
+        ProjectileDetectionArea.AreaExited += OnProjectileAreaExited;
+        ProjectileDetectionArea.BodyEntered += OnProjectileEntered;
+        ProjectileDetectionArea.BodyExited += OnProjectileExited;
     }
 
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);
 
-        ProjectileDetectionArea.AreaEntered += OnProjectileAreaEntered; 
-        ProjectileDetectionArea.AreaExited += OnProjectileAreaExited;
-        ProjectileDetectionArea.BodyEntered += OnProjectileEntered;
-        ProjectileDetectionArea.BodyExited += OnProjectileExited;
+        _movementDirection = GetDesiredMovementDirection();
 
         UpdateAI((float)delta);
 
@@ -78,7 +82,88 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
             .ToList();
     }
 
+    private Vector2 GetDesiredMovementDirection()
+    {
+        switch (CurrentState)
+        {
+            case EntityState.Walking:
+                return wanderBehaviour.GetWanderDirection(this, (float)GetProcessDeltaTime());
+            
+            case EntityState.Aggro:
+                return aggroBehaviour.GetChaseDirection(this, (float)GetProcessDeltaTime());
+
+            case EntityState.AttackCharging:
+            case EntityState.Attacking:
+                return attackBehaviour.GetMovementDirection(this);
+
+            case EntityState.ConsumableCharging:
+            case EntityState.ConsumableUse:
+                return consumableBehaviour.GetMovementDirection(this);
+        }
+
+        return Vector2.Zero;
+    }
+
+    public override void HandleStateTransitions()
+    {
+        switch (CurrentState)
+        {
+            case EntityState.Idle:
+                TransitionToState(EntityState.Walking);
+                break;
+
+            case EntityState.Walking:
+                if (wanderBehaviour.ShouldStopWandering(this))
+                {
+                    // Get first behaviour in priority list that has a valid action (priority > 0)
+                    // else aggro behaviour
+                    if(!ExecuteValidBehaviour())
+                    {
+                        HandleAggroControl();
+                    }
+                }
+                break;
+
+            case EntityState.Aggro:
+                ExecuteValidBehaviour();
+                break;
+
+            case EntityState.Hit:
+                StateTimer += (float)GetProcessDeltaTime();
+                if (StateTimer >= HitStunDuration)
+                {
+                    StateTimer = 0f;
+                    if(!ExecuteValidBehaviour())
+                    {
+                        HandleAggroControl();
+                    }
+                }
+                break;
+        }
+    }
+
     // --- Control ---
+
+    private void ExecuteAttackDecision(AttackDecision decision)
+    {
+        if (CurrentState == EntityState.AttackCharging || decision.Type == AttackType.ChargedHeavy || decision.Type == AttackType.ChargedLight)
+        {
+            HandleChargingControl(decision);
+            return;
+        }
+
+        if (decision.Type == AttackType.Light)
+        {
+            TransitionToState(EntityState.Attacking);
+            EquippedWeapon.AttackLight(decision.AimDirection);
+        }
+
+        else if (decision.Type == AttackType.Heavy)
+        {
+            TransitionToState(EntityState.Attacking);
+            EquippedWeapon.AttackHeavy(decision.AimDirection);
+        }
+    }
 
     private void HandleCombatControl()
     {
@@ -91,6 +176,10 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 			case EntityState.Hit:
 			case EntityState.Dead:
 				return;
+            
+            case EntityState.ConsumableCharging:
+                CancelChargingConsumable();
+                return;
 		}
 
         var decision = attackBehaviour.GetAttackDecision(this);
@@ -128,6 +217,24 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 
     private void HandleDodgeControl()
     {
+        switch (CurrentState)
+        {
+            // Don't allow dodging while already dodging, in dodge preparation, attacking, or dead
+            case EntityState.DodgePrep:
+            case EntityState.Dodging:
+            case EntityState.Hit:
+            case EntityState.Dead:
+                return;
+
+            case EntityState.AttackCharging:
+                CancelChargingAttack();
+                break;
+
+            case EntityState.ConsumableCharging:
+                CancelChargingConsumable();
+                break;
+        }
+
         TransitionToState(EntityState.DodgePrep);
 
         _dodgeDirection = dodgeBehaviour.GetDodgeDirection(this);
@@ -145,13 +252,51 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
     }
 
     private void HandleConsumableControl()
-    {
+    {   
+        switch (CurrentState)
+        {
+            // Don't allow consumable use while dodging, in dodge prep, attacking, or dead
+            case EntityState.DodgePrep:
+            case EntityState.Dodging:
+            case EntityState.Attacking:
+            case EntityState.Hit:
+            case EntityState.Dead:
+                return;
+
+            case EntityState.AttackCharging:
+                CancelChargingAttack();
+                break;
+        }
+
         
+        var consumableAction = consumableBehaviour.GetConsumableAction(this);
+
+        if (consumableAction == ConsumableAction.Use)
+        {
+            UseConsumable();
+        }
+
+        else if (consumableAction == ConsumableAction.Charge)
+        {
+            if(CurrentState == EntityState.ConsumableCharging)
+            {
+                if (EquippedConsumable.CanReleaseCharge())
+                {
+                    TransitionToState(EntityState.ConsumableUse);
+                    EquippedConsumable.ExecuteCharged();
+                    EventBus.RaiseConsumableUsed();
+                }
+            }
+
+            else {
+                StartChargingConsumable();
+            }
+        }
     }
 
     private void HandleAggroControl()
     {
-        
+        TransitionToState(EntityState.Aggro);
     }
 
     private void HandleWanderControl()
@@ -174,28 +319,19 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
         }
 
         return Vector2.Zero;
-    }
+    }    
 
-    // --- "Input" Handling ---
-    private void ExecuteAttackDecision(AttackDecision decision)
+    private bool ExecuteValidBehaviour()
     {
-        if (CurrentState == EntityState.AttackCharging || decision.Type == AttackType.ChargedHeavy || decision.Type == AttackType.ChargedLight)
+        var validBehaviour = BehaviourPriorityList.FirstOrDefault(b => b.priority > 0);
+        if (validBehaviour != default)
         {
-            HandleChargingControl(decision);
-            return;
+            validBehaviour.action.Invoke();
+            return true;
         }
 
-        if (decision.Type == AttackType.Light)
-        {
-            EquippedWeapon.AttackLight(decision.AimDirection);
-        }
-
-        else if (decision.Type == AttackType.Heavy)
-        {
-            EquippedWeapon.AttackHeavy(decision.AimDirection);
-        }
+        return false;
     }
-
 
     // --- Event Handlers ---
     private void OnProjectileAreaEntered(Area2D area){

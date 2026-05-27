@@ -15,8 +15,8 @@ public partial class AttackEdgelord : PlayerAttackBehaviour
 
         float distanceToTarget = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
         float maxRange = Mathf.Max(
-            weapon.LightAttackConfig.Range,
-            weapon.HeavyAttackConfig.Range
+            _weapon.LightAttackConfig.Range,
+            _weapon.HeavyAttackConfig.Range
         );
 
         if (distanceToTarget > maxRange)
@@ -26,7 +26,7 @@ public partial class AttackEdgelord : PlayerAttackBehaviour
         if (player.CurrentState == EntityState.AttackCharging)
         {
             // Get how far along the charge is (0.0 to 1.0)
-            float chargePercent = weapon.CurrentChargingAttack.getCurrentChargeTime() / weapon.CurrentChargingAttack.MaxChargeTime;
+            float chargePercent = _weapon.CurrentChargingAttack.getCurrentChargeTime() / _weapon.CurrentChargingAttack.MaxChargeTime;
             
             // Baseline 0.5 + up to 0.5 more as charge builds
             // At 0% charge: 0.5
@@ -44,63 +44,69 @@ public partial class AttackEdgelord : PlayerAttackBehaviour
     {
         Vector2 aim = GetAimDirection(player);
         
-        bool lightIsCharged = weapon.LightAttackConfig is ChargedAttack;
-        bool heavyIsCharged = weapon.HeavyAttackConfig is ChargedAttack;
+        bool lightIsCharged = _weapon.LightAttackConfig is ChargedAttack;
+        bool heavyIsCharged = _weapon.HeavyAttackConfig is ChargedAttack;
 
         // CASE 1: Already charging - commit to it until release
         if (player.CurrentState == EntityState.AttackCharging)
         {
-            bool chargeReady = weapon.CanReleaseCharge();
-            bool isHeavyCharge = weapon.IsCurrentAttackHeavy;
+            bool chargeReady = _weapon.CanReleaseCharge();
+            bool isHeavyCharge = _weapon.IsCurrentAttackHeavy;
             
             if (chargeReady)
             {
                 // Time to release!
-                return new AttackDecision
+                _lastAttackDecision = new AttackDecision
                 {
                     Type = isHeavyCharge ? AttackType.Heavy : AttackType.Light,
                     AimDirection = aim
                 };
+                return _lastAttackDecision;
             }
             else
             {
                 // Keep charging
-                return new AttackDecision
+                _lastAttackDecision = new AttackDecision
                 {
                     Type = isHeavyCharge ? AttackType.ChargedHeavy : AttackType.ChargedLight,
                     AimDirection = aim
                 };
+                return _lastAttackDecision;
             }
         }
 
         // CASE 2: Not charging - prefer charged heavy attacks if available
-        if (weapon.CanStartAttack(true))
+        if (_weapon.CanStartAttack(true))
         {
             // Start charging heavy if it's a charged attack, otherwise just heavy
             AttackType heavyType = heavyIsCharged ? AttackType.ChargedHeavy : AttackType.Heavy;
-            return new AttackDecision 
+            
+            _lastAttackDecision = new AttackDecision 
             { 
                 Type = heavyType, 
                 AimDirection = aim 
             };
+            return _lastAttackDecision;
         }
 
         // Heavy not ready, try charged light
-        if (weapon.CanStartAttack(false))
+        if (_weapon.CanStartAttack(false))
         {
             AttackType lightType = lightIsCharged ? AttackType.ChargedLight : AttackType.Light;
-            return new AttackDecision 
+            _lastAttackDecision = new AttackDecision 
             { 
                 Type = lightType, 
                 AimDirection = aim 
             };
+            return _lastAttackDecision;
         }
 
         // Fallback (shouldn't reach here if CanAttack works right)
-        return new AttackDecision 
+        _lastAttackDecision = new AttackDecision 
         { 
             Type = AttackType.Light, 
             AimDirection = aim 
         };
+        return _lastAttackDecision;
     }
 }

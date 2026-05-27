@@ -363,28 +363,4 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 			}
 		}
 	}
-
-	private void StartChargingConsumable()
-	{
-		if(CurrentHealth == MaxHealth)
-		{
-			// Don't start charging if at full health (can remove this check if we want to allow non-healing consumables)
-			CancelChargingConsumable();
-			return;
-		}
-
-		_isChargingConsumable = true;
-		TransitionToState(EntityState.ConsumableCharging);
-		EquippedConsumable.StartCharging();
-	}
-
-	private void UseConsumable()
-	{
-		if(CurrentHealth == MaxHealth) return; // Don't use if at full health (can remove this check if we want to allow non-healing consumables)
-
-		TransitionToState(EntityState.ConsumableUse);
-		EquippedConsumable.Use();
-		EventBus.RaiseConsumableUsed();
-	}
-	
 }

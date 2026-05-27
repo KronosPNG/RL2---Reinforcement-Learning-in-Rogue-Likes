@@ -27,9 +27,4 @@ public partial class AttackInoffensive : AttackBehaviour
     {
         // Inoffensive attack does nothing
     }
-
-    public override Vector2 GetAttackVelocity(EnemyEntity entity, float delta)
-    {
-        return entity.Velocity; // Maintain current velocity
-    }
 }

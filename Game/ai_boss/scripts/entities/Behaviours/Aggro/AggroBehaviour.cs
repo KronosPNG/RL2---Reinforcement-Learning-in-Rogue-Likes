@@ -16,6 +16,6 @@ public abstract partial class AggroBehaviour : Resource, IAggroBehaviour
 		return entity.GlobalPosition.DistanceTo(entity.Target.GlobalPosition) <= DetectionRange;
 	}
 	public abstract bool ShouldLoseTarget(IEntity entity);
-	public abstract Vector2 GetChaseVelocity(IEntity entity, float delta);
+	public abstract Vector2 GetChaseDirection(IEntity entity, float delta);
 	public abstract void PerformAggroBehaviour(IEntity entity);
 }

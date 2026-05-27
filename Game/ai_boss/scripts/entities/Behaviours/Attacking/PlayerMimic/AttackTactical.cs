@@ -14,8 +14,8 @@ public partial class AttackTactical : PlayerAttackBehaviour
 
         float distanceToTarget = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
         float maxRange = Mathf.Max(
-            weapon.LightAttackConfig.Range,
-            weapon.HeavyAttackConfig.Range
+            _weapon.LightAttackConfig.Range,
+            _weapon.HeavyAttackConfig.Range
         );
 
         if (distanceToTarget > maxRange)
@@ -42,24 +42,26 @@ public partial class AttackTactical : PlayerAttackBehaviour
         // CASE 1: Already charging - finish the charge
         if (player.CurrentState == EntityState.AttackCharging)
         {
-            bool chargeReady = weapon.CanReleaseCharge();
-            bool isHeavyCharge = weapon.IsCurrentAttackHeavy;
+            bool chargeReady = _weapon.CanReleaseCharge();
+            bool isHeavyCharge = _weapon.IsCurrentAttackHeavy;
             
             if (chargeReady)
             {
-                return new AttackDecision
+                _lastAttackDecision = new AttackDecision
                 {
                     Type = isHeavyCharge ? AttackType.Heavy : AttackType.Light,
                     AimDirection = aim
                 };
+                return _lastAttackDecision;
             }
             else
             {
-                return new AttackDecision
+                _lastAttackDecision = new AttackDecision
                 {
                     Type = isHeavyCharge ? AttackType.ChargedHeavy : AttackType.ChargedLight,
                     AimDirection = aim
                 };
+                return _lastAttackDecision;
             }
         }
 
@@ -67,25 +69,25 @@ public partial class AttackTactical : PlayerAttackBehaviour
         var bossState = player.BossRef.CurrentState;
         float distanceToTarget = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
         
-        bool lightAvailable = weapon.CanStartAttack(false);
-        bool heavyAvailable = weapon.CanStartAttack(true);
-        bool lightIsCharged = weapon.LightAttackConfig is ChargedAttack;
-        bool heavyIsCharged = weapon.HeavyAttackConfig is ChargedAttack;
+        bool lightAvailable = _weapon.CanStartAttack(false);
+        bool heavyAvailable = _weapon.CanStartAttack(true);
+        bool lightIsCharged = _weapon.LightAttackConfig is ChargedAttack;
+        bool heavyIsCharged = _weapon.HeavyAttackConfig is ChargedAttack;
         
-        bool lightInRange = distanceToTarget <= weapon.LightAttackConfig.Range;
-        bool heavyInRange = distanceToTarget <= weapon.HeavyAttackConfig.Range;
+        bool lightInRange = distanceToTarget <= _weapon.LightAttackConfig.Range;
+        bool heavyInRange = distanceToTarget <= _weapon.HeavyAttackConfig.Range;
 
         // Calculate DPS for instant attacks only
         float lightDPS = 0f;
         if (lightAvailable && !lightIsCharged && lightInRange)
         {
-            lightDPS = weapon.LightAttackConfig.Damage / weapon.LightAttackConfig.Cooldown;
+            lightDPS = _weapon.LightAttackConfig.Damage / _weapon.LightAttackConfig.Cooldown;
         }
         
         float heavyDPS = 0f;
         if (heavyAvailable && !heavyIsCharged && heavyInRange)
         {
-            heavyDPS = weapon.HeavyAttackConfig.Damage / weapon.HeavyAttackConfig.Cooldown;
+            heavyDPS = _weapon.HeavyAttackConfig.Damage / _weapon.HeavyAttackConfig.Cooldown;
         }
 
         // Helper to convert attack type considering if it's charged
@@ -102,29 +104,47 @@ public partial class AttackTactical : PlayerAttackBehaviour
         if (lightDPS > 0 || heavyDPS > 0)
         {
             bool pickHeavy = heavyDPS >= lightDPS;
-            return new AttackDecision { Type = GetAttackType(pickHeavy), AimDirection = aim };
+            _lastAttackDecision = new AttackDecision { Type = GetAttackType(pickHeavy), AimDirection = aim };
+            return _lastAttackDecision;
         }
 
         // No instant attacks available - in safe windows, we CAN commit to charged attacks
         if (bossState == BossState.Idle || bossState == BossState.Cooldown)
         {
             if (heavyAvailable && heavyInRange)
-                return new AttackDecision { Type = GetAttackType(true), AimDirection = aim };
+            {
+                _lastAttackDecision = new AttackDecision { Type = GetAttackType(true), AimDirection = aim };
+                return _lastAttackDecision;
+            }
+
             if (lightAvailable && lightInRange)
-                return new AttackDecision { Type = GetAttackType(false), AimDirection = aim };
+            {
+                _lastAttackDecision = new AttackDecision { Type = GetAttackType(false), AimDirection = aim };
+                return _lastAttackDecision;
+            }
         }
 
         // Fallback: pick any available attack in range
         if (heavyAvailable && heavyInRange)
-            return new AttackDecision { Type = GetAttackType(true), AimDirection = aim };
+        {
+            _lastAttackDecision = new AttackDecision { Type = GetAttackType(true), AimDirection = aim };
+            return _lastAttackDecision;
+        }
         
         if (lightAvailable && lightInRange)
-            return new AttackDecision { Type = GetAttackType(false), AimDirection = aim };
+        {
+            _lastAttackDecision = new AttackDecision { Type = GetAttackType(false), AimDirection = aim };
+            return _lastAttackDecision;
+        }
 
         // Last resort: whatever is available
         if (heavyAvailable)
-            return new AttackDecision { Type = GetAttackType(true), AimDirection = aim };
+        {
+            _lastAttackDecision = new AttackDecision { Type = GetAttackType(true), AimDirection = aim };
+            return _lastAttackDecision;
+        }
 
-        return new AttackDecision { Type = GetAttackType(false), AimDirection = aim };
+        _lastAttackDecision = new AttackDecision { Type = GetAttackType(false), AimDirection = aim };
+        return _lastAttackDecision; 
     }
 }

@@ -26,7 +26,7 @@ public partial class AggroKeepDistance : AggroBehaviour
 		return base.CanSeeTarget(entity);
 	}
 
-	public override Vector2 GetChaseVelocity(IEntity entity, float delta)
+	public override Vector2 GetChaseDirection(IEntity entity, float delta)
 	{
 		if (entity.Target == null || !IsInstanceValid(entity.Target))
 			return Vector2.Zero;
@@ -35,29 +35,29 @@ public partial class AggroKeepDistance : AggroBehaviour
 		float distance = toTarget.Length();
 		Vector2 direction = toTarget.Normalized();
 		
-		Vector2 velocity;
+		Vector2 _finalDirection;
 
 		// Move closer or away to maintain preferred distance
 		if (distance > PreferredDistance + DistanceTolerance)
 		{
 			// Too far - move closer
-			velocity = direction * entity.BaseSpeed * ChaseSpeedModifier;
+			_finalDirection = direction;
 		}
 		else if (distance < PreferredDistance - DistanceTolerance)
 		{
 			// Too close - move away
-			velocity = -direction * entity.BaseSpeed * ChaseSpeedModifier;
+			_finalDirection = -direction;
 		}
 		else if (EnableStrafing)
 		{
 			// At good distance - strafe sideways
 			Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
-			velocity = perpendicular * _strafeDirection * StrafeSpeed;
+			_finalDirection = perpendicular * _strafeDirection;
 		}
 		else
 		{
 			// At preferred distance but not strafing - stay idle and face player
-			velocity = Vector2.Zero;
+			_finalDirection = Vector2.Zero;
 			
 			// Update facing direction to look at the player
 			// The IEntity class will use this to flip the sprite when velocity is zero
@@ -68,7 +68,7 @@ public partial class AggroKeepDistance : AggroBehaviour
 
 		lastDistanceFromTarget = distance;
 
-		return velocity;
+		return _finalDirection;
 	}
 
 	public override void OnEnterNotice(IEntity entity)

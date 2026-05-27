@@ -8,11 +8,6 @@ public partial class AttackInRange : AttackBehaviour
 		return IsInAttackRange(entity);
 	}
 
-	public override Vector2 GetAttackVelocity(EnemyEntity entity, float delta)
-	{
-		return Vector2.Zero;
-	}
-
 	public override void OnEnterAttack(EnemyEntity entity)
 	{
 	   return;

@@ -18,8 +18,6 @@ public partial class DodgeReactive : DodgeBehaviour
         {
             if (bossDistance < 200f) // If boss is close and attacking, high priority to dodge
                 return 0.9f;
-            else // Boss is attacking but far away, less urgent to dodge
-                return 0.3f;
         }
 
         if (player.DetectedProjectiles.Count > 0)

@@ -208,6 +208,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 				VisualController.PlayState(EntityState.Idle);
 				break;
 
+			case EntityState.Aggro:
 			case EntityState.Walking:
 				VisualController.IsMoving = true;
 				VisualController.PlayState(EntityState.Walking);
@@ -596,6 +597,29 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	}
 
 	// ---- Consumable ----
+	protected void UseConsumable()
+	{
+		if(CurrentHealth == MaxHealth) return; // Don't use if at full health (can remove this check if we want to allow non-healing consumables)
+
+		TransitionToState(EntityState.ConsumableUse);
+		EquippedConsumable.Use();
+		EventBus.RaiseConsumableUsed();
+	}
+
+	protected void StartChargingConsumable()
+	{
+		if(CurrentHealth == MaxHealth)
+		{
+			// Don't start charging if at full health (can remove this check if we want to allow non-healing consumables)
+			CancelChargingConsumable();
+			return;
+		}
+
+		_isChargingConsumable = true;
+		TransitionToState(EntityState.ConsumableCharging);
+		EquippedConsumable.StartCharging();
+	}	
+
 	public void EquipConsumable(PackedScene consumableScene)
 	{
 		// GD.Print("Equipping new consumable");

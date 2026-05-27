@@ -217,7 +217,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 			case ProjectileState.Active:
 				if (Behaviour == null) return;
 				
-				Velocity = Behaviour.GetChaseVelocity(this, (float)delta);
+				Velocity = Behaviour.GetChaseDirection(this, (float)delta) * BaseSpeed * Behaviour.ChaseSpeedModifier;
 				Behaviour.PerformAggroBehaviour(this);
 				break;
 
@@ -298,9 +298,9 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		}
 	}
 
-    public void UpdateAnimationIfNeeded()
-    {
-        return;
-    }
+	public void UpdateAnimationIfNeeded()
+	{
+		return;
+	}
 
 }

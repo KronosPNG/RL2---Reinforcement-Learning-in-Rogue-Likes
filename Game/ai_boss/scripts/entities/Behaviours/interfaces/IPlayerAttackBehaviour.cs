@@ -6,6 +6,7 @@ public interface IPlayerAttackBehaviour
     bool CanAttack(PlayerMimic player);
     AttackDecision GetAttackDecision(PlayerMimic player);
     Vector2 GetAimDirection(PlayerMimic player);
+    Vector2 GetMovementDirection(PlayerMimic player);
 }
 
 public enum AttackType { Light, Heavy, ChargedLight, ChargedHeavy }

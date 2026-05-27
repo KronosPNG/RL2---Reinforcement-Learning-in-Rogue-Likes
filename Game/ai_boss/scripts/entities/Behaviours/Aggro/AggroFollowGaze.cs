@@ -32,7 +32,7 @@ public partial class AggroFollowGaze : AggroBehaviour
         return false;
     }
 
-    public override Vector2 GetChaseVelocity(IEntity entity, float delta)
+    public override Vector2 GetChaseDirection(IEntity entity, float delta)
     {
         return Vector2.Zero; // This behavior does not move the entity
     }

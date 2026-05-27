@@ -10,7 +10,6 @@
 [sub_resource type="Resource" id="Resource_cwr1y"]
 script = ExtResource("2_wr7d4")
 ProjectileScene = ExtResource("2_rs3f0")
-ProjectileRange = 300.0
 DestroyOnWallHit = false
 Damage = 5.0
 
@@ -32,7 +31,6 @@ Knockback = 24.0
 script = ExtResource("2_wr7d4")
 ProjectileScene = ExtResource("2_rs3f0")
 ProjectileSpeed = 240.0
-ProjectileRange = 150.0
 ProjectileCount = 3
 SpreadAngleDeg = 20.0
 DestroyOnWallHit = false
