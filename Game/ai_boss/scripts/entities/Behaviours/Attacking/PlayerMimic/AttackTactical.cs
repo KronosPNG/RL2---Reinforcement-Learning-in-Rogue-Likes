@@ -21,7 +21,7 @@ public partial class AttackTactical : PlayerAttackBehaviour
         if (distanceToTarget > maxRange)
             return 0f;  // Out of range, close distance
         
-        var bossState = player.BossRef.CurrentState;
+        var bossState = player.Target.CurrentState;
 
         // Already charging, good opportunity to finish the attack
         if (player.CurrentState == EntityState.AttackCharging)
@@ -66,8 +66,8 @@ public partial class AttackTactical : PlayerAttackBehaviour
         }
 
         // CASE 2: Analyze situation and pick the smartest attack
-        var bossState = player.BossRef.CurrentState;
-        float distanceToTarget = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
+        var bossState = player.Target.CurrentState;
+        float distanceToTarget = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
         
         bool lightAvailable = _weapon.CanStartAttack(false);
         bool heavyAvailable = _weapon.CanStartAttack(true);

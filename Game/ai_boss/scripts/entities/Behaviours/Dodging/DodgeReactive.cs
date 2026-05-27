@@ -11,8 +11,8 @@ public partial class DodgeReactive : DodgeBehaviour
 
     public override float EvaluateOpportunity(PlayerMimic player)
     {
-        var bossState = player.BossRef.CurrentState;
-        var bossDistance = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
+        var bossState = player.Target.CurrentState;
+        var bossDistance = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
 
         if (bossState == BossState.Attacking)
         {

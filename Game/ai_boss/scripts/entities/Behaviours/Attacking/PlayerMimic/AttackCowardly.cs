@@ -12,7 +12,7 @@ public partial class AttackCowardly : PlayerAttackBehaviour
     {
         if (!CanAttack(player)) return 0f;
 
-        float distanceToTarget = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
+        float distanceToTarget = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
         float maxRange = Mathf.Max(
             _weapon.LightAttackConfig.Range,
             _weapon.HeavyAttackConfig.Range
@@ -22,7 +22,7 @@ public partial class AttackCowardly : PlayerAttackBehaviour
             return 0f;
 
         // COWARDLY: Only attack when boss is clearly not a threat (cooldown window)
-        var bossState = player.BossRef.CurrentState;
+        var bossState = player.Target.CurrentState;
 
         // Boss is actively attacking or charging - NEVER attack
         if (bossState == BossState.Attacking || 
@@ -108,6 +108,7 @@ public partial class AttackCowardly : PlayerAttackBehaviour
             Type = heavyIsCharged ? AttackType.ChargedHeavy : AttackType.Heavy, 
             AimDirection = aim 
         };
+
         return _lastAttackDecision;
     }
 }

@@ -13,7 +13,7 @@ public partial class AttackEdgelord : PlayerAttackBehaviour
     {
         if (!CanAttack(player)) return 0f;
 
-        float distanceToTarget = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
+        float distanceToTarget = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
         float maxRange = Mathf.Max(
             _weapon.LightAttackConfig.Range,
             _weapon.HeavyAttackConfig.Range
@@ -80,7 +80,6 @@ public partial class AttackEdgelord : PlayerAttackBehaviour
         {
             // Start charging heavy if it's a charged attack, otherwise just heavy
             AttackType heavyType = heavyIsCharged ? AttackType.ChargedHeavy : AttackType.Heavy;
-            
             _lastAttackDecision = new AttackDecision 
             { 
                 Type = heavyType, 

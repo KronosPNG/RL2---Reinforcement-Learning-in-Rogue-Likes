@@ -26,8 +26,7 @@ public abstract partial class ConsumableBehaviour : Resource, IConsumableBehavio
     
     public virtual Vector2 GetMovementDirection(PlayerMimic player)
     {
-        var bossRef = player.BossRef;
-        return (player.Position - bossRef.Position).Normalized();
+        return (player.GlobalPosition - player.Target.GlobalPosition).Normalized();
     }
 
     public abstract float EvaluateOpportunity(PlayerMimic player);

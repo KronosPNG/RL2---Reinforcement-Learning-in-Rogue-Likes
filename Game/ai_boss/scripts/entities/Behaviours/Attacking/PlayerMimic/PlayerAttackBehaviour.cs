@@ -83,9 +83,8 @@ public abstract partial class PlayerAttackBehaviour : Resource, IPlayerAttackBeh
             AttackType.ChargedHeavy => true,
             _ => false
         };
-        var bossRef = player.BossRef;
 
-        float distanceToBoss = player.GlobalPosition.DistanceTo(bossRef.GlobalPosition);
+        float distanceToBoss = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
         float attackRange;
 
         if(isAttackLight)
@@ -101,7 +100,7 @@ public abstract partial class PlayerAttackBehaviour : Resource, IPlayerAttackBeh
         // If we're outside of attack range, move towards the boss
         if (distanceToBoss > attackRange * 0.8f) // Add some buffer to prevent constant jittering at the edge of range
         {
-            return player.GlobalPosition.DirectionTo(bossRef.GlobalPosition);
+            return player.GlobalPosition.DirectionTo(player.Target.GlobalPosition);
         }
 
         return Vector2.Zero; // Otherwise, stay still while attacking

@@ -16,7 +16,7 @@ public partial class ConsumableTactical : ConsumableBehaviour
     {
         if (player.EquippedConsumable == null) return 0f;
 
-        var boss = player.BossRef;
+        var boss = player.Target;
 
         if (player.CurrentHealth + maxHealthGain > player.MaxHealth * 0.8f)
             return .25f; // Low priority if consumable would overheal or provide minimal benefit

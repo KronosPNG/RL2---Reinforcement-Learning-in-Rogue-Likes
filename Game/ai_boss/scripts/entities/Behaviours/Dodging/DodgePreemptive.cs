@@ -10,8 +10,8 @@ public partial class DodgePreemptive : DodgeBehaviour
 
     public override float EvaluateOpportunity(PlayerMimic player)
     {
-        var bossState = player.BossRef.CurrentState;
-        var bossDistance = player.GlobalPosition.DistanceTo(player.BossRef.GlobalPosition);
+        var bossState = player.Target.CurrentState;
+        var bossDistance = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
 
         // If the boss is winding up an attack and is within a threatening range, prioritize dodging
         if (bossState == BossState.AttackCharging)

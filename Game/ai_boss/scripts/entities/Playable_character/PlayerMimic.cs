@@ -18,7 +18,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
     public List<Projectile> DetectedProjectiles = new List<Projectile>();
     
     // --- Node References ---
-    public BossRL BossRef;
+    public new BossRL Target{ get; set; }
     private Area2D ProjectileDetectionArea;
     public NavigationAgent2D NavAgent { get; private set; }
 
@@ -30,7 +30,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
         base._Ready();
         
         // Find the boss in the scene tree
-        BossRef = GetTree().Root.GetNodeOrNull<BossRL>("*/" + TargetType);
+        Target = GetTree().Root.GetNodeOrNull<BossRL>("*/" + TargetType);
         ProjectileDetectionArea = GetNode<Area2D>("ProjectileDetectionArea");
         NavAgent = GetNode<NavigationAgent2D>("NavAgent");
 
@@ -313,9 +313,9 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
     public Vector2 GetTargetPosition()
     {
         // Get boss position if it exists, otherwise return zero
-        if (BossRef != null)
+        if (Target != null)
         {
-            return BossRef.GlobalPosition;
+            return Target.GlobalPosition;
         }
 
         return Vector2.Zero;
