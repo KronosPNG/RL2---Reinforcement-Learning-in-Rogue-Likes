@@ -9,6 +9,7 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 	[Export] public int ProjectileCount = 1; // Number of projectiles per attack
 	[Export] public float SpreadAngleDeg = 0f; // Spread angle for multiple projectiles
 	[Export] public float SpawnDistanceFromPlayer = 0f; // Distance from player in direction of target
+	[Export] public float ProjectileLifetime = 15f; // Max lifetime of projectile in seconds
 	[Export] public bool DestroyOnHit = true; // Destroy projectile on hit
 	[Export] public bool DestroyOnWallHit = true; // Destroy projectile on wall hit
 
@@ -21,7 +22,7 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 		}
 
 		// Get weapon owner position (weapon parent is typically the entity holding it)
-		Node2D weaponOwner = weapon.GetParent() as Node2D;
+		Node2D weaponOwner = weapon.OwnerCharacter as Node2D;
 		Vector2 ownerPosition = weaponOwner?.GlobalPosition ?? weapon.GlobalPosition;
 		Vector2 direction = (target - ownerPosition).Normalized();
 
@@ -44,7 +45,7 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 		weapon.CloseHitWindow();
 	}
 
-	public void SpawnProjectile(WeaponBase weapon, Vector2 spawnPosition, Vector2 baseDirection, int projectileIndex)
+	public virtual void SpawnProjectile(WeaponBase weapon, Vector2 spawnPosition, Vector2 baseDirection, int projectileIndex)
 	{
 		// Calculate spread angle for this projectile
 		float spreadAngle = 0f;
@@ -69,9 +70,8 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 		}
 
 		// Add projectiles to the room's SortSceneElements to ensure correct layering and pause handling
-		Node2D weaponOwner = weapon.GetParent() as Node2D;
-		
-		var currentRoom = weaponOwner.GetTree().GetNodesInGroup("CurrentRoom")[0];
+
+		var currentRoom = weapon.GetTree().GetNodesInGroup("CurrentRoom")[0];
 		var sortedElements = currentRoom.GetNodeOrNull<Node2D>("SortSceneElements");
 		sortedElements.AddChild(projectileInstance);
 
@@ -83,7 +83,8 @@ public partial class ProjectileAttack : AttackBase, IAttack, IShootable
 			Damage,
 			Knockback,
 			Range,
-			weaponOwner, // Pass owner to avoid self-damage
+			weapon.OwnerCharacter as Node2D, // Pass owner to avoid self-damage
+			ProjectileLifetime,
 			DestroyOnHit,
 			DestroyOnWallHit
 		);

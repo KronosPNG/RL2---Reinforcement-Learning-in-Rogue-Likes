@@ -1,14 +1,25 @@
-[gd_scene format=3 uid="uid://x1xp6mdewpmy"]
+[gd_scene format=3 uid="uid://bebq38eunlmnr"]
 
 [ext_resource type="Script" uid="uid://bjepcxymx41yd" path="res://scripts/entities/Projectiles/Projectile.cs" id="1_lxf1j"]
 [ext_resource type="Script" uid="uid://bn0hi44v7jyf" path="res://scripts/visual_effects/VisualControllers/ProjectileVisualController.cs" id="2_gdm88"]
 [ext_resource type="Texture2D" uid="uid://dan4gyf8fw6ip" path="res://art/animations/weapons/necromantic_missile-Sheet.png" id="2_lxf1j"]
+[ext_resource type="Shader" uid="uid://c58tk7qs3tikw" path="res://assets/shaders/palette_swap.gdshader" id="4_xjs4b"]
+[ext_resource type="Texture2D" uid="uid://cpjpv6cqdcvmy" path="res://art/palettes/missile/evil_missile_palette.png" id="5_wnv2d"]
+[ext_resource type="Texture2D" uid="uid://bbwkhusr37brd" path="res://art/palettes/missile/boss_missile.png" id="6_45bmm"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ead6x"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_di1w4"]
 size = Vector2(0.571429, 1.375)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pqfyw"]
 size = Vector2(16, 12)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kiyp4"]
+shader = ExtResource("4_xjs4b")
+shader_parameter/palette_from = ExtResource("5_wnv2d")
+shader_parameter/palette_to = ExtResource("6_45bmm")
+shader_parameter/threshold = 0.01
 
 [sub_resource type="Animation" id="Animation_lxf1j"]
 length = 0.001
@@ -85,11 +96,13 @@ _data = {
 &"hit": SubResource("Animation_xjs4b")
 }
 
-[node name="EvilMissile" type="CharacterBody2D" unique_id=811999087]
+[node name="BossMissile" type="CharacterBody2D" unique_id=811999087]
 z_index = 2
 y_sort_enabled = true
+material = SubResource("ShaderMaterial_ead6x")
 collision_layer = 8
 script = ExtResource("1_lxf1j")
+TargetType = "Player"
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1685691667]
 visible = false
@@ -112,6 +125,7 @@ debug_color = Color(0.682353, 0, 0.0745098, 0.419608)
 script = ExtResource("2_gdm88")
 
 [node name="Sprite2D" type="Sprite2D" parent="VisualController" unique_id=1151264954]
+material = SubResource("ShaderMaterial_kiyp4")
 texture = ExtResource("2_lxf1j")
 offset = Vector2(0, -0.6)
 hframes = 6

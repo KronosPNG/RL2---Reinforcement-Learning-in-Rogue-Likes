@@ -3,7 +3,7 @@ using Godot;
 
 public partial class BossAttackManager : WeaponBase
 {
-    public BossRL OwnerCharacter { get; protected set; }
+    public new BossRL OwnerCharacter { get; protected set; }
 
     public enum AttackType
     {
@@ -22,20 +22,14 @@ public partial class BossAttackManager : WeaponBase
     [Export] public AttackBase MagicAttack1 { get; set; }
     [Export] public AttackBase MagicAttack2 { get; set; }
 
-    // ---- Attack Timing ----
-    [ExportGroup("Attack Cooldowns")]
-    [Export] public float MeleeAttack1Cooldown { get; set; } = 1f;
-    [Export] public float MeleeAttack2Cooldown { get; set; } = .5f;
-    [Export] public float MagicAttack1Cooldown { get; set; } = 2f;
-    [Export] public float MagicAttack2Cooldown { get; set; } = 1f;
-
+    // ---- Attack Timers ----
     protected Timer _meleeAttack1CooldownTimer;
     protected Timer _meleeAttack2CooldownTimer;
     protected Timer _magicAttack1CooldownTimer;
     protected Timer _magicAttack2CooldownTimer;
 
-    protected bool _isAttackActive = false;
-
+    
+    private bool _playerAlreadyHit = false;
 
     public override void _Ready()
     {
@@ -65,57 +59,118 @@ public partial class BossAttackManager : WeaponBase
         }
 
         // Initialize cooldown timers
-        _meleeAttack1CooldownTimer = new Timer();
-        _meleeAttack2CooldownTimer = new Timer();
-        _magicAttack1CooldownTimer = new Timer();
-        _magicAttack2CooldownTimer = new Timer();
+        _meleeAttack1CooldownTimer = GetNodeOrNull<Timer>("Timers/MeleeAttack1CooldownTimer");
+        _meleeAttack1CooldownTimer.WaitTime = MeleeAttack1.Cooldown;
+
+        _meleeAttack2CooldownTimer = GetNodeOrNull<Timer>("Timers/MeleeAttack2CooldownTimer");
+        _meleeAttack2CooldownTimer.WaitTime = MeleeAttack2.Cooldown;
+
+        _magicAttack1CooldownTimer = GetNodeOrNull<Timer>("Timers/MagicAttack1CooldownTimer");
+        _magicAttack1CooldownTimer.WaitTime = MagicAttack1.Cooldown;
+
+        _magicAttack2CooldownTimer = GetNodeOrNull<Timer>("Timers/MagicAttack2CooldownTimer");
+        _magicAttack2CooldownTimer.WaitTime = MagicAttack2.Cooldown;
     }
 
     public override bool CanStartAttack()
     {
         // Check if any attack is currently active
-        if (_isAttackActive)
+        if (State != WeaponState.Ready)
             return false;
 
         // Check cooldowns based on the current attack type
-        switch (CurrentAttack)
+        return CurrentAttack switch
         {
-            case AttackType.Melee1:
-                return _meleeAttack1CooldownTimer.IsStopped();
-            case AttackType.Melee2:
-                return _meleeAttack2CooldownTimer.IsStopped();
-            case AttackType.Magic1:
-                return _magicAttack1CooldownTimer.IsStopped();
-            case AttackType.Magic2:
-                return _magicAttack2CooldownTimer.IsStopped();
-            default:
-                return false;
+            AttackType.Melee1 => _meleeAttack1CooldownTimer.IsStopped(),
+            AttackType.Melee2 => _meleeAttack2CooldownTimer.IsStopped(),
+            AttackType.Magic1 => _magicAttack1CooldownTimer.IsStopped(),
+            AttackType.Magic2 => _magicAttack2CooldownTimer.IsStopped(),
+            _ => false,
+        };
+    }
+
+    protected override async Task StartAttackSequence()
+    {
+        ResetCurrentAttackCooldown();
+
+        State = WeaponState.Windup;
+
+        float windup = CurrentAttack switch
+        {
+            AttackType.Melee1 => MeleeAttack1.Windup,
+            AttackType.Melee2 => MeleeAttack2.Windup,
+            AttackType.Magic1 => MagicAttack1.Windup,
+            AttackType.Magic2 => MagicAttack2.Windup,
+            _ => 0f,
+        };
+
+        await ToSignal(GetTree().CreateTimer(windup), "timeout");
+
+        if (State == WeaponState.Windup)
+        {
+            OpenHitWindow();
         }
-    }
-
-    protected override Task StartAttackSequence()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void CloseHitWindow()
-    {
-        throw new System.NotImplementedException();
     }
 
     public override void OpenHitWindow()
     {
-        throw new System.NotImplementedException();
+        if (State == WeaponState.Active)
+            return;
+
+        State = WeaponState.Active;
+        _playerAlreadyHit = false;
+
+        switch (CurrentAttack)
+        {
+            case AttackType.Melee1:
+                MeleeAttack1.Execute(this, GetAimDirection(), FacingLeft);
+                break;
+
+            case AttackType.Melee2:
+                MeleeAttack2.Execute(this, GetAimDirection(), FacingLeft);
+                break;
+            
+            case AttackType.Magic1:
+                MagicAttack1.Execute(this, GetAimDirection(), FacingLeft);
+                break;
+
+            case AttackType.Magic2:
+                MagicAttack2.Execute(this, GetAimDirection(), FacingLeft);
+                break;
+        }
+
+        float activeDuration = CurrentAttack switch
+        {
+            AttackType.Melee1 => MeleeAttack1.Active,
+            AttackType.Melee2 => MeleeAttack2.Active,
+            AttackType.Magic1 => MagicAttack1.Active,
+            AttackType.Magic2 => MagicAttack2.Active,
+            _ => 0f,
+        };
+
+        _ = AutoInterrupt(activeDuration);
+    }
+
+    public override void CloseHitWindow()
+    {
+        ResetWeaponState();
     }
 
     public override void ResetWeaponState()
     {
-        throw new System.NotImplementedException();
+        State = WeaponState.Ready;
+        _playerAlreadyHit = false;
     }
 
-    protected override Task AutoInterrupt(float secs)
+    protected async override Task AutoInterrupt(float secs)
     {
-        throw new System.NotImplementedException();
+        await ToSignal(GetTree().CreateTimer(secs), "timeout");
+
+        if (State == WeaponState.Active)
+        {
+            var attack = GetAttackFromType(CurrentAttack);
+            attack.Interrupt(this);
+        }
     }
 
     protected override Vector2 GetAimDirection()
@@ -155,6 +210,52 @@ public partial class BossAttackManager : WeaponBase
 
     protected override void OnBodyEntered(Node body)
     {
-        throw new System.NotImplementedException();
+        if (body == null) return;
+        if(_playerAlreadyHit) return;
+
+        _playerAlreadyHit = true;
+
+        var attack = GetAttackFromType(CurrentAttack);
+
+        float damage = attack.Damage;
+        float knockback = attack.Knockback;
+
+        if (body is IDamageable damageable)
+        {
+            damageable.ApplyDamage(damage, OwnerCharacter, knockback);
+        }
+    }
+
+    // --- Helper Methods ---
+
+    private void ResetCurrentAttackCooldown()
+    {
+        switch (CurrentAttack)
+        {
+            case AttackType.Melee1:
+                _meleeAttack1CooldownTimer.Start();
+                break;
+            case AttackType.Melee2:
+                _meleeAttack2CooldownTimer.Start();
+                break;
+            case AttackType.Magic1:
+                _magicAttack1CooldownTimer.Start();
+                break;
+            case AttackType.Magic2:
+                _magicAttack2CooldownTimer.Start();
+                break;
+        }
+    }
+
+    private AttackBase GetAttackFromType(AttackType type)
+    {
+        return type switch
+        {
+            AttackType.Melee1 => MeleeAttack1,
+            AttackType.Melee2 => MeleeAttack2,
+            AttackType.Magic1 => MagicAttack1,
+            AttackType.Magic2 => MagicAttack2,
+            _ => null,
+        };
     }
 }

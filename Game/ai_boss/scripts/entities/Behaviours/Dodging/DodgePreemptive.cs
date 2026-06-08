@@ -14,7 +14,7 @@ public partial class DodgePreemptive : DodgeBehaviour
         var bossDistance = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
 
         // If the boss is winding up an attack and is within a threatening range, prioritize dodging
-        if (bossState == BossState.AttackCharging)
+        if (bossState == BossState.AttackPrepare)
         {
             if (bossDistance < 150f) // If boss is close and charging, good opportunity to dodge
                 return 0.8f;

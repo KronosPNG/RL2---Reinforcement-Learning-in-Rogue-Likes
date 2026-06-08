@@ -12,23 +12,23 @@
 script = ExtResource("3_j3civ")
 ProjectileScene = ExtResource("2_rh371")
 ProjectileSpeed = 150.0
-ProjectileRange = 300.0
 SpawnDistanceFromPlayer = 16.0
 Damage = 20.0
 Cooldown = 0.1
 Windup = 0.25
 Active = 0.5
 Knockback = 8.0
+Range = 1000.0
 
 [sub_resource type="Resource" id="Resource_j3civ"]
 script = ExtResource("3_j3civ")
 ProjectileScene = ExtResource("4_hiblv")
 ProjectileSpeed = 75.0
-ProjectileRange = 1000.0
 SpawnDistanceFromPlayer = 20.0
 DestroyOnHit = false
 Damage = 10.0
 Active = 1.5
+Range = 1000.0
 
 [sub_resource type="Resource" id="Resource_hiblv"]
 script = ExtResource("4_lakth")
@@ -41,6 +41,7 @@ Damage = 75.0
 Cooldown = 3.0
 Windup = 0.65
 Knockback = 64.0
+Range = 1000.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_j3civ"]
 atlas = ExtResource("3_52f0k")

@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://7wl1bqipf4t" path="res://scripts/entities/Behaviours/Attacking/AttackInRange.cs" id="4_sb2t5"]
 [ext_resource type="Script" uid="uid://bv53ch2r6iels" path="res://scripts/entities/Enemies/EntityAttackManager.cs" id="6_jsnsc"]
 [ext_resource type="Script" uid="uid://5alhbkf2df8r" path="res://scripts/attack_types/ProjectileAttack.cs" id="7_jsnsc"]
-[ext_resource type="PackedScene" uid="uid://bebq38eunlmnr" path="res://scenes/weapons/projectiles/evil_missile.tscn" id="7_sb2t5"]
+[ext_resource type="PackedScene" uid="uid://bebq38eunlmnr" path="res://scenes/weapons/projectiles/boss_missile.tscn" id="7_sb2t5"]
 [ext_resource type="Script" uid="uid://bwaec1dhlj0sn" path="res://scripts/visual_effects/VisualControllers/HorizontalEntityVisualController.cs" id="8_mr1eg"]
 [ext_resource type="Script" uid="uid://kvce7e5c5bgh" path="res://scripts/visual_effects/effects/VisualFlash.cs" id="9_ptmnq"]
 [ext_resource type="Script" uid="uid://cecrir66mdnv3" path="res://scripts/visual_effects/effects/VisualFading.cs" id="10_k2w82"]
@@ -38,12 +38,13 @@ size = Vector2(1.42857, 2.57143)
 script = ExtResource("7_jsnsc")
 ProjectileScene = ExtResource("7_sb2t5")
 ProjectileSpeed = 100.0
-ProjectileRange = 150.0
+SpawnDistanceFromPlayer = 16.0
 Damage = 1.0
 Cooldown = 2.0
 Windup = 0.25
 Active = 0.5
 Knockback = 16.0
+Range = 240.0
 
 [sub_resource type="Resource" id="Resource_mg0ka"]
 script = ExtResource("9_ptmnq")
@@ -211,6 +212,7 @@ WanderingBehavior = SubResource("Resource_87w4c")
 AggroBehavior = SubResource("Resource_mr1eg")
 AttackBehavior = SubResource("Resource_ptmnq")
 BaseSpeed = 16.0
+TargetType = "Player"
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1964196401]
 visible = false

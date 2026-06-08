@@ -1,9 +1,10 @@
 using System;
 using Godot;
+using System.Threading.Tasks;
 
 public partial class EntityAttackManager : WeaponBase
 {
-	public EnemyEntity OwnerCharacter { get; protected set; }
+	public new EnemyEntity OwnerCharacter { get; protected set; }
 	[Export]public bool AllowFriendlyFire { get; set; } = false;
 	
 	//---- Attack Configuration ----
@@ -74,10 +75,10 @@ public partial class EntityAttackManager : WeaponBase
 		StartAttack();
 	}
 
-	protected override System.Threading.Tasks.Task StartAttackSequence()
+	protected override Task StartAttackSequence()
 	{
 		// Not used - keeping for base class compatibility
-		return System.Threading.Tasks.Task.CompletedTask;
+		return Task.CompletedTask;
 	}
 
 	private void StartAttack()
@@ -122,10 +123,10 @@ public partial class EntityAttackManager : WeaponBase
 		EmitSignal(nameof(AttackEnded), "EntityAttack");
 	}
 
-	protected override System.Threading.Tasks.Task AutoInterrupt(float secs)
+	protected override Task AutoInterrupt(float secs)
 	{
 		// Not used - timer handled in _PhysicsProcess
-		return System.Threading.Tasks.Task.CompletedTask;
+		return Task.CompletedTask;
 	}
 
 	public override bool CanStartAttack()

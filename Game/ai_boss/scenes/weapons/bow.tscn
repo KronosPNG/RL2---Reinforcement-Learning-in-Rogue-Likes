@@ -12,6 +12,7 @@ script = ExtResource("2_wr7d4")
 ProjectileScene = ExtResource("2_rs3f0")
 DestroyOnWallHit = false
 Damage = 5.0
+Range = 200.0
 
 [sub_resource type="Resource" id="Resource_hl64m"]
 script = ExtResource("4_cwr1y")
@@ -26,6 +27,7 @@ Damage = 35.0
 Cooldown = 0.1
 Active = 0.75
 Knockback = 24.0
+Range = 640.0
 
 [sub_resource type="Resource" id="Resource_rs3f0"]
 script = ExtResource("2_wr7d4")
@@ -38,6 +40,7 @@ Damage = 25.0
 Cooldown = 2.0
 Windup = 0.25
 Knockback = 16.0
+Range = 240.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jug75"]
 atlas = ExtResource("2_pevdf")

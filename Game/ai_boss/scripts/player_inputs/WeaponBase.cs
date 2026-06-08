@@ -8,7 +8,7 @@ public abstract partial class WeaponBase : Node2D
 	public AnimatedSprite2D Sprite { get; protected set; } // Main sprite for the weapon;
 	public Area2D HitArea { get; set; } // Hit area for the weapon
 	public CollisionPolygon2D HitAreaShape { get; set; } // Hit area shape for the weapon
-
+	public IEntity OwnerCharacter { get; protected set; } // The entity that owns this weapon (e.g., player or enemy)
 
 	// ---- Signals ----
 	// Attack lifecycle signals

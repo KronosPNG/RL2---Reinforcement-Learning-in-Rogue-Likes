@@ -1,10 +1,11 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public partial class Weapon : WeaponBase, IPedestalItem
 {
-	public PlayableCharacter OwnerCharacter { get; protected set; }
+	public new PlayableCharacter OwnerCharacter { get; protected set; }
 	// Signals for equipping/unequipping
 	[Signal] public delegate void EquippedEventHandler();
 	[Signal] public delegate void UnequippedEventHandler();
@@ -174,11 +175,11 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	}
 
 	// Master sequence control (windup -> rely on animation call -> idle)
-	protected override System.Threading.Tasks.Task StartAttackSequence()
+	protected override Task StartAttackSequence()
 	{
 		return StartAttackSequence(IsCurrentAttackHeavy);
 	}
-	protected async System.Threading.Tasks.Task StartAttackSequence(bool isHeavyAttack)
+	protected async Task StartAttackSequence(bool isHeavyAttack)
 	{
 		// set cooldown immediately so player can't spam
 		if (!isHeavyAttack) _lightCooldownTimer = LightAttackConfig.Cooldown;
@@ -366,11 +367,11 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	}
 
 	// Auto-close the hit window after a delay
-	protected override System.Threading.Tasks.Task AutoInterrupt(float secs)
+	protected override Task AutoInterrupt(float secs)
 	{
 		return AutoInterrupt(secs, IsCurrentAttackHeavy);
 	}
-	protected async System.Threading.Tasks.Task AutoInterrupt(float secs, bool isHeavy)
+	protected async Task AutoInterrupt(float secs, bool isHeavy)
 	{
 		await ToSignal(GetTree().CreateTimer(secs), "timeout");
 		// Only close if still active for this attack kind

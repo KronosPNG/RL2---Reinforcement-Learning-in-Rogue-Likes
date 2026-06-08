@@ -19,8 +19,9 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 	protected Area2D _hitArea;
 
 	// ---- AI Properties ----
+	[ExportGroup("AI Properties")]
 	protected Node2D _target;
-	public string TargetType { get; set;}
+	[Export]public string TargetType { get; set;}
 	protected Vector2 _lastKnownTargetPosition = Vector2.Zero;
 
 	// ---- Lifecycle methods ----

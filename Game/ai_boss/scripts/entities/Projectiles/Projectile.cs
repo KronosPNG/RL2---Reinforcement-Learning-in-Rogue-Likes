@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileState>, IAnimatable<ProjectileState>
+public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileState>, IAnimatable<ProjectileState>, INavigable
 {
 	[Signal] public delegate void ProjectileHitEventHandler(Node2D target, float damage);
 	[Signal] public delegate void ProjectileDestroyedEventHandler();
@@ -11,6 +11,9 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 	public float Damage { get; private set; }
 	public Node2D ProjectileOwner { get; private set; }
 	public float Knockback { get; private set; }
+
+	// INavigable implementation
+	public NavigationAgent2D NavAgent { get; private set; }
 	
 	// Internal state
 	private float _range;
@@ -33,6 +36,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 	{
 		base._Ready();
 		VisualController = GetNodeOrNull<ProjectileVisualController>("VisualController");
+		NavAgent = GetNodeOrNull<NavigationAgent2D>("NavigationAgent2D");
 		
 		TargetType = (ProjectileOwner as EnemyEntity)?.TargetType ?? "Enemy";
 
@@ -62,6 +66,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		float knockback,
 		float range,
 		Node2D owner,
+		float lifetime = 15f,
 		bool destroyOnHit = true,
 		bool destroyOnWallHit = true)
 	{
@@ -78,8 +83,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		DestroyOnHit = destroyOnHit;
 		DestroyOnWallHit = destroyOnWallHit;
 
-		// Max lifetime of 30 seconds 
-		_lifetime = 15f; // Default max lifetime
+		_lifetime = lifetime;
 
 		// Set initial rotation
 		if (FacingDirection != Vector2.Zero)
@@ -189,7 +193,11 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 
 	protected override void UpdateAI(float delta)
 	{
-		return;
+		// Find and update target for aggro behavior
+		if (Behaviour != null &&(_target == null || !IsInstanceValid(_target)))
+			{
+			_target = FindTarget();
+		}
 	}
 
 	protected override void UpdateFacing()
