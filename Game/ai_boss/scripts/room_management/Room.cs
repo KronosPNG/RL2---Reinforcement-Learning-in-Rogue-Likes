@@ -54,6 +54,9 @@ public partial class Room : Node2D, IStateful<RoomState>
 		switch (newState)
 		{
 			case RoomState.Inactive:
+				NavigationRegion2D navReg = GetNodeOrNull<NavigationRegion2D>("NavigationRegion2D");
+				EventBus.RaiseRoomEnteredDimensions(navReg);
+
 				if (_spawningPoints.Length > 0 && MobsToSpawn > 0)
 				{
 					TransitionToState(RoomState.Active);

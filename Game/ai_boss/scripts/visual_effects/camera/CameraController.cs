@@ -20,7 +20,7 @@ public partial class CameraController : Camera2D
 		GlobalPosition = TargetNode.GlobalPosition;
 		MakeCurrent();
 
-		EventBus.OnPlayerDamaged += Shake;
+		EventBus.OnPlayerDamagedEffect += Shake;
 	}
 
 	public override void _Process(double delta)

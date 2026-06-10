@@ -34,11 +34,11 @@ public partial class CooldownContainer : HBoxContainer
         }
     }
 
-    private void OnWeaponEquipped(float lightAttackCooldown, float heavyAttackCooldown)
+    private void OnWeaponEquipped(Weapon weapon)
     {
-        GD.Print($"[CooldownContainer] Weapon equipped with light attack cooldown: {lightAttackCooldown}s, heavy attack cooldown: {heavyAttackCooldown}s");
-        _lightAttackIndicator.SetCooldownDuration(lightAttackCooldown);
-        _heavyAttackIndicator.SetCooldownDuration(heavyAttackCooldown);
+        GD.Print($"[CooldownContainer] Weapon equipped with light attack cooldown: {weapon.LightAttackConfig.Cooldown}s, heavy attack cooldown: {weapon.HeavyAttackConfig.Cooldown}s");
+        _lightAttackIndicator.SetCooldownDuration(weapon.LightAttackConfig.Cooldown);
+        _heavyAttackIndicator.SetCooldownDuration(weapon.HeavyAttackConfig.Cooldown);
     }
 
     private void OnConsumableEquipped()

@@ -45,6 +45,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
         base._PhysicsProcess(delta);
 
         _movementDirection = GetDesiredMovementDirection();
+        EventBus.RaisePlayerDirectionChanged(_movementDirection);
 
         UpdateAI((float)delta);
 

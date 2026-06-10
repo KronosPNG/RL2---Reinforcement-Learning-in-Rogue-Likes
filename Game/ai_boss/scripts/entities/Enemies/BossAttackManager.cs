@@ -23,10 +23,10 @@ public partial class BossAttackManager : WeaponBase
     [Export] public AttackBase MagicAttack2 { get; set; }
 
     // ---- Attack Timers ----
-    protected Timer _meleeAttack1CooldownTimer;
-    protected Timer _meleeAttack2CooldownTimer;
-    protected Timer _magicAttack1CooldownTimer;
-    protected Timer _magicAttack2CooldownTimer;
+    public Timer MeleeAttack1CooldownTimer { get; private set; }
+    public Timer MeleeAttack2CooldownTimer { get; private set; }
+    public Timer MagicAttack1CooldownTimer { get; private set; }
+    public Timer MagicAttack2CooldownTimer { get; private set; } 
 
     
     private bool _playerAlreadyHit = false;
@@ -59,17 +59,17 @@ public partial class BossAttackManager : WeaponBase
         }
 
         // Initialize cooldown timers
-        _meleeAttack1CooldownTimer = GetNodeOrNull<Timer>("Timers/MeleeAttack1CooldownTimer");
-        _meleeAttack1CooldownTimer.WaitTime = MeleeAttack1.Cooldown;
+        MeleeAttack1CooldownTimer = GetNodeOrNull<Timer>("Timers/MeleeAttack1CooldownTimer");
+        MeleeAttack1CooldownTimer.WaitTime = MeleeAttack1.Cooldown;
 
-        _meleeAttack2CooldownTimer = GetNodeOrNull<Timer>("Timers/MeleeAttack2CooldownTimer");
-        _meleeAttack2CooldownTimer.WaitTime = MeleeAttack2.Cooldown;
+        MeleeAttack2CooldownTimer = GetNodeOrNull<Timer>("Timers/MeleeAttack2CooldownTimer");
+        MeleeAttack2CooldownTimer.WaitTime = MeleeAttack2.Cooldown;
 
-        _magicAttack1CooldownTimer = GetNodeOrNull<Timer>("Timers/MagicAttack1CooldownTimer");
-        _magicAttack1CooldownTimer.WaitTime = MagicAttack1.Cooldown;
+        MagicAttack1CooldownTimer = GetNodeOrNull<Timer>("Timers/MagicAttack1CooldownTimer");
+        MagicAttack1CooldownTimer.WaitTime = MagicAttack1.Cooldown;
 
-        _magicAttack2CooldownTimer = GetNodeOrNull<Timer>("Timers/MagicAttack2CooldownTimer");
-        _magicAttack2CooldownTimer.WaitTime = MagicAttack2.Cooldown;
+        MagicAttack2CooldownTimer = GetNodeOrNull<Timer>("Timers/MagicAttack2CooldownTimer");
+        MagicAttack2CooldownTimer.WaitTime = MagicAttack2.Cooldown;
     }
 
     public override bool CanStartAttack()
@@ -81,10 +81,10 @@ public partial class BossAttackManager : WeaponBase
         // Check cooldowns based on the current attack type
         return CurrentAttack switch
         {
-            AttackType.Melee1 => _meleeAttack1CooldownTimer.IsStopped(),
-            AttackType.Melee2 => _meleeAttack2CooldownTimer.IsStopped(),
-            AttackType.Magic1 => _magicAttack1CooldownTimer.IsStopped(),
-            AttackType.Magic2 => _magicAttack2CooldownTimer.IsStopped(),
+            AttackType.Melee1 => MeleeAttack1CooldownTimer.IsStopped(),
+            AttackType.Melee2 => MeleeAttack2CooldownTimer.IsStopped(),
+            AttackType.Magic1 => MagicAttack1CooldownTimer.IsStopped(),
+            AttackType.Magic2 => MagicAttack2CooldownTimer.IsStopped(),
             _ => false,
         };
     }
@@ -233,16 +233,16 @@ public partial class BossAttackManager : WeaponBase
         switch (CurrentAttack)
         {
             case AttackType.Melee1:
-                _meleeAttack1CooldownTimer.Start();
+                MeleeAttack1CooldownTimer.Start();
                 break;
             case AttackType.Melee2:
-                _meleeAttack2CooldownTimer.Start();
+                MeleeAttack2CooldownTimer.Start();
                 break;
             case AttackType.Magic1:
-                _magicAttack1CooldownTimer.Start();
+                MagicAttack1CooldownTimer.Start();
                 break;
             case AttackType.Magic2:
-                _magicAttack2CooldownTimer.Start();
+                MagicAttack2CooldownTimer.Start();
                 break;
         }
     }

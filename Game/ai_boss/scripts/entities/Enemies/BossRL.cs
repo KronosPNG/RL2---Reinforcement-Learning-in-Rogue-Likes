@@ -30,9 +30,13 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
     public BossAttackManager AttackManager { get; set; }
     public BossVisualController VisualController { get; private set; }
 
+    // --- Timers ---
     public Timer CooldownTimer { get; set; }
     public Timer InvulnerabilityTimer { get; set;}
 
+    // ---
+    private uint _baseCollisionMask;
+    private uint _baseCollisionLayer;
 
     private BossAction _currentAction;
 
@@ -45,13 +49,14 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
         CooldownTimer = GetNodeOrNull<Timer>("Timers/CooldownTimer");
         InvulnerabilityTimer = GetNodeOrNull<Timer>("Timers/InvulnerabilityTimer");
 
-        if (AttackManager == null)
-            GD.PrintErr($"[BossRL] BossAttackManager node not found");
-
-        if (CooldownTimer == null)
-            GD.PrintErr($"[BossRL] CooldownTimer node not found");
+        InvulnerabilityTimer.Timeout += InvulnerabilityEnd;
+        
+        _baseCollisionMask = CollisionMask;
+        _baseCollisionLayer = CollisionLayer;
 
         CurrentHealth = MaxHealth;
+
+        EventBus.RaiseBossSpawnedEvent(this);
     }
 
     public override void OnEnterState(BossState state)
@@ -64,6 +69,17 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
                 break;
             
             case BossState.Dashing:
+                VisualController.IsMoving = true;
+
+                _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
+                _hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+                
+                // disable collision with player
+                CollisionLayer = _baseCollisionLayer & ~2u; // player on layer 2;
+                CollisionMask = _baseCollisionMask & ~2u; // other enemies detection on layer 2;
+                CollisionMask = _baseCollisionMask & ~4u; // player on layer 2, player attacks on layer 3
+                break;
+
             case BossState.Walking:
                 VisualController.IsMoving = true;
                 break;
@@ -73,7 +89,6 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
                 break;
 
             case BossState.Hit:
-                InvulnerabilityTimer.Start();
                 break;
 
             case BossState.Dead:
@@ -87,7 +102,12 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 
     public override void OnExitState(BossState state)
     {
-        return;
+        if(state == BossState.Dashing)
+        {
+            // re-enable collision with player
+            CollisionLayer = _baseCollisionLayer;
+            CollisionMask = _baseCollisionMask;
+        }
     }
 
     public override void HandleStateTransitions() {}
@@ -154,6 +174,7 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
     {
         if (IsInvulnerable) return;
 
+        IsInvulnerable = true;
         InvulnerabilityTimer.Start();
         _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
@@ -172,6 +193,13 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
             CurrentHealth = 0;
             Die();
         }
+    }
+
+    public void InvulnerabilityEnd()
+    {
+        _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
+		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
+        IsInvulnerable = false;
     }
 
     public void Die()

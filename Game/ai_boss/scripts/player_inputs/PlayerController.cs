@@ -66,12 +66,12 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 	protected override void UpdateTimers(float delta)
 	{
 		// Hit invulnerability timer update
-		if (_invulnerabilityTimer > 0)
+		if (InvulnerabilityTimer > 0)
 		{
-			_invulnerabilityTimer -= (float)delta;
-			if (_invulnerabilityTimer <= 0)
+			InvulnerabilityTimer -= (float)delta;
+			if (InvulnerabilityTimer <= 0)
 			{
-				_invulnerabilityTimer = 0;
+				InvulnerabilityTimer = 0;
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
 				// End of invulnerability - can add visual effect here if desired	

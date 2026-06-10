@@ -92,7 +92,7 @@ _data = {
 &"hit": SubResource("Animation_wfd47")
 }
 
-[node name="Arrow" type="CharacterBody2D" unique_id=1710382349]
+[node name="Arrow" type="CharacterBody2D" unique_id=1710382349 groups=["PlayerProjectile"]]
 z_index = 2
 y_sort_enabled = true
 collision_layer = 8

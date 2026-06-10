@@ -41,8 +41,8 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	protected HashSet<Node> _alreadyHit = new HashSet<Node>();
 
 	// ---- Timers ----
-	protected float _lightCooldownTimer = 0f; // Cooldown timer for light attacks
-	protected float _heavyCooldownTimer = 0f; // Cooldown timer for heavy attacks
+	public float LightCooldownTimer { get; private set; } = 0f; // Cooldown timer for light attacks
+	public float HeavyCooldownTimer { get; private set; } = 0f; // Cooldown timer for heavy attacks
 
 	// ---- Damage Application Settings ----
 	// If false, only the signal will be emitted and other systems should subscribe.
@@ -76,11 +76,11 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			AdjustSpriteRotation(direction);
 		}
 
-		if (_lightCooldownTimer > 0)
-			_lightCooldownTimer = Math.Max(0, _lightCooldownTimer - (float)delta);
+		if (LightCooldownTimer > 0)
+			LightCooldownTimer = Math.Max(0, LightCooldownTimer - (float)delta);
 
-		if (_heavyCooldownTimer > 0)
-			_heavyCooldownTimer = Math.Max(0, _heavyCooldownTimer - (float)delta);
+		if (HeavyCooldownTimer > 0)
+			HeavyCooldownTimer = Math.Max(0, HeavyCooldownTimer - (float)delta);
 
 		// Update charge state
 		if (IsCharging)
@@ -153,12 +153,12 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			// GD.Print($"Attack blocked: weapon state is {_state}, not Ready");
 			return false;
 		}
-		if (!isHeavy && _lightCooldownTimer > 0f)
+		if (!isHeavy && LightCooldownTimer > 0f)
 		{
 			// GD.Print($"Light attack blocked: cooldown timer {_lightCooldownTimer}");
 			return false;
 		}
-		if (isHeavy && _heavyCooldownTimer > 0f)
+		if (isHeavy && HeavyCooldownTimer > 0f)
 		{
 			// GD.Print($"Heavy attack blocked: cooldown timer {_heavyCooldownTimer}");
 			return false;
@@ -171,7 +171,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	// Get the remaining cooldown time for the specified attack type
 	public float GetRemainingCooldown(bool isHeavy)
 	{
-		return isHeavy ? _heavyCooldownTimer : _lightCooldownTimer;
+		return isHeavy ? HeavyCooldownTimer : LightCooldownTimer;
 	}
 
 	// Master sequence control (windup -> rely on animation call -> idle)
@@ -182,8 +182,8 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	protected async Task StartAttackSequence(bool isHeavyAttack)
 	{
 		// set cooldown immediately so player can't spam
-		if (!isHeavyAttack) _lightCooldownTimer = LightAttackConfig.Cooldown;
-		else _heavyCooldownTimer = HeavyAttackConfig.Cooldown;
+		if (!isHeavyAttack) LightCooldownTimer = LightAttackConfig.Cooldown;
+		else HeavyCooldownTimer = HeavyAttackConfig.Cooldown;
 
 		State = WeaponState.Windup;
 		GD.Print($"[Weapon] Attack sequence started: isHeavy={isHeavyAttack}");
@@ -233,6 +233,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 		// Start the charging process
 		chargedAttack.StartCharging(this);
+		EventBus.RaiseWeaponCharging(isHeavy ? "heavy" : "light");
 		EmitSignal(nameof(ChargeStarted), isHeavy ? "heavy" : "light");
 	}
 
@@ -262,7 +263,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			// GD.Print("Charge not released!");
 			return;
 		}
-
+		
 		ExecuteChargedAttack(mouseGlobalPos);
 	}
 
@@ -284,9 +285,9 @@ public partial class Weapon : WeaponBase, IPedestalItem
 
 		// Set cooldown
 		if (IsCurrentAttackHeavy)
-			_heavyCooldownTimer = HeavyAttackConfig.Cooldown;
+			HeavyCooldownTimer = HeavyAttackConfig.Cooldown;
 		else
-			_lightCooldownTimer = LightAttackConfig.Cooldown;
+			LightCooldownTimer = LightAttackConfig.Cooldown;
 
 		// Emit signals
 		GD.Print($"[Weapon] Executing charged {(IsCurrentAttackHeavy ? "heavy" : "light")} attack.");
@@ -321,6 +322,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		}
 
 		EmitSignal(nameof(ChargeCancelled), attackName);
+		EventBus.RaiseWeaponChargingCancelled(attackName);
 
 		IsCharging = false;
 		CurrentChargingAttack = null;

@@ -104,7 +104,7 @@ _data = {
 &"hit": SubResource("Animation_785om")
 }
 
-[node name="MagicMissile" type="CharacterBody2D" unique_id=998086778]
+[node name="MagicMissile" type="CharacterBody2D" unique_id=998086778 groups=["PlayerProjectile"]]
 z_index = 2
 y_sort_enabled = true
 collision_layer = 8

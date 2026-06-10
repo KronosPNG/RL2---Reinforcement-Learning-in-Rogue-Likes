@@ -22,7 +22,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	[Export] public float MaxHealth { get; set; } = 20;
 	public float CurrentHealth { get; protected set; }
 	public bool IsAlive => CurrentHealth > 0;
-	public bool IsInvulnerable => _invulnerabilityTimer > 0 || CurrentState == EntityState.Dodging;
+	public bool IsInvulnerable => InvulnerabilityTimer > 0 || CurrentState == EntityState.Dodging;
 	
 	//---- Movement Data ----
 	[Export] public float DodgeSpeed { get; set; } = 150f; // speed during dodge
@@ -51,7 +51,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 
 	// ---- Timers ----
 	[Export] public float HitStunDuration = 0.5f; // time for hit stun duration
-	protected float _invulnerabilityTimer = 0f; // timer for invulnerability after hit
+	public float InvulnerabilityTimer { get; protected set; } = 0f; // timer for invulnerability after hit
 	[Export] public float InvulnerabilityDuration = 1f; // time for invulnerability after hit
 	
 	// ---- Knockback Smoothing ----
@@ -96,6 +96,8 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		// Store the original collision properties
 		_normalCollisionMask = CollisionMask;
 		_normalCollisionLayer = CollisionLayer;
+
+		EventBus.RaisePlayerSpawned(this);
 
 		TargetType = "Enemy"; // Player targets enemies by default
 	}
@@ -154,12 +156,12 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	protected override void UpdateTimers(float delta)
 	{
 		// Hit invulnerability timer update
-		if (_invulnerabilityTimer > 0)
+		if (InvulnerabilityTimer > 0)
 		{
-			_invulnerabilityTimer -= (float)delta;
-			if (_invulnerabilityTimer <= 0)
+			InvulnerabilityTimer -= (float)delta;
+			if (InvulnerabilityTimer <= 0)
 			{
-				_invulnerabilityTimer = 0;
+				InvulnerabilityTimer = 0;
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
 				// End of invulnerability - can add visual effect here if desired	
@@ -442,7 +444,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		weapon.AttackEnded += OnWeaponAttackEnded;
 
 		GD.Print($"[PlayerController] Weapon equipped: {weapon.ItemName}");
-		EventBus.RaiseWeaponEquipped(weapon.LightAttackConfig.Cooldown, weapon.HeavyAttackConfig.Cooldown);
+		EventBus.RaiseWeaponEquipped(weapon);
 	}
 
 	protected void OnLightAttack()
@@ -569,6 +571,8 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		armor.Equip(this);
 		EquippedArmor = armor;
 
+		EventBus.RaiseArmorEquipped(armor);
+
 		// Connect to armor signals
 		armor.Equipped += OnArmorEquipped;
 		armor.Unequipped += OnArmorUnequipped;
@@ -618,6 +622,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		_isChargingConsumable = true;
 		TransitionToState(EntityState.ConsumableCharging);
 		EquippedConsumable.StartCharging();
+		EventBus.RaiseConsumableCharging();
 	}	
 
 	public void EquipConsumable(PackedScene consumableScene)
@@ -658,7 +663,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		EquippedConsumable = consumable;
 
 		// Connect to consumable signalsù
-		EventBus.RaiseConsumableEquipped();
+		EventBus.RaiseConsumableEquipped(consumable);
 		consumable.ConsumableUsed += OnConsumableUsed;
 		consumable.ConsumableCompleted += OnConsumableCompleted;
 	}
@@ -693,7 +698,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	{
 		if (IsInvulnerable) return;
 
-		_invulnerabilityTimer = InvulnerabilityDuration;
+		InvulnerabilityTimer = InvulnerabilityDuration;
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
@@ -715,8 +720,9 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 
 		// Emit health changed signal and damage taken signal
 		EventBus.RaisePlayerHealthChanged(CurrentHealth);
+		EventBus.RaisePlayerDamaged(amount);
 		GD.Print($"Player health: {CurrentHealth}/{MaxHealth}");
-		EventBus.RaisePlayerDamaged(5, .25f);
+		EventBus.RaisePlayerDamagedEffect(5, .25f);
 
 		if (isLethalDamage)
 		{
@@ -763,6 +769,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 
 		// Emit health changed signal
 		EventBus.RaisePlayerHealthChanged(CurrentHealth);
+		EventBus.RaisePlayerHealed(amount);
 	}
 
 	// ---- Effects Update ----

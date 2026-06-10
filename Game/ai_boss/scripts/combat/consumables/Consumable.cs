@@ -357,6 +357,7 @@ public partial class Consumable : Node2D, IPedestalItem
 		_isChargingConsumable = false;
 		_activeEffect = null;
 		State = ConsumableState.Available;
+		EventBus.RaiseConsumableCancelled(); // Notify that charging was cancelled
 
 		// Hide sprite when charge is cancelled
 		if (ActiveSprite != null)

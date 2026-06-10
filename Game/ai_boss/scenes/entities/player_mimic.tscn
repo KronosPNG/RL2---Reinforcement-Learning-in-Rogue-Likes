@@ -1586,7 +1586,6 @@ collision_layer = 64
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=240107820]
-visible = false
 position = Vector2(0, 1.5)
 shape = SubResource("RectangleShape2D_6opuj")
 debug_color = Color(0.729564, 0.30582, 0.900709, 0.42)
