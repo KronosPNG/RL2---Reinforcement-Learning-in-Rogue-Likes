@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://dmw4cugteb6vt" path="res://scripts/visual_effects/camera/CameraController.cs" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://dga6m0jed3vlt" path="res://scenes/GUI/HUD.tscn" id="2_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85mcslte1v7i" path="res://scenes/GUI/PauseMenu/PauseMenu.tscn" id="2_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://bho26uagji2ed" path="res://scenes/GUI/BossHealthbar/BossHealthbar.tscn" id="2_tefeu"]
 
 [sub_resource type="Animation" id="Animation_tbgi4"]
 resource_name = "BossIntro"
@@ -17,8 +18,10 @@ _data = {
 [node name="Main" type="Node2D" unique_id=1241760868]
 script = ExtResource("1_sugp2")
 
-[node name="PauseMenu" parent="." unique_id=174653834 instance=ExtResource("2_tbgi4")]
+[node name="BossHealthbar" parent="." unique_id=106652635 instance=ExtResource("2_tefeu")]
 visible = false
+
+[node name="PauseMenu" parent="." unique_id=174653834 instance=ExtResource("2_tbgi4")]
 
 [node name="Hud" parent="." unique_id=2069667942 instance=ExtResource("2_jyhfs")]
 

@@ -2,8 +2,11 @@ using Godot;
 
 public struct BossAction
 {   
+    public Vector2 MovementDirection;
+    public ActionType Action;
+}
 
-    public enum ActionType{
+public enum ActionType{
         Idle,
         Dash,
         Walk,
@@ -12,7 +15,3 @@ public struct BossAction
         Magic1,
         Magic2
     }
-
-    public Vector2 MovementDirection;
-    public ActionType Action;
-}

@@ -7,6 +7,7 @@ public static class EventBus
     public static event Action OnGamePaused;
     public static event Action OnGameResumed;
     public static event Action OnGameExit;
+    public static event Action OnGameRestarted;
 
     public static void RaiseGamePaused()
     {
@@ -23,6 +24,11 @@ public static class EventBus
     public static void RaiseGameExit()
     {
         OnGameExit?.Invoke();
+    }
+
+    public static void RaiseGameRestarted()
+    {
+        OnGameRestarted?.Invoke();
     }
 
     // --- Player Events ---

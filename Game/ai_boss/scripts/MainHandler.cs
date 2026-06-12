@@ -11,8 +11,11 @@ public partial class MainHandler : Node
         // Subscribe to EventBus events
         EventBus.OnGamePaused += HandleGamePaused;
         EventBus.OnGameResumed += HandleGameResumed;
-        EventBus.OnPlayerDied += HandlePlayerDied;
         EventBus.OnGameExit += () => GetTree().Quit();
+        EventBus.OnGameRestarted += HandleGameRestarted;
+
+        EventBus.OnPlayerDied += HandlePlayerDied;
+        
         EventBus.OnBossRoomEntered += BossCutscene;
         EventBus.OnBossKilled += EndGameSequence;
     }
@@ -25,6 +28,12 @@ public partial class MainHandler : Node
     private void HandleGameResumed()
     {
         GetTree().Paused = false;
+    }
+
+    private void HandleGameRestarted()
+    {
+        GetTree().Paused = false;
+        GetTree().ReloadCurrentScene();
     }
 
     private void HandlePlayerDied()

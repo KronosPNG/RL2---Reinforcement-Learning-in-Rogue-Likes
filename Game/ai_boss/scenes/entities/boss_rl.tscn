@@ -1197,15 +1197,18 @@ MagicAttack2 = SubResource("Resource_grfbg")
 [node name="Timers" type="Node2D" parent="AttackManager" unique_id=222175182]
 
 [node name="MeleeAttack1CooldownTimer" type="Timer" parent="AttackManager/Timers" unique_id=993698674]
+wait_time = 0.5
 one_shot = true
 
 [node name="MeleeAttack2CooldownTimer" type="Timer" parent="AttackManager/Timers" unique_id=751152679]
+wait_time = 0.25
 one_shot = true
 
 [node name="MagicAttack1CooldownTimer" type="Timer" parent="AttackManager/Timers" unique_id=880183447]
 one_shot = true
 
 [node name="MagicAttack2CooldownTimer2" type="Timer" parent="AttackManager/Timers" unique_id=314045647]
+wait_time = 0.5
 one_shot = true
 
 [node name="Timers" type="Node2D" parent="." unique_id=323837017]

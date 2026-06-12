@@ -23,6 +23,10 @@ region = Rect2(48, 0, 16, 16)
 atlas = ExtResource("2_p2qb7")
 region = Rect2(64, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_rurns"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(0, 0, 16, 16)
+
 [node name="HeartContainer" type="Control" unique_id=885061721]
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 3
@@ -52,4 +56,5 @@ offset_bottom = 16.0
 mouse_filter = 2
 accessibility_name = "HeartContainer"
 accessibility_description = "Container for hearts in healthbar"
+texture = SubResource("AtlasTexture_rurns")
 stretch_mode = 2
