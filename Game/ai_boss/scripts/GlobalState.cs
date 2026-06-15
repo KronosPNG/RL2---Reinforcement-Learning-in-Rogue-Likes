@@ -55,7 +55,7 @@ public partial class GlobalState : Node
 	{
 		public Vector2 Position { get; set; }
 		public Vector2 MovementDirection { get; set; } // Normalized [-1, 1]
-		public PlayerAction CurrentAction { get; set; }
+		public int CurrentAction { get; set; }
 		
 		public float Health { get; set; }
 		public float MaxHealth { get; set; }
@@ -99,15 +99,24 @@ public partial class GlobalState : Node
 		public Vector2 NearestProjectileVelocity { get; set; }
 		public float NearestProjectileDamage { get; set; }
 	}
+
+	public class StaticState
+	{
+		public EquipmentData Equipment;
+		public RoomBounds RoomData;
+	}
+
+	public class DynamicsState
+	{
+		public PlayerState Player;
+		public BossState Boss;
+		public ProjectileState Projectiles;
+
+	}
 	
 	// ============= PUBLIC STATE INSTANCES =============
-	
-	public EquipmentData Equipment { get; set; } = new EquipmentData();
-	public RoomBounds RoomData { get; set; } = new RoomBounds();
-	
-	public PlayerState Player { get; set; } = new PlayerState();
-	public BossState Boss { get; set; } = new BossState();
-	public ProjectileState Projectiles { get; set; } = new ProjectileState();
+	public StaticState statState;
+	public DynamicsState dynState;
 	
 	public PlayableCharacter PlayerReference { get; set; } // Direct reference for AI to query additional data if needed
 	public BossRL BossReference { get; set; } // Direct reference for AI to query additional data if needed
@@ -124,10 +133,10 @@ public partial class GlobalState : Node
 		EventBus.OnPlayerSpawned += AddPlayer;
 		EventBus.OnBossSpawned += AddBoss;
 
-		EventBus.OnPlayerHealthChanged += (health) => { Player.Health = health; };
-		EventBus.OnPlayerDamaged += (amount) => { Player.DamageTaken = amount; };
+		EventBus.OnPlayerHealthChanged += (health) => { dynState.Player.Health = health; };
+		EventBus.OnPlayerDamaged += (amount) => { dynState.Player.DamageTaken = amount; };
 
-		EventBus.OnBossDamaged += (amount) => { Boss.DamageTaken = amount; };
+		EventBus.OnBossDamaged += (amount) => { dynState.Boss.DamageTaken = amount; };
 
 		EventBus.OnGameRestarted += ResetState;
 	}
@@ -144,14 +153,14 @@ public partial class GlobalState : Node
 	{
 		if (weapon == null) return;
 
-		Equipment.WeaponDamageLight = weapon.LightAttackConfig.Damage;
-		Equipment.WeaponDamageHeavy = weapon.HeavyAttackConfig.Damage;
+		statState.Equipment.WeaponDamageLight = weapon.LightAttackConfig.Damage;
+		statState.Equipment.WeaponDamageHeavy = weapon.HeavyAttackConfig.Damage;
 
-		Equipment.WeaponRangeLight = weapon.LightAttackConfig.Range;
-		Equipment.WeaponRangeHeavy = weapon.HeavyAttackConfig.Range;
+		statState.Equipment.WeaponRangeLight = weapon.LightAttackConfig.Range;
+		statState.Equipment.WeaponRangeHeavy = weapon.HeavyAttackConfig.Range;
 
-		Equipment.WeaponChargeTimeLight = GetChargeTimeByAttack(weapon.LightAttackConfig);
-		Equipment.WeaponChargeTimeHeavy = GetChargeTimeByAttack(weapon.HeavyAttackConfig);
+		statState.Equipment.WeaponChargeTimeLight = GetChargeTimeByAttack(weapon.LightAttackConfig);
+		statState.Equipment.WeaponChargeTimeHeavy = GetChargeTimeByAttack(weapon.HeavyAttackConfig);
 	}
 
 	public float GetChargeTimeByAttack(AttackBase attack)
@@ -169,9 +178,9 @@ public partial class GlobalState : Node
 	{
 		if (armor == null) return;
 
-		Equipment.ArmorDamageModifier = armor.DamageModifier;
-		Equipment.ArmorKnockbackModifier = armor.KnockbackModifier;
-		Equipment.ArmorSpeedModifier = armor.SpeedModifier;
+		statState.Equipment.ArmorDamageModifier = armor.DamageModifier;
+		statState.Equipment.ArmorKnockbackModifier = armor.KnockbackModifier;
+		statState.Equipment.ArmorSpeedModifier = armor.SpeedModifier;
 	}
 
 	// Consumable helper methods
@@ -179,20 +188,20 @@ public partial class GlobalState : Node
 	{
 		if (consumable == null)
 		{
-			Equipment.HasConsumable = false;
-			Equipment.ConsumableEffectDuration = 0f;
-			Equipment.ConsumableHealAmount = 0f;
-			Equipment.ConsumableChargeAmount = 0f;
+			statState.Equipment.HasConsumable = false;
+			statState.Equipment.ConsumableEffectDuration = 0f;
+			statState.Equipment.ConsumableHealAmount = 0f;
+			statState.Equipment.ConsumableChargeAmount = 0f;
 			return;
 		}
 
-		Equipment.HasConsumable = true;
-		Equipment.ConsumableEffectDuration = consumable.EffectConfig.Duration;
-		Equipment.ConsumableHealAmount = consumable.EffectConfig.EffectValue;
-		Equipment.ConsumableChargeAmount = 0f;
+		statState.Equipment.HasConsumable = true;
+		statState.Equipment.ConsumableEffectDuration = consumable.EffectConfig.Duration;
+		statState.Equipment.ConsumableHealAmount = consumable.EffectConfig.EffectValue;
+		statState.Equipment.ConsumableChargeAmount = 0f;
 
 		if (consumable.EffectConfig is IChargeableConsumable chargeable){
-			Equipment.ConsumableChargeAmount = chargeable.GetMaxChargeTime();
+			statState.Equipment.ConsumableChargeAmount = chargeable.GetMaxChargeTime();
 		}
 	}
 
@@ -215,94 +224,94 @@ public partial class GlobalState : Node
 			maxY = Mathf.Max(maxY, vertex.Y);
 		}
 
-		RoomData.MinX = minX;
-		RoomData.MaxX = maxX;
+		statState.RoomData.MinX = minX;
+		statState.RoomData.MaxX = maxX;
 
-		RoomData.MinY = minY;
-		RoomData.MaxY = maxY;
+		statState.RoomData.MinY = minY;
+		statState.RoomData.MaxY = maxY;
 	}
 
 	// --- Player Data ---
 
 	public void AddPlayer(PlayableCharacter player){
 		PlayerReference = player;
-		Player.MaxHealth = player.MaxHealth;
+		dynState.Player.MaxHealth = player.MaxHealth;
 	}
 
 	public void UpdatePlayerState(PlayableCharacter player)
 	{
 		if (player == null) return;
 
-		Player.Position = player.GlobalPosition;
-		Player.MovementDirection = player.Velocity.Normalized();
+		dynState.Player.Position = player.GlobalPosition;
+		dynState.Player.MovementDirection = player.Velocity.Normalized();
 		
 		switch(player.CurrentState){
 			case EntityState.Idle:
-				Player.CurrentAction = PlayerAction.Idle;
+				dynState.Player.CurrentAction = (int)PlayerAction.Idle;
 				break;
 
 			case EntityState.Walking:
-				Player.CurrentAction = PlayerAction.Moving;
+				dynState.Player.CurrentAction = (int)PlayerAction.Moving;
 				break;
 
 			case EntityState.AttackPrepare:
 			case EntityState.AttackCharging:
 				if(player.EquippedWeapon.IsCurrentAttackHeavy)
-					Player.CurrentAction = PlayerAction.ChargingHeavyAttack;
+					dynState.Player.CurrentAction = (int)PlayerAction.ChargingHeavyAttack;
 				else
-					Player.CurrentAction = PlayerAction.ChargingLightAttack;
+					dynState.Player.CurrentAction = (int)PlayerAction.ChargingLightAttack;
 				break;
 			
 			case EntityState.Attacking:
 				if(player.EquippedWeapon.IsCurrentAttackHeavy)
-					Player.CurrentAction = PlayerAction.PerformingHeavyAttack;
+					dynState.Player.CurrentAction = (int)PlayerAction.PerformingHeavyAttack;
 				else
-					Player.CurrentAction = PlayerAction.PerformingLightAttack;
+					dynState.Player.CurrentAction = (int)PlayerAction.PerformingLightAttack;
 				break;
 
 			case EntityState.ConsumableCharging:
-				Player.CurrentAction = PlayerAction.ChargingConsumable;
+				dynState.Player.CurrentAction = (int)PlayerAction.ChargingConsumable;
 				break;
 
 			case EntityState.ConsumableUse:
-				Player.CurrentAction = PlayerAction.UsingConsumable;
+				dynState.Player.CurrentAction = (int)PlayerAction.UsingConsumable;
 				break;
 
 			case EntityState.DodgePrep:
 			case EntityState.Dodging:
-				Player.CurrentAction = PlayerAction.Dodging;
+				dynState.Player.CurrentAction = (int)PlayerAction.Dodging;
 				break;
 
 			default:
-				Player.CurrentAction = PlayerAction.Idle; // Default to idle for other states like Hit    
+				dynState.Player.CurrentAction = (int)PlayerAction.Idle; // Default to idle for other states like Hit    
 				break;
 		}
 
 
-		Player.Health = player.CurrentHealth;
+		dynState.Player.Health = player.CurrentHealth;
 
-		Player.CurrentLightAttackCooldown = player.EquippedWeapon.LightCooldownTimer;
-		Player.CurrentHeavyAttackCooldown = player.EquippedWeapon.HeavyCooldownTimer;
+		dynState.Player.CurrentLightAttackCooldown = player.EquippedWeapon.LightCooldownTimer;
+		dynState.Player.CurrentHeavyAttackCooldown = player.EquippedWeapon.HeavyCooldownTimer;
 
 		if (player.EquippedWeapon.LightAttackConfig is IChargeable lightChargeable)
 		{
-			Player.CurrentLightAttackChargeTime = lightChargeable.getCurrentChargeTime();
+			dynState.Player.CurrentLightAttackChargeTime = lightChargeable.getCurrentChargeTime();
 		}
 		
 		if (player.EquippedWeapon.HeavyAttackConfig is IChargeable heavyChargeable)
 		{
-			Player.CurrentLightAttackChargeTime = heavyChargeable.getCurrentChargeTime();
+			dynState.Player.CurrentLightAttackChargeTime = heavyChargeable.getCurrentChargeTime();
 		}
 
-		Player.InvulnerabilityTimeRemaining = player.InvulnerabilityTimer;
+		dynState.Player.InvulnerabilityTimeRemaining = player.InvulnerabilityTimer;
 
-		Player.DamageTaken = 0f;
+		dynState.Player.DamageTaken = 0f;
 
 		if (player.EquippedConsumable == null) return;
 
 		if (player.EquippedConsumable.EffectConfig is IChargeableConsumable chargeableCons)
 		{
-			Player.CurrentConsumableChargeTime = chargeableCons.GetCurrentChargeTime();
+			dynState.Player.CurrentConsumableChargeTime = chargeableCons.GetCurrentChargeTime();
 		}
 
 		
@@ -310,47 +319,47 @@ public partial class GlobalState : Node
 
 	public void AddBoss(BossRL bossRef){
 		BossReference = bossRef;
-		Boss.MaxHealth = bossRef.MaxHealth;
+		dynState.Boss.MaxHealth = bossRef.MaxHealth;
 		
-		Boss.AttackCooldowns[0] = bossRef.AttackManager.MeleeAttack1.Cooldown;
-		Boss.AttackCooldowns[1] = bossRef.AttackManager.MeleeAttack2.Cooldown;
-		Boss.AttackCooldowns[2] = bossRef.AttackManager.MagicAttack1.Cooldown;
-		Boss.AttackCooldowns[3] = bossRef.AttackManager.MagicAttack2.Cooldown;
+		dynState.Boss.AttackCooldowns[0] = bossRef.AttackManager.MeleeAttack1.Cooldown;
+		dynState.Boss.AttackCooldowns[1] = bossRef.AttackManager.MeleeAttack2.Cooldown;
+		dynState.Boss.AttackCooldowns[2] = bossRef.AttackManager.MagicAttack1.Cooldown;
+		dynState.Boss.AttackCooldowns[3] = bossRef.AttackManager.MagicAttack2.Cooldown;
 	}
 
 	public void UpdateBossState(BossRL bossRef){
 		if (bossRef == null) return;
 
-		Boss.Position = bossRef.Position;
-		Boss.Health = bossRef.CurrentHealth;
+		dynState.Boss.Position = bossRef.Position;
+		dynState.Boss.Health = bossRef.CurrentHealth;
 
-		Boss.AttackCooldownTimers[0] = (float) bossRef.AttackManager.MeleeAttack1CooldownTimer.TimeLeft;
-		Boss.AttackCooldownTimers[1] = (float) bossRef.AttackManager.MeleeAttack2CooldownTimer.TimeLeft;
-		Boss.AttackCooldownTimers[2] = (float) bossRef.AttackManager.MagicAttack1CooldownTimer.TimeLeft;
-		Boss.AttackCooldownTimers[3] = (float) bossRef.AttackManager.MagicAttack2CooldownTimer.TimeLeft;
+		dynState.Boss.AttackCooldownTimers[0] = (float) bossRef.AttackManager.MeleeAttack1CooldownTimer.TimeLeft;
+		dynState.Boss.AttackCooldownTimers[1] = (float) bossRef.AttackManager.MeleeAttack2CooldownTimer.TimeLeft;
+		dynState.Boss.AttackCooldownTimers[2] = (float) bossRef.AttackManager.MagicAttack1CooldownTimer.TimeLeft;
+		dynState.Boss.AttackCooldownTimers[3] = (float) bossRef.AttackManager.MagicAttack2CooldownTimer.TimeLeft;
 
-		Boss.CurrentAttackId = (short)bossRef.AttackManager.CurrentAttack;
-		Boss.InvulnerabilityTimeRemaining = (float) bossRef.InvulnerabilityTimer.TimeLeft;
+		dynState.Boss.CurrentAttackId = (short)bossRef.AttackManager.CurrentAttack;
+		dynState.Boss.InvulnerabilityTimeRemaining = (float) bossRef.InvulnerabilityTimer.TimeLeft;
 
-		Boss.DistanceToPlayer = Boss.Position.DistanceTo(Player.Position);
-		Boss.AngleToPlayer = Boss.Position.AngleTo(Player.Position);
+		dynState.Boss.DistanceToPlayer = dynState.Boss.Position.DistanceTo(dynState.Player.Position);
+		dynState.Boss.AngleToPlayer = dynState.Boss.Position.AngleTo(dynState.Player.Position);
 	
-		Boss.DamageTaken = 0f;
+		dynState.Boss.DamageTaken = 0f;
 	}
 
 	public void UpdateProjectiles(){
 		var playerProjectileInstances = GetTree().GetNodesInGroup("PlayerProjectile");
 
-		Projectiles.ActiveProjectileCount = playerProjectileInstances.Count;
+		dynState.Projectiles.ActiveProjectileCount = playerProjectileInstances.Count;
 
-		if (Projectiles.ActiveProjectileCount <= 0) return;
+		if (dynState.Projectiles.ActiveProjectileCount <= 0) return;
 
 		float minDistance = float.PositiveInfinity;
 		Node2D closestProjectile = null;
 
 		foreach(Node2D proj in playerProjectileInstances.Cast<Node2D>())
 		{
-			var newDistance = Boss.Position.DistanceTo(proj.GlobalPosition);
+			var newDistance = dynState.Boss.Position.DistanceTo(proj.GlobalPosition);
 			
 			if(newDistance < minDistance)
 			{
@@ -361,10 +370,10 @@ public partial class GlobalState : Node
 
 		if(closestProjectile is not Projectile projectile) return;
 
-		Projectiles.NearestProjectileDistance = minDistance;
-		Projectiles.NearestProjectileAngle = projectile.GetAngleTo(Boss.Position);
-		Projectiles.NearestProjectileVelocity = projectile.Velocity;
-		Projectiles.NearestProjectileDamage = projectile.Damage;
+		dynState.Projectiles.NearestProjectileDistance = minDistance;
+		dynState.Projectiles.NearestProjectileAngle = projectile.GetAngleTo(dynState.Boss.Position);
+		dynState.Projectiles.NearestProjectileVelocity = projectile.Velocity;
+		dynState.Projectiles.NearestProjectileDamage = projectile.Damage;
 	}
 
 	public void ResetState()
@@ -372,12 +381,12 @@ public partial class GlobalState : Node
 		PlayerReference = null;
 		BossReference = null;
 
-		Equipment = new EquipmentData();
-		RoomData = new RoomBounds();
+		statState.Equipment = new EquipmentData();
+		statState.RoomData = new RoomBounds();
 
-		Player = new PlayerState();
-		Boss = new BossState();
-		Projectiles = new ProjectileState();
+		dynState.Player = new PlayerState();
+		dynState.Boss = new BossState();
+		dynState.Projectiles = new ProjectileState();
 	}
 }
 
