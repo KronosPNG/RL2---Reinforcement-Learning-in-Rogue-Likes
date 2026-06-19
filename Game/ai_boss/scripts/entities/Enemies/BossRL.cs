@@ -11,8 +11,9 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
     }
 
     // --- Health properties ---
+    [ExportGroup("Health")]
     public float CurrentHealth { get; private set; }
-    public float MaxHealth => 2000f;
+    [Export] public float MaxHealth {get; set; } = 2000f;
     public bool IsAlive => CurrentHealth > 0 || CurrentState != BossState.Dead;
     public bool IsInvulnerable { get; private set; }
 
