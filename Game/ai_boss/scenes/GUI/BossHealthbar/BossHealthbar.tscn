@@ -2,7 +2,14 @@
 
 [ext_resource type="Script" uid="uid://fwj70eh01qj5" path="res://scripts/hud/healthbar/BossHealthbar.cs" id="1_41x8o"]
 [ext_resource type="Theme" uid="uid://dowfsv6q20axa" path="res://assets/theme/bean_theme.tres" id="1_l4feb"]
+[ext_resource type="Script" uid="uid://kvce7e5c5bgh" path="res://scripts/visual_effects/effects/VisualFlash.cs" id="2_3dflo"]
 [ext_resource type="Texture2D" uid="uid://bcibhgpmbtxkr" path="res://art/hud/boss_healthbar.png" id="2_41x8o"]
+
+[sub_resource type="Resource" id="Resource_ur7op"]
+script = ExtResource("2_3dflo")
+FlashModulate = Color(1, 0, 0, 1)
+EffectDuration = 0.25
+metadata/_custom_type_script = "uid://kvce7e5c5bgh"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3dflo"]
 atlas = ExtResource("2_41x8o")
@@ -14,6 +21,7 @@ region = Rect2(0, 16, 128, 16)
 
 [node name="BossHealthbar" type="CanvasLayer" unique_id=106652635]
 script = ExtResource("1_41x8o")
+fx = SubResource("Resource_ur7op")
 
 [node name="ProgressBar" type="TextureProgressBar" parent="." unique_id=1856425933]
 anchors_preset = 7

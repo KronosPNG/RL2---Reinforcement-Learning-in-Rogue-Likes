@@ -51,17 +51,6 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 		return direction;
 	}
 
-	// Update the player's facing direction based on input
-	protected override void UpdateFacing()
-	{
-		if (!Mathf.IsEqualApprox(_movementDirection.X, 0) || !Mathf.IsEqualApprox(_movementDirection.Y, 0))
-		{
-			_lastHorizontalFacing = (sbyte)Mathf.Sign(_movementDirection.X);
-			_lastVerticalFacing = (sbyte)Mathf.Sign(_movementDirection.Y);
-			VisualController.FacingDirection = _movementDirection;
-		}		
-	}
-
 	// Update Timers
 	protected override void UpdateTimers(float delta)
 	{

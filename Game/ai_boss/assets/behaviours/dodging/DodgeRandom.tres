@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DodgeRandom" format=3 uid="uid://wamm0pnosagk"]
+
+[ext_resource type="Script" uid="uid://b7elf4dm1j55e" path="res://scripts/entities/Behaviours/Dodging/DodgeRandom.cs" id="1_rfvv7"]
+
+[resource]
+script = ExtResource("1_rfvv7")
+metadata/_custom_type_script = "uid://b7elf4dm1j55e"

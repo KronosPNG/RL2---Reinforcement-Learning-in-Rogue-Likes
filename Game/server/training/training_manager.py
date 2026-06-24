@@ -11,12 +11,13 @@ from __future__ import annotations
 import asyncio
 from collections import deque
 from datetime import datetime
+import json
 import os
 
 import torch
 
-from ..ai.policy import HybridPPOPolicy
-from .trainer import PPOTrainer, PPOConfig
+from ai.policy import HybridPPOPolicy
+from training.trainer import PPOTrainer, PPOConfig
 
 
 class TrainingManager:
@@ -32,7 +33,8 @@ class TrainingManager:
     
     def __init__(self, obs_dim: int = 62, num_actions: int = 9, 
                  cfg: PPOConfig | None = None, batch_queue_size: int = 32,
-                 checkpoint_dir: str = "checkpoints", checkpoint_interval: int = 10):
+                 checkpoint_dir: str = "checkpoints", checkpoint_interval: int = 10,
+                 metrics_dir: str = "metrics"):
         """
         Initialize the training manager.
         
@@ -43,6 +45,7 @@ class TrainingManager:
             batch_queue_size: Max batches to queue before forcing training
             checkpoint_dir: Directory to save policy checkpoints
             checkpoint_interval: Save checkpoint every N training steps
+            metrics_dir: Directory to save training metrics JSON
         """
         self.obs_dim = obs_dim
         self.num_actions = num_actions
@@ -52,6 +55,10 @@ class TrainingManager:
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint_interval = checkpoint_interval
         os.makedirs(checkpoint_dir, exist_ok=True)
+        
+        # Metrics logging
+        self.metrics_dir = metrics_dir
+        os.makedirs(metrics_dir, exist_ok=True)
         
         # Create shared policy - all connections use this
         self.policy = HybridPPOPolicy(obs_dim, num_actions)
@@ -143,6 +150,9 @@ class TrainingManager:
         self.training_steps_completed += 1
         self.batches_pending = 0
         
+        # Save metrics to JSON
+        self._save_metrics()
+        
         # Checkpoint if interval reached
         if self.training_steps_completed % self.checkpoint_interval == 0:
             self._save_checkpoint()
@@ -178,6 +188,29 @@ class TrainingManager:
             path: File path to save to (e.g., 'models/boss_policy.pt')
         """
         torch.save(self.policy.state_dict(), path)
+    
+    def _save_metrics(self):
+        """
+        Save all training metrics to JSON file (called after each training step).
+        """
+        metrics_path = os.path.join(self.metrics_dir, "training_metrics.json")
+        
+        # Convert metrics history to JSON-serializable format
+        metrics_data = []
+        for metric in self.metrics_history:
+            # Convert tensor values to Python types
+            clean_metric = {}
+            for key, value in metric.items():
+                if isinstance(value, torch.Tensor):
+                    clean_metric[key] = value.item()
+                else:
+                    clean_metric[key] = value
+            metrics_data.append(clean_metric)
+        
+        # Write to JSON file
+        with open(metrics_path, "w") as f:
+            json.dump(metrics_data, f, indent=2)
+        print(f"Metrics saved: {metrics_path}")
     
     def _save_checkpoint(self):
         """

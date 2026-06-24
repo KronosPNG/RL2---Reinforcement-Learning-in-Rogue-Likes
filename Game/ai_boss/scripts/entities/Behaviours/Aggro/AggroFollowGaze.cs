@@ -77,4 +77,10 @@ public partial class AggroFollowGaze : AggroBehaviour
 		}
 		return;
     }
+
+    public override void Initialize(IEntity entity)
+    {
+        throw new System.NotImplementedException();
+    }
+
 }

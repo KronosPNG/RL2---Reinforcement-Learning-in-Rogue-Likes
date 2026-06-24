@@ -6,3 +6,5 @@
 # Folder-specific ignores
 */.github/*
 .github/
+
+*pyc

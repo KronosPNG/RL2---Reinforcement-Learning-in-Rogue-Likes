@@ -5,6 +5,7 @@ public partial class RoomManager : Node2D
 {
 	private Dictionary<string, Room> _visitedRooms = [];
 
+	[Export] private PackedScene _firstRoom;
 	private PlayerController _player;
 	private CameraController _camera;
 	private Room _currentRoom;
@@ -12,8 +13,7 @@ public partial class RoomManager : Node2D
 
 	public override void _Ready()
 	{
-		var firstRoom = ResourceLoader.Load<PackedScene>("res://scenes/rooms/starting_room.tscn");
-		LoadInitialRoom(firstRoom);
+		LoadInitialRoom(_firstRoom);
 
 		EventBus.OnGamePaused += HandleGamePaused;
 		EventBus.OnGameResumed += HandleGameResumed;

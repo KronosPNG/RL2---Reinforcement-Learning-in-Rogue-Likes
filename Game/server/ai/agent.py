@@ -8,7 +8,7 @@ Wraps a reinforcement learning policy and trajectory collector to:
 """
 
 from .policy import HybridPPOPolicy
-from ..training.trajectory_collector import TrajectoryCollector
+from training.trajectory_collector import TrajectoryCollector
 
 
 class BossAI:

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="WanderImmovable" format=3 uid="uid://bjsv6kxg5x4sm"]
+
+[ext_resource type="Script" uid="uid://sq726rok2yho" path="res://scripts/entities/Behaviours/Wandering/WanderImmovable.cs" id="1_u0w4q"]
+
+[resource]
+script = ExtResource("1_u0w4q")
+metadata/_custom_type_script = "uid://sq726rok2yho"

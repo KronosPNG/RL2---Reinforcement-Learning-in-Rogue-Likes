@@ -2,6 +2,7 @@ using Godot;
 
 public partial class BossRoom : Room
 {
+    private BossRL _boss;
     public override void _Ready()
     {
         base._Ready();
@@ -29,5 +30,18 @@ public partial class BossRoom : Room
         }
 
         base.OnExitState(oldState);
+    }
+    
+
+    protected override void SpawnMobs()
+    {
+        GD.Print("Spawning boss");
+        var bossScene = ResourceLoader.Load<PackedScene>("res://scenes/entities/boss_rl.tscn");
+        _boss = bossScene.Instantiate<BossRL>();
+
+        var sortedElements = GetNodeOrNull<Node2D>("SortSceneElements");
+		sortedElements.AddChild(_boss);
+        _boss.Position = _spawningPoints[0].GlobalPosition;
+
     }
 }

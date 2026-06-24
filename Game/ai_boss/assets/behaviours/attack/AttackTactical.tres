@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="AttackTactical" format=3 uid="uid://bydlmfmk0fgog"]
+
+[ext_resource type="Script" uid="uid://c6obgfsoy2hye" path="res://scripts/entities/Behaviours/Attacking/PlayerMimic/AttackTactical.cs" id="1_x13cs"]
+
+[resource]
+script = ExtResource("1_x13cs")
+metadata/_custom_type_script = "uid://c6obgfsoy2hye"

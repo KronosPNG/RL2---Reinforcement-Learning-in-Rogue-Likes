@@ -9,6 +9,8 @@ public abstract partial class AggroBehaviour : Resource, IAggroBehaviour
 
 	public abstract void OnEnterNotice(IEntity entity);
 	public abstract void OnExitNotice(IEntity entity);
+	public abstract void Initialize(IEntity entity);
+	
 	public virtual bool CanSeeTarget(IEntity entity)
 	{
 		if (entity.Target == null || !IsInstanceValid(entity.Target))

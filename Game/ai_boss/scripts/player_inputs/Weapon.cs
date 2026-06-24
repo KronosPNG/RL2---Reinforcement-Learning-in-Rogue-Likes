@@ -255,6 +255,23 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		return IsCharging && CurrentChargingAttack?.CanReleaseCharge() == true;
 	}
 
+	public bool IsFullyCharged()
+	{
+		return IsCharging && CurrentChargingAttack?.IsFullyCharged() == true;
+	}
+
+	// Returns true when the current charge produces enough range to reach the target distance
+	public bool IsChargedEnough(float distance)
+	{
+		if (!IsCharging || CurrentChargingAttack == null) return false;
+		if (!CurrentChargingAttack.CanReleaseCharge()) return false;
+
+		if (CurrentChargingAttack is ChargedProjectileAttack cpa)
+			return cpa.GetRangeAtChargeTime(CurrentChargingAttack.getCurrentChargeTime()) >= distance;
+
+		return true; // Non-projectile charged attacks don't need range check
+	}
+
 	// Execute the charged attack
 	public void ExecuteChargedLight(Vector2 mouseGlobalPos)
 	{

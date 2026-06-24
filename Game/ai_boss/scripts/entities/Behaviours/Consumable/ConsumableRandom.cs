@@ -3,7 +3,7 @@ using Godot;
 [GlobalClass]
 public partial class ConsumableRandom : ConsumableBehaviour
 {
-    public ConsumableRandom(PlayerMimic player) : base(player)
+    public ConsumableRandom() : base()
     {
         Priority = 0.5f; // Baseline priority for random use
     }

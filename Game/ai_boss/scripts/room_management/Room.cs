@@ -49,7 +49,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 
 	public virtual void OnEnterState(RoomState newState)
 	{
-		// GD.Print($"Room {Name} entered state: {newState}");
+		GD.Print($"Room {Name} entered state: {newState}");
 
 		switch (newState)
 		{
@@ -104,7 +104,7 @@ public partial class Room : Node2D, IStateful<RoomState>
 		throw new System.NotImplementedException();
 	}
 
-	protected void SpawnMobs()
+	protected virtual void SpawnMobs()
 	{
 		if(MobScenes == null || MobScenes.Length <= 0){
 			TransitionToState(RoomState.Cleared);

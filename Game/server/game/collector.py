@@ -11,7 +11,7 @@ from typing import Any
 import math
 import torch
 
-from ..utils.normalization import normalize_range, normalize_01, angle_to_sin_cos
+from utils.normalization import normalize_range, normalize_01, angle_to_sin_cos
 
 
 def flatten_observation(static_state: dict[str, Any], dynamic_state: dict[str, Any]) -> torch.Tensor:

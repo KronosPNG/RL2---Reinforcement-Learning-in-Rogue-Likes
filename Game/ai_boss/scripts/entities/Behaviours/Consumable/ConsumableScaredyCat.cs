@@ -3,7 +3,7 @@ using Godot;
 [GlobalClass]
 public partial class ConsumableScaredyCat : ConsumableBehaviour
 {
-    public ConsumableScaredyCat(PlayerMimic player) : base(player)
+    public ConsumableScaredyCat() : base()
     {
         Priority = 0.9f; // High priority
     }

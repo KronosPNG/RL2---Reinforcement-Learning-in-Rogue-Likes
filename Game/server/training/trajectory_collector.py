@@ -10,8 +10,8 @@ from __future__ import annotations
 import torch
 import time
 
-from ..game.rewards import RewardTracker
-from ..game.collector import flatten_observation
+from game.rewards import RewardTracker
+from game.collector import flatten_observation
 from .trainer import PPOTrainer
 
 

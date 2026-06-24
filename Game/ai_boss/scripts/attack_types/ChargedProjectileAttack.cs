@@ -141,6 +141,21 @@ public partial class ChargedProjectileAttack : ChargedAttack, IAttack, IChargeab
 		}
 	}
 	
+	public float GetRangeAtChargeTime(float chargeTime)
+	{
+		if (!ScaleProjectileRangeWithCharge)
+			return ProjectileAttack?.Range ?? 0f;
+
+		float baseRange = _originalValuesStored ? _originalProjectileRange : (ProjectileAttack?.Range ?? 0f);
+		float chargeRatio = Mathf.Clamp(chargeTime / MaxChargeTime, 0f, 1f);
+
+		float effectiveRatio = UseExponentialRangeScaling
+			? Mathf.Pow(chargeRatio, RangeScalingExponent)
+			: chargeRatio;
+
+		return baseRange * Mathf.Lerp(MinProjectileRangeMultiplier, MaxProjectileRangeMultiplier, effectiveRatio);
+	}
+
 	// Implement IShootable interface by delegating to the exported projectile attack
 	public void SpawnProjectile(WeaponBase weapon, Vector2 spawnPosition, Vector2 baseDirection, int projectileIndex)
 	{

@@ -14,7 +14,7 @@ import torch
 import torch.nn.functional as F
 from torch.optim import Adam
 
-from ..ai.policy import HybridPPOPolicy
+from ai.policy import HybridPPOPolicy
 
 
 @dataclass

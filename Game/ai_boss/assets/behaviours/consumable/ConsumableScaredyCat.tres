@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ConsumableScaredyCat" format=3 uid="uid://bqtylfmdp1dl0"]
+
+[ext_resource type="Script" uid="uid://i5hh771kc6mh" path="res://scripts/entities/Behaviours/Consumable/ConsumableScaredyCat.cs" id="1_1iw0h"]
+
+[resource]
+script = ExtResource("1_1iw0h")
+metadata/_custom_type_script = "uid://i5hh771kc6mh"

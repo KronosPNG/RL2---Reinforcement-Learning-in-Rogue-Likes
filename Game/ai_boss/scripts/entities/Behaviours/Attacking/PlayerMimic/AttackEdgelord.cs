@@ -4,13 +4,29 @@ using Godot;
 public partial class AttackEdgelord : PlayerAttackBehaviour
 {
 
-    public AttackEdgelord(PlayerMimic player) : base(player)
+    public AttackEdgelord() : base()
     {
         Priority = .8f;
+        TimeBetweenAttacks = 2f;
     }
 
     public override float EvaluateOpportunity(PlayerMimic player)
     {
+        // EDGELORD: Committed to the charge! Priority increases as charge builds
+        // Must come before CanAttack — weapon isn't Ready while charging
+        if (player.CurrentState == EntityState.AttackCharging)
+        {
+            // Get how far along the charge is (0.0 to 1.0)
+            float chargePercent = _weapon.CurrentChargingAttack.getCurrentChargeTime() / _weapon.CurrentChargingAttack.MaxChargeTime;
+
+            // Baseline 0.5 + up to 0.5 more as charge builds
+            // At 0% charge: 0.5
+            // At 50% charge: 0.75
+            // At 100% charge: 1.0
+            float priority = 0.5f + (chargePercent * 0.5f);
+            return priority;
+        }
+
         if (!CanAttack(player)) return 0f;
 
         float distanceToTarget = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
@@ -21,20 +37,6 @@ public partial class AttackEdgelord : PlayerAttackBehaviour
 
         if (distanceToTarget > maxRange)
             return 0f;
-
-        // EDGELORD: Committed to the charge! Priority increases as charge builds
-        if (player.CurrentState == EntityState.AttackCharging)
-        {
-            // Get how far along the charge is (0.0 to 1.0)
-            float chargePercent = _weapon.CurrentChargingAttack.getCurrentChargeTime() / _weapon.CurrentChargingAttack.MaxChargeTime;
-            
-            // Baseline 0.5 + up to 0.5 more as charge builds
-            // At 0% charge: 0.5
-            // At 50% charge: 0.75
-            // At 100% charge: 1.0
-            float priority = 0.5f + (chargePercent * 0.5f);
-            return priority;
-        }
 
         // Not charging - baseline medium priority to initiate charge
         return 0.5f;

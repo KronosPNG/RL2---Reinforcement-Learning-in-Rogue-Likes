@@ -3,13 +3,18 @@ using Godot;
 [GlobalClass]
 public partial class AttackTactical : PlayerAttackBehaviour
 {
-    public AttackTactical(PlayerMimic player) : base(player)
+    public AttackTactical() : base()
     {
         Priority = 0.5f;
+        TimeBetweenAttacks = 2f;
     }
 
     public override float EvaluateOpportunity(PlayerMimic player)
     {
+        // Already charging — must keep going regardless of CanAttack (weapon isn't Ready while charging)
+        if (player.CurrentState == EntityState.AttackCharging)
+            return 0.6f;
+
         if (!CanAttack(player)) return 0f;
 
         float distanceToTarget = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
@@ -20,12 +25,10 @@ public partial class AttackTactical : PlayerAttackBehaviour
 
         if (distanceToTarget > maxRange)
             return 0f;  // Out of range, close distance
-        
-        var bossState = player.Target.CurrentState;
 
-        // Already charging, good opportunity to finish the attack
-        if (player.CurrentState == EntityState.AttackCharging)
-            return 0.6f;
+        if (player.Target is not BossRL boss) return 0f;
+
+		BossState bossState = boss.CurrentState;
 
         // Boss is attacking - very unsafe window
         if (bossState == BossState.Attacking)
@@ -39,34 +42,28 @@ public partial class AttackTactical : PlayerAttackBehaviour
     {
         Vector2 aim = GetAimDirection(player);
         
-        // CASE 1: Already charging - finish the charge
+        // CASE 1: Already charging - fire as soon as charge reaches the boss's distance
         if (player.CurrentState == EntityState.AttackCharging)
         {
-            bool chargeReady = _weapon.CanReleaseCharge();
             bool isHeavyCharge = _weapon.IsCurrentAttackHeavy;
-            
-            if (chargeReady)
+            float distance = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
+            bool enoughCharge = _weapon.IsChargedEnough(distance) || _weapon.IsFullyCharged();
+
+            AttackType keepCharging = isHeavyCharge ? AttackType.ChargedHeavy : AttackType.ChargedLight;
+            AttackType release     = isHeavyCharge ? AttackType.Heavy        : AttackType.Light;
+
+            _lastAttackDecision = new AttackDecision
             {
-                _lastAttackDecision = new AttackDecision
-                {
-                    Type = isHeavyCharge ? AttackType.Heavy : AttackType.Light,
-                    AimDirection = aim
-                };
-                return _lastAttackDecision;
-            }
-            else
-            {
-                _lastAttackDecision = new AttackDecision
-                {
-                    Type = isHeavyCharge ? AttackType.ChargedHeavy : AttackType.ChargedLight,
-                    AimDirection = aim
-                };
-                return _lastAttackDecision;
-            }
+                Type = enoughCharge ? release : keepCharging,
+                AimDirection = aim
+            };
+            return _lastAttackDecision;
         }
 
         // CASE 2: Analyze situation and pick the smartest attack
-        var bossState = player.Target.CurrentState;
+        var boss = player.Target as BossRL;
+		BossState bossState = boss.CurrentState;
+
         float distanceToTarget = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
         
         bool lightAvailable = _weapon.CanStartAttack(false);

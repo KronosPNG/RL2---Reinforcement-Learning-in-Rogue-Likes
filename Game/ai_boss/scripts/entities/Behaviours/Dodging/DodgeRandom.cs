@@ -3,9 +3,10 @@ using Godot;
 [GlobalClass]
 public partial class DodgeRandom : DodgeBehaviour
 {
-	public DodgeRandom(IDodgeDirectionStrategy dodgeDirection): base(dodgeDirection)
+	public DodgeRandom(): base()
 	{
 		Priority = .5f;
+		TimeBetweenDodges = 5f;
 	}
 
 	public override float EvaluateOpportunity(PlayerMimic player)

@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dga6m0jed3vlt" path="res://scenes/GUI/HUD.tscn" id="2_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85mcslte1v7i" path="res://scenes/GUI/PauseMenu/PauseMenu.tscn" id="2_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://bho26uagji2ed" path="res://scenes/GUI/BossHealthbar/BossHealthbar.tscn" id="2_tefeu"]
+[ext_resource type="PackedScene" uid="uid://yp1662tkaqhp" path="res://scenes/rooms/starting_room.tscn" id="6_o6xl0"]
 
 [sub_resource type="Animation" id="Animation_tbgi4"]
 resource_name = "BossIntro"
@@ -22,11 +23,13 @@ script = ExtResource("1_sugp2")
 visible = false
 
 [node name="PauseMenu" parent="." unique_id=174653834 instance=ExtResource("2_tbgi4")]
+visible = false
 
 [node name="Hud" parent="." unique_id=2069667942 instance=ExtResource("2_jyhfs")]
 
 [node name="RoomManager" type="Node2D" parent="." unique_id=318667351 groups=["Room"]]
 script = ExtResource("1_yc10j")
+_firstRoom = ExtResource("6_o6xl0")
 
 [node name="Camera2D" type="Camera2D" parent="RoomManager" unique_id=2005641649]
 zoom = Vector2(3, 3)

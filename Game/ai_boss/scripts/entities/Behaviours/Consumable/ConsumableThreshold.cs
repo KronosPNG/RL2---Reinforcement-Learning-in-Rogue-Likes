@@ -5,7 +5,7 @@ public partial class ConsumableThreshold : ConsumableBehaviour
 {
     private const float HealthThreshold = 0.5f; // Use consumable when health is below 50%
 
-    public ConsumableThreshold(PlayerMimic player) : base(player)
+    public ConsumableThreshold() : base()
     {
         Priority = 0.8f; // High priority when health is low
     }

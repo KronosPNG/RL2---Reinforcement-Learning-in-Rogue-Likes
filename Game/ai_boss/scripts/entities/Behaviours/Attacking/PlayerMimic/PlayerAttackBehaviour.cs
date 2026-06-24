@@ -3,107 +3,115 @@ using Godot;
 [GlobalClass]
 public abstract partial class PlayerAttackBehaviour : Resource, IPlayerAttackBehaviour
 {
-    protected Weapon _weapon;
-    protected AttackDecision _lastAttackDecision;
+	protected Weapon _weapon;
+	protected AttackDecision _lastAttackDecision;
 
-    public float Priority {get; protected set;}
+	public float Priority {get; protected set;}
+	public float TimeBetweenAttacks {get; protected set;}
 
-    public PlayerAttackBehaviour(PlayerMimic player)
-    {
-        _weapon = player.EquippedWeapon;
-    }
+	public PlayerAttackBehaviour(){}
+	
+	public void Initialize(PlayerMimic player)
+	{
+		_weapon = player.EquippedWeapon;
 
-    public virtual bool CanAttack(PlayerMimic player)
-    {
-        if (player.CurrentState == EntityState.Dead || 
-            player.CurrentState == EntityState.Hit ||
-            player.CurrentState == EntityState.DodgePrep)
-        {
-            return false;  // Can't attack in these states
-        }
+		if(_weapon is null)
+		{
+			GD.PrintErr("HUH");
+		}
+	}
 
-        return _weapon.CanStartAttack(false) || _weapon.CanStartAttack(true);
-    }
-    
-    public virtual float EvaluateOpportunity(PlayerMimic player)  // 0-1 opportunity
-    {
-        return 1f;
-    }
+	public virtual bool CanAttack(PlayerMimic player)
+	{
+		if (player.CurrentState == EntityState.Dead || 
+			player.CurrentState == EntityState.Hit ||
+			player.CurrentState == EntityState.DodgePrep)
+		{
+			return false;  // Can't attack in these states
+		}
 
-    public virtual Vector2 GetAimDirection(PlayerMimic player)
-    {
-        var targetPosition = player.GetTargetPosition();
+		return _weapon.CanStartAttack(false) || _weapon.CanStartAttack(true);
+	}
+	
+	public virtual float EvaluateOpportunity(PlayerMimic player)  // 0-1 opportunity
+	{
+		return 1f;
+	}
 
-        return (targetPosition - player.GlobalPosition).Normalized();  
-    }
+	public virtual Vector2 GetAimDirection(PlayerMimic player)
+	{
+		var targetPosition = player.GetTargetPosition();
 
-    public virtual AttackDecision GetAttackDecision(PlayerMimic player)
-    {
-        Vector2 aim = GetAimDirection(player);
-        
-        // Decide: Light, Heavy, or Charged variant?
-        if (_weapon.CanStartAttack(false))
-        {
-            bool isChargeable = _weapon.LightAttackConfig is ChargedAttack;
+		return targetPosition;  
+	}
 
-            _lastAttackDecision = new AttackDecision
-            (
-                isChargeable ? AttackType.ChargedLight : AttackType.Light,
-                aim
-            );
+	public virtual AttackDecision GetAttackDecision(PlayerMimic player)
+	{
+		Vector2 aim = GetAimDirection(player);
+		
+		// Decide: Light, Heavy, or Charged variant?
+		if (_weapon.CanStartAttack(false))
+		{
+			bool isChargeable = _weapon.LightAttackConfig is ChargedAttack;
 
-            return _lastAttackDecision;
-        }
+			_lastAttackDecision = new AttackDecision
+			(
+				isChargeable ? AttackType.ChargedLight : AttackType.Light,
+				aim
+			);
 
-        else if (_weapon.CanStartAttack(true))
-        {
-            bool isChargeable = _weapon.HeavyAttackConfig is ChargedAttack;
+			return _lastAttackDecision;
+		}
 
-            _lastAttackDecision = new AttackDecision
-            (
-                isChargeable ? AttackType.ChargedHeavy : AttackType.Heavy,
-                aim
-            );
+		else if (_weapon.CanStartAttack(true))
+		{
+			bool isChargeable = _weapon.HeavyAttackConfig is ChargedAttack;
 
-            return _lastAttackDecision;
-        }
-        
-        _lastAttackDecision = new AttackDecision(AttackType.Light, aim); // Default fallback (shouldn't happen if CanAttack is used correctly)
-        
-        return _lastAttackDecision;
-    }
+			_lastAttackDecision = new AttackDecision
+			(
+				isChargeable ? AttackType.ChargedHeavy : AttackType.Heavy,
+				aim
+			);
 
-    public virtual Vector2 GetMovementDirection(PlayerMimic player)
-    {
-        bool isAttackLight = _lastAttackDecision.Type switch
-        {
-            AttackType.Light => false,
-            AttackType.ChargedLight => true,
-            AttackType.Heavy => false,
-            AttackType.ChargedHeavy => true,
-            _ => false
-        };
+			return _lastAttackDecision;
+		}
+		
+		_lastAttackDecision = new AttackDecision(AttackType.Light, aim); // Default fallback (shouldn't happen if CanAttack is used correctly)
+		
+		return _lastAttackDecision;
+	}
 
-        float distanceToBoss = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
-        float attackRange;
+	public virtual Vector2 GetMovementDirection(PlayerMimic player)
+	{
+		bool isAttackLight = _lastAttackDecision.Type switch
+		{
+			AttackType.Light => false,
+			AttackType.ChargedLight => true,
+			AttackType.Heavy => false,
+			AttackType.ChargedHeavy => true,
+			_ => false
+		};
 
-        if(isAttackLight)
-        {
-            attackRange = player.EquippedWeapon.LightAttackConfig.Range;
-        }
+		float distanceToBoss = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
+		float attackRange;
 
-        else
-        {
-            attackRange = player.EquippedWeapon.HeavyAttackConfig.Range;
-        }
+		if(isAttackLight)
+		{
+			attackRange = player.EquippedWeapon.LightAttackConfig.Range;
+		}
 
-        // If we're outside of attack range, move towards the boss
-        if (distanceToBoss > attackRange * 0.8f) // Add some buffer to prevent constant jittering at the edge of range
-        {
-            return player.GlobalPosition.DirectionTo(player.Target.GlobalPosition);
-        }
+		else
+		{
+			attackRange = player.EquippedWeapon.HeavyAttackConfig.Range;
+		}
 
-        return Vector2.Zero; // Otherwise, stay still while attacking
+		// If we're outside of attack range, move towards the boss
+		if (distanceToBoss > attackRange * 0.8f) // Add some buffer to prevent constant jittering at the edge of range
+		{
+			return player.GlobalPosition.DirectionTo(player.Target.GlobalPosition);
+		}
 
-    }
+		return Vector2.Zero; // Otherwise, stay still while attacking
+
+	}
 }

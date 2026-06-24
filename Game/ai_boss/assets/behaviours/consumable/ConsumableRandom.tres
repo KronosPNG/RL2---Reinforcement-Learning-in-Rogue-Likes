@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ConsumableRandom" format=3 uid="uid://g3oxdsh0k6ll"]
+
+[ext_resource type="Script" uid="uid://d4kknmsofia6f" path="res://scripts/entities/Behaviours/Consumable/ConsumableRandom.cs" id="1_synjt"]
+
+[resource]
+script = ExtResource("1_synjt")
+metadata/_custom_type_script = "uid://d4kknmsofia6f"

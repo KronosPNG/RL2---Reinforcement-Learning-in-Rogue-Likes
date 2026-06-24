@@ -71,9 +71,10 @@ class TrainingOrchestrator:
     - Batch coordination for training
     """
     
-    def __init__(self, 
+    def __init__(self,
                  num_instances: int = 4,
                  godot_executable: str = "",
+                 godot_project_path: str = "",
                  game_scene: str = "res://scenes/train.tscn",
                  max_instance_lifetime: float = 3600.0,  # 1 hour
                  max_episode_duration: float = 600.0,  # 10 minutes
@@ -91,6 +92,7 @@ class TrainingOrchestrator:
         """
         self.num_instances = num_instances
         self.godot_executable = godot_executable or self._find_godot_executable()
+        self.godot_project_path = godot_project_path
         self.game_scene = game_scene
         self.max_instance_lifetime = max_instance_lifetime
         self.max_episode_duration = max_episode_duration
@@ -115,6 +117,7 @@ class TrainingOrchestrator:
             FileNotFoundError: If Godot not found
         """
         common_paths = [
+            "C:\\Users\\turco\\Documents\\Godot_v4.6.1-stable_mono_win64\\Godot_v4.6.1-stable_mono_win64\\Godot_v4.6.1-stable_mono_win64.exe",
             "C:\\Program Files\\Godot\\Godot.exe",
             "C:\\Program Files (x86)\\Godot\\Godot.exe",
             "C:\\Users\\turco\\AppData\\Local\\Godot\\Godot.exe",
@@ -193,26 +196,28 @@ class TrainingOrchestrator:
         )
         
         # Build command line
-        args = [
-            self.godot_executable,
-            self.game_scene,
-            f"--instance-id={instance_id}",
-            f"--instance-port={7000 + instance_id}",  # Unique port per instance
-        ]
-        
-        # Add player config args
-        args.extend(config.to_godot_args())
-        
+        args = [self.godot_executable]
+
+        if self.godot_project_path:
+            args += ["--path", self.godot_project_path]
+
+        args.append(self.game_scene)
+
         # Add headless if requested
         if self.headless:
             args.append("--headless")
+
+        # Separator: everything after -- is available via OS.GetCmdlineUserArgs() in Godot
+        args.append("--")
+        args.append(f"--instance-id={instance_id}")
+        args.extend(config.to_godot_args())
         
         try:
             # Spawn process with subprocess (not await, as it's sync)
             process = subprocess.Popen(
                 args,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
                 creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == "win32" else 0
             )
             

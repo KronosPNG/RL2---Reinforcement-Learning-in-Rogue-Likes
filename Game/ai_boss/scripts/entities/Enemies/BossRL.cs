@@ -2,241 +2,349 @@ using Godot;
 
 public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavigable, IStateful<BossState>, IAnimatable<BossState>
 {
-    public enum BossAttackType
-    {
-        Melee1,
-        Melee2,
-        Magic1,
-        Magic2
-    }
+	public enum BossAttackType
+	{
+		Melee1,
+		Melee2,
+		Magic1,
+		Magic2
+	}
 
-    // --- Health properties ---
-    [ExportGroup("Health")]
-    public float CurrentHealth { get; private set; }
-    [Export] public float MaxHealth {get; set; } = 2000f;
-    public bool IsAlive => CurrentHealth > 0 || CurrentState != BossState.Dead;
-    public bool IsInvulnerable { get; private set; }
+	// --- Health properties ---
+	[ExportGroup("Health")]
+	public float CurrentHealth { get; private set; }
+	[Export] public float MaxHealth {get; set; } = 2000f;
+	public bool IsAlive => CurrentHealth > 0 || CurrentState != BossState.Dead;
+	public bool IsInvulnerable { get; private set; }
+	[Export(PropertyHint.Range, "0,1,0.1")] public float DamageModifier { get; set; } = 0.5f;
 
-    // --- Movement properties ---
-    [ExportGroup("Movement")]
-    private Vector2 _movementDirection = Vector2.Zero;
-    [Export(PropertyHint.Range, "0,3,0.1")] private float dashModifier = 2f;
-    
-    // ---- Knockback Smoothing ----
+	// --- Movement properties ---
+	[ExportGroup("Movement")]
+	private Vector2 _movementDirection = Vector2.Zero;
+	[Export(PropertyHint.Range, "0,3,0.1")] private float dashModifier = 2f;
+	
+	// --- Attack Properties ---
+	public Vector2 AttackDirection { get; private set; }
+	[Export(PropertyHint.Range, "0,1,0.1")] float KnockbackModifier { get; set; } = 0.1f;
+
+	// --- Knockback Smoothing ---
 	protected Vector2 _knockbackVelocity = Vector2.Zero;
 	protected Tween _knockbackTween;
 
-    // --- Node References ---
-    public NavigationAgent2D NavAgent { get; private set; }
-    public BossAttackManager AttackManager { get; set; }
-    public BossVisualController VisualController { get; private set; }
+	// --- Node References ---
+	public NavigationAgent2D NavAgent { get; private set; }
+	public BossAttackManager AttackManager { get; set; }
+	public BossVisualController VisualController { get; private set; }
 
-    // --- Timers ---
-    public Timer CooldownTimer { get; set; }
-    public Timer InvulnerabilityTimer { get; set;}
+	// --- Timers ---
+	public Timer DashTimer { get; set; }
+	public Timer CooldownTimer { get; set; }
+	public Timer InvulnerabilityTimer { get; set;}
 
-    // ---
-    private uint _baseCollisionMask;
-    private uint _baseCollisionLayer;
+	// ---
+	private uint _baseCollisionMask;
+	private uint _baseCollisionLayer;
 
-    private BossAction _currentAction;
+	// ---- Signals ----
+	[Signal] public delegate void StateChangedEventHandler(string newState);
 
+	public override void _Ready()
+	{
+		base._Ready();
 
-    public override void _Ready()
-    {
-        base._Ready();
+		VisualController = GetNodeOrNull<BossVisualController>("VisualController");
+		AttackManager = GetNodeOrNull<BossAttackManager>("BossAttackManager");
+		DashTimer = GetNodeOrNull<Timer>("Timers/DashTimer");
+		CooldownTimer = GetNodeOrNull<Timer>("Timers/CooldownTimer");
+		InvulnerabilityTimer = GetNodeOrNull<Timer>("Timers/InvulnerabilityTimer");
 
-        AttackManager = GetNodeOrNull<BossAttackManager>("BossAttackManager");
-        CooldownTimer = GetNodeOrNull<Timer>("Timers/CooldownTimer");
-        InvulnerabilityTimer = GetNodeOrNull<Timer>("Timers/InvulnerabilityTimer");
+		VisualController.AnimationFinished += OnAnimationFinished;
 
-        InvulnerabilityTimer.Timeout += InvulnerabilityEnd;
-        
-        _baseCollisionMask = CollisionMask;
-        _baseCollisionLayer = CollisionLayer;
+		InvulnerabilityTimer.Timeout += InvulnerabilityEnd;
+		DashTimer.Timeout += () => TransitionToState(BossState.Cooldown);
+		
+		_baseCollisionMask = CollisionMask;
+		_baseCollisionLayer = CollisionLayer;
 
-        CurrentHealth = MaxHealth;
+		CurrentHealth = MaxHealth;
 
-        EventBus.RaiseBossSpawnedEvent(this);
-    }
+		EventBus.RaiseBossSpawnedEvent(this);
+	}
 
-    public override void OnEnterState(BossState state)
-    {
-        switch (state)
-        {
-            case BossState.Idle:
-                VisualController.IsMoving = false;
+	public override void TransitionToState(BossState newState)
+	{
+		if (CurrentState == BossState.Dashing && DashTimer.TimeLeft > 0)
+			return;
+
+		if (CurrentState == BossState.Cooldown && CooldownTimer.TimeLeft > 0)
+			return;
+
+		base.TransitionToState(newState);
+	}
+
+	public override void OnEnterState(BossState state)
+	{
+		switch (state)
+		{
+			case BossState.Idle:
+				VisualController.IsMoving = false;
 				
-                break;
-            
-            case BossState.Dashing:
-                VisualController.IsMoving = true;
+				break;
+			
+			case BossState.Dashing:
+				DashTimer.Start();
+				VisualController.IsMoving = true;
 
-                _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
-                _hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
-                
-                // disable collision with player
-                CollisionLayer = _baseCollisionLayer & ~2u; // player on layer 2;
-                CollisionMask = _baseCollisionMask & ~2u; // other enemies detection on layer 2;
-                CollisionMask = _baseCollisionMask & ~4u; // player on layer 2, player attacks on layer 3
-                break;
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+				
+				// disable collision with player
+				CollisionLayer = _baseCollisionLayer & ~2u; // player on layer 2;
+				CollisionMask = _baseCollisionMask & ~2u; // other enemies detection on layer 2;
+				CollisionMask = _baseCollisionMask & ~4u; // player on layer 2, player attacks on layer 3
+				break;
 
-            case BossState.Walking:
-                VisualController.IsMoving = true;
-                break;
+			case BossState.Walking:
+				VisualController.IsMoving = true;
+				break;
 
-            case BossState.Cooldown:
-                CooldownTimer.Start();
-                break;
+			case BossState.Attacking:
+				AttackManager.Attack();
+				break;
 
-            case BossState.Hit:
-                break;
+			case BossState.Cooldown:
+				CooldownTimer.Start();
+				break;
 
-            case BossState.Dead:
-                _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
+			case BossState.Hit:
+				break;
+
+			case BossState.Dead:
+				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
-                SetPhysicsProcess(false);
-                break;
-        }
-    }
+				SetPhysicsProcess(false);
+				break;
+		}
+	}
 
-    public override void OnExitState(BossState state)
-    {
-        if(state == BossState.Dashing)
-        {
-            // re-enable collision with player
-            CollisionLayer = _baseCollisionLayer;
-            CollisionMask = _baseCollisionMask;
-        }
-    }
+	public override void OnExitState(BossState state)
+	{
+		if(state == BossState.Dashing)
+		{
+			// re-enable collision with player
+			CollisionLayer = _baseCollisionLayer;
+			CollisionMask = _baseCollisionMask;
+		}
+	}
 
-    public override void HandleStateTransitions() {}
+	public override void HandleStateTransitions() {}
 
-    public void UpdateAnimationIfNeeded()
-    {
-        throw new System.NotImplementedException();
-    }
+	public void UpdateAnimationIfNeeded()
+	{
+		VisualController.UpdateAnimationIfNeeded();
+	}
 
-    protected override void ApplyMovementByState(float delta)
-    {
-        switch (CurrentState)
-        {
-            case BossState.Idle:
-            case BossState.Attacking:
-                Velocity = Vector2.Zero;
-                MoveAndSlide();
-                break;
+	protected override void ApplyMovementByState(float delta)
+	{
+		switch (CurrentState)
+		{
+			case BossState.Idle:
+				Velocity = _knockbackVelocity;
+				MoveAndSlide();
+				break;
+				
+			case BossState.Attacking:
+				if (AttackManager.CurrentAttack == BossAttackType.Melee2)
+					break;
 
-            case BossState.Walking:
-            case BossState.Cooldown:
-            case BossState.Hit:
-                Velocity = _movementDirection * BaseSpeed  + _knockbackVelocity;
-                MoveAndSlide();
-                break;
+				Velocity = Vector2.Zero;
+				MoveAndSlide();
+				break;
 
-            case BossState.Dashing:
-                Velocity = _movementDirection * BaseSpeed * dashModifier + _knockbackVelocity;
-                MoveAndSlide();
-                break;
+			case BossState.Walking:
+			case BossState.Cooldown:
+			case BossState.Hit:
+				Velocity = _movementDirection * BaseSpeed  + _knockbackVelocity;
+				MoveAndSlide();
+				break;
 
-            case BossState.AttackPrepare:
-                Velocity = _knockbackVelocity;
-                MoveAndSlide();
-                break;
-        }
-    }
+			case BossState.Dashing:
+				Velocity = _movementDirection * BaseSpeed * dashModifier + _knockbackVelocity;
+				MoveAndSlide();
+				break;
 
-    protected override void UpdateAI(float delta)
-    {
-        throw new System.NotImplementedException();
-    }
+			case BossState.AttackPrepare:
+				Velocity = _knockbackVelocity;
+				MoveAndSlide();
+				break;
+		}
+	}
 
-    protected override void UpdateFacing()
-    {
-        if (!Mathf.IsEqualApprox(_movementDirection.X, 0) || !Mathf.IsEqualApprox(_movementDirection.Y, 0))
-        {
-            VisualController.FacingDirection = _movementDirection;
-        }
-    }
+	protected override void UpdateAI(float delta)
+	{
+		return;
+	}
 
-    protected override void UpdateTimers(float delta)
-    {
-        if(InvulnerabilityTimer.TimeLeft <= 0)
-        {
-            _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
+	public void ApplyAction(AiAction action)
+	{
+		ActionType type = (ActionType)action.ActionId;
+		Vector2 direction = new Vector2(action.X, action.Y);
+		BossAttackType attack = BossAttackType.Melee1;
+
+		switch (type)
+		{
+			case ActionType.Idle:
+				_movementDirection = Vector2.Zero;
+				TransitionToState(BossState.Idle);
+				return;
+
+			case ActionType.Dash:
+				_movementDirection = direction;
+				TransitionToState(BossState.Dashing);
+				return;
+
+			case ActionType.Walk:
+				_movementDirection = direction;
+				TransitionToState(BossState.Walking);
+				return;
+
+			case ActionType.Melee1:
+				attack = BossAttackType.Melee1;
+				break;
+			
+			case ActionType.Melee2:
+				attack = BossAttackType.Melee2;
+				break;
+
+			case ActionType.Magic1:
+				attack = BossAttackType.Magic1;
+				break;
+			
+			case ActionType.Magic2:
+				attack = BossAttackType.Magic2;
+				break;
+		}
+
+		// In case it's an attack
+
+		AttackManager.CurrentAttack = attack;
+
+		if (!AttackManager.CanStartAttack())
+		{
+			TransitionToState(BossState.Idle);
+			return;
+		}
+
+		VisualController.CurrentAttackType = attack;
+
+		_movementDirection = Vector2.Zero;
+		AttackDirection = direction;
+		
+		TransitionToState(BossState.AttackPrepare);
+		return;
+	}
+
+	protected override void UpdateFacing()
+	{
+		if (!Mathf.IsEqualApprox(_movementDirection.X, 0) || !Mathf.IsEqualApprox(_movementDirection.Y, 0))
+		{
+			VisualController.FacingDirection = _movementDirection;
+		}
+	}
+
+	protected override void UpdateTimers(float delta)
+	{
+		if(InvulnerabilityTimer.TimeLeft <= 0)
+		{
+			_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
 			_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
-        }
-    }
+		}
+	}
 
 
 
-    public void ApplyDamage(float damage, Node2D attacker, float knockbackStrength)
-    {
-        if (IsInvulnerable) return;
+	public void ApplyDamage(float damage, Node2D attacker, float knockbackStrength)
+	{
+		if (IsInvulnerable) return;
 
-        IsInvulnerable = true;
-        InvulnerabilityTimer.Start();
-        _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
+		IsInvulnerable = true;
+		InvulnerabilityTimer.Start();
+		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
-        CurrentHealth -= damage;
-        
-        if (CurrentHealth > 0)
-        {
-            TransitionToState(BossState.Hit);
-        }
+		var realDamage = damage * DamageModifier;
 
-        ApplyKnockback(attacker.GlobalPosition, knockbackStrength);
+		CurrentHealth -= realDamage;
+		EventBus.RaiseBossDamaged(realDamage);
+		
+		if (CurrentHealth > 0)
+		{
+			TransitionToState(BossState.Hit);
+		}
 
-        if (CurrentHealth <= 0)
-        {
-            CurrentHealth = 0;
-            Die();
-        }
-    }
+		if (attacker != null)
+		{
+			ApplyKnockback(attacker.GlobalPosition, knockbackStrength);
+		}
 
-    public void InvulnerabilityEnd()
-    {
-        _hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
+		if (CurrentHealth <= 0)
+		{
+			CurrentHealth = 0;
+			Die();
+		}
+	}
+
+	public void InvulnerabilityEnd()
+	{
+		_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, true);
 		_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, true);
-        IsInvulnerable = false;
-    }
+		IsInvulnerable = false;
+	}
 
-    public void Die()
-    {
-        if (CurrentState == BossState.Dead) return;
-        CurrentHealth = 0;
-        TransitionToState(BossState.Dead);
-    }
+	public void Die()
+	{
+		if (CurrentState == BossState.Dead) return;
+		CurrentHealth = 0;
+		TransitionToState(BossState.Dead);
+	}
 
-    public void Heal(float amount)
-    {
-        throw new System.NotImplementedException();
-    }
+	public void Heal(float amount)
+	{
+		throw new System.NotImplementedException();
+	}
 
 
-    public void OnAnimationFinished()
-    {
-        return;
-    }
+	public void OnAnimationFinished()
+	{
+		switch (CurrentState)
+		{
+			case BossState.AttackPrepare:
+				TransitionToState(BossState.Attacking);
+				break;
+			
+			case BossState.Attacking:
+				TransitionToState(BossState.Idle);
+				break;
+		}
+	}
 
-    public void PlayDeathEffect()
-    {
-        return;
-    }
+	public void PlayDeathEffect()
+	{
+		return;
+	}
 
-    public void PlayHitEffect(Vector2 hitPosition)
-    {
-        return;
-    }
+	public void PlayHitEffect(Vector2 hitPosition)
+	{
+		return;
+	}
 
-    public void ShowDamageNumber(float damage)
-    {
-        return;
-    }
+	public void ShowDamageNumber(float damage)
+	{
+		return;
+	}
 
-    protected void ApplyKnockback(Vector2 attackerPosition, float strength)
+	protected void ApplyKnockback(Vector2 attackerPosition, float strength)
 	{
 		// Kill existing tween if one is active (allows new knockback to override)
 		if (_knockbackTween != null && _knockbackTween.IsValid())
@@ -246,7 +354,7 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 		
 		// Calculate knockback direction and apply initial velocity
 		Vector2 knockbackDir = (GlobalPosition - attackerPosition).Normalized();
-		Vector2 knockbackForce = knockbackDir * strength*5;
+		Vector2 knockbackForce = knockbackDir * KnockbackModifier * strength*5;
 		_knockbackVelocity = knockbackForce;
 		
 		// Tween knockback velocity back to zero over 0.2 seconds

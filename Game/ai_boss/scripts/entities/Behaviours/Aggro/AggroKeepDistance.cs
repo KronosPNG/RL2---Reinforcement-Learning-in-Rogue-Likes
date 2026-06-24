@@ -21,6 +21,19 @@ public partial class AggroKeepDistance : AggroBehaviour
 	private float _currentStrafeInterval = 1.5f;
 	private float lastDistanceFromTarget = 0f;
 
+	public override void Initialize(IEntity entity)
+	{
+		if(entity is PlayerMimic player)
+		{
+			var weapon = player.EquippedWeapon;
+			var lightRange = weapon.LightAttackConfig.Range;
+			var heavyRange = weapon.HeavyAttackConfig.Range;
+			
+			PreferredDistance = (lightRange <= heavyRange) ? lightRange : heavyRange;
+			DistanceTolerance = (PreferredDistance / 100) * 15; // 15 % of pref distance
+		}
+	}
+
 	public override bool CanSeeTarget(IEntity entity)
 	{
 		return base.CanSeeTarget(entity);

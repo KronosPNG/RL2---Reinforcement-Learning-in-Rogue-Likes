@@ -1,11 +1,16 @@
 using Godot;
 
 [GlobalClass]
-public partial class DodgeDirectionAway : Resource, IDodgeDirectionStrategy
+public partial class DodgeDirectionAway : DodgeDirection, IDodgeDirectionStrategy
 {
-    public Vector2 GetDodgeDirection(IEntity entity, Node2D collider)
-    {
-        // Dodge directly away from collider
-        return (entity.GlobalPosition - collider.GlobalPosition).Normalized();
-    }
+	public override Vector2 GetDodgeDirection(IEntity entity, Node2D collider)
+	{
+		// Dodge directly away from collider
+		if(collider == null)
+		{
+			return (entity.Target.GlobalPosition - collider.GlobalPosition).Normalized();
+		}
+
+		return (entity.GlobalPosition - collider.GlobalPosition).Normalized();
+	}
 }

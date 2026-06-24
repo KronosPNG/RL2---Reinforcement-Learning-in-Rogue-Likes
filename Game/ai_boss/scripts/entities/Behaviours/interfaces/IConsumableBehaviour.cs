@@ -8,5 +8,5 @@ public interface IConsumableBehaviour
     Vector2 GetMovementDirection(PlayerMimic player);
 }
 
-public enum ConsumableUsageMode { Instant, Charged }
+public enum ConsumableUsageMode { Instant, Charged, None }
 public enum ConsumableAction { Use, Charge }

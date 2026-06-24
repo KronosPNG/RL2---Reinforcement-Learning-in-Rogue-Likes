@@ -9,9 +9,11 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	public Weapon EquippedWeapon;
 	public Armor EquippedArmor;
 	public Consumable EquippedConsumable;
-	public PackedScene EquippedWeaponScene; // Store the PackedScene for weapon swapping
-	public PackedScene EquippedArmorScene; // Store the PackedScene for armor swapping
-	public PackedScene EquippedConsumableScene; // Store the PackedScene for consumable swapping
+	
+	[ExportGroup("Equipment Scenes")]
+	[Export] public PackedScene EquippedWeaponScene; // Store the PackedScene for weapon swapping
+	[Export] public PackedScene EquippedArmorScene; // Store the PackedScene for armor swapping
+	[Export] public PackedScene EquippedConsumableScene; // Store the PackedScene for consumable swapping
 	protected Node2D _handNode;
 
 	// ---- Signals ----
@@ -19,12 +21,14 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	[Signal] public delegate void HealthChangedEventHandler(float currentHealth, byte maxHealth);
 
 	//---- Health Data ----
+	[ExportGroup("Health")]
 	[Export] public float MaxHealth { get; set; } = 20;
 	public float CurrentHealth { get; protected set; }
 	public bool IsAlive => CurrentHealth > 0;
 	public bool IsInvulnerable => InvulnerabilityTimer > 0 || CurrentState == EntityState.Dodging;
 	
 	//---- Movement Data ----
+	[ExportGroup("Movement")]
 	[Export] public float DodgeSpeed { get; set; } = 150f; // speed during dodge
 	[Export] public float ChargeMoveModifier { get; set; } = .5f; // speed modifier during charge
 	protected Vector2 _dodgeDirection = Vector2.Zero;
@@ -322,6 +326,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 			case EntityState.Hit:
 			case EntityState.ConsumableUse:
 			case EntityState.Attacking:
+			case EntityState.Aggro:
 			// allow movement while attacking
 			case EntityState.Walking:
 				// move using input vector, speed and modifier, plus any active knockback
@@ -436,6 +441,11 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	// Called when equipping a new weapon
 	protected void CallEquipWeaponDeferred(Weapon weapon)
 	{
+		if(weapon is null)
+		{
+			GD.PrintErr("FRA TI PREGO");
+		}
+
 		weapon.Equip(this);
 		EquippedWeapon = weapon;
 
@@ -715,9 +725,12 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		{
 			TransitionToState(EntityState.Hit);
 		}
-
-		ApplyKnockback(attacker.GlobalPosition, knockbackStrength);
-
+		
+		if (attacker != null)
+		{
+			ApplyKnockback(attacker.GlobalPosition, knockbackStrength);
+		}
+		
 		// Emit health changed signal and damage taken signal
 		EventBus.RaisePlayerHealthChanged(CurrentHealth);
 		EventBus.RaisePlayerDamaged(amount);

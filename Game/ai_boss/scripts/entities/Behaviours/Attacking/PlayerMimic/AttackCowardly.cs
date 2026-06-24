@@ -3,9 +3,10 @@ using Godot;
 [GlobalClass]
 public partial class AttackCowardly : PlayerAttackBehaviour
 {
-	public AttackCowardly(PlayerMimic player) : base(player)
+	public AttackCowardly() : base()
 	{
 		Priority = 0.3f;
+		TimeBetweenAttacks = 5f;
 	}
 
 	public override float EvaluateOpportunity(PlayerMimic player)
@@ -22,7 +23,11 @@ public partial class AttackCowardly : PlayerAttackBehaviour
 			return 0f;
 
 		// COWARDLY: Only attack when boss is clearly not a threat (cooldown window)
-		var bossState = player.Target.CurrentState;
+
+		var boss = player.Target as BossRL;
+
+		BossState bossState = boss.CurrentState;
+
 
 		// Boss is actively attacking or charging - NEVER attack
 		if (bossState == BossState.Attacking || 

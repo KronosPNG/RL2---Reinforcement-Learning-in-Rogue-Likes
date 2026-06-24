@@ -1,14 +1,20 @@
 [gd_scene format=3 uid="uid://bl4loqa83m485"]
 
+[ext_resource type="Script" uid="uid://dkauovf6osf2m" path="res://scripts/entities/Playable_character/PlayerMimic.cs" id="1_w6u6h"]
+[ext_resource type="Script" uid="uid://bdh62hvlonw8f" path="res://scripts/visual_effects/VisualControllers/PlayerVisualController.cs" id="2_frdv4"]
 [ext_resource type="Texture2D" uid="uid://c5t3vysnlgppp" path="res://art/animations/bean/bean_base.png" id="4_vv2k8"]
 [ext_resource type="Texture2D" uid="uid://bx0p8te3xcp2q" path="res://art/animations/bean/armor/no_armor.png" id="5_c37ji"]
 [ext_resource type="Texture2D" uid="uid://no3ubsc2rfbj" path="res://art/animations/bean/helmets/no_helmet-Sheet.png" id="6_5dqhk"]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_frdv4"]
+radius = 32.0
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6opuj"]
 size = Vector2(5, 11)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_4fkwu"]
-size = Vector2(4, 9)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_frdv4"]
+radius = 2.0
+height = 8.0
 
 [sub_resource type="Animation" id="Animation_mjp81"]
 length = 0.001
@@ -1579,9 +1585,22 @@ _data = {
 }
 
 [node name="PlayerMimic" type="CharacterBody2D" unique_id=894734572]
+z_index = 2
+script = ExtResource("1_w6u6h")
+BaseSpeed = 100.0
+TargetType = "Boss"
+
+[node name="ProjectileDetectionArea" type="Area2D" parent="." unique_id=334318845]
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ProjectileDetectionArea" unique_id=1639631709]
+shape = SubResource("CircleShape2D_frdv4")
+debug_color = Color(1, 1, 0, 0.42000002)
 
 [node name="HitArea" type="Area2D" parent="." unique_id=1285745841]
-visible = false
+z_index = 1
 collision_layer = 64
 collision_mask = 0
 
@@ -1591,11 +1610,11 @@ shape = SubResource("RectangleShape2D_6opuj")
 debug_color = Color(0.729564, 0.30582, 0.900709, 0.42)
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=342271296]
-visible = false
 position = Vector2(0, 2)
-shape = SubResource("RectangleShape2D_4fkwu")
+shape = SubResource("CapsuleShape2D_frdv4")
 
 [node name="VisualController" type="Node2D" parent="." unique_id=116056363]
+script = ExtResource("2_frdv4")
 
 [node name="Consumable" type="Node2D" parent="VisualController" unique_id=613032985]
 
@@ -1688,7 +1707,7 @@ hframes = 10
 vframes = 6
 frame = 1
 region_enabled = true
-region_rect = Rect2(0, 0, 160, 96)
+region_rect = Rect2(0, 128, 160, 96)
 metadata/_aseprite_wizard_interface_config_ = {
 "animation_section": false,
 "layer_section": true,
@@ -1729,3 +1748,14 @@ libraries/horizontal = SubResource("AnimationLibrary_elase")
 libraries/up = SubResource("AnimationLibrary_n2nki")
 
 [node name="Hand" type="Node2D" parent="VisualController" unique_id=1540920354]
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1029004100]
+debug_enabled = true
+
+[node name="Timers" type="Node2D" parent="." unique_id=1921789795]
+
+[node name="AttackTimer" type="Timer" parent="Timers" unique_id=771956709]
+one_shot = true
+
+[node name="DodgeTimer" type="Timer" parent="Timers" unique_id=1496159398]
+one_shot = true

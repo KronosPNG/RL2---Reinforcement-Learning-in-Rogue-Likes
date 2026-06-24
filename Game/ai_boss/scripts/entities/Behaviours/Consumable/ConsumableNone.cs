@@ -3,7 +3,7 @@ using Godot;
 [GlobalClass]
 public partial class ConsumableNone : ConsumableBehaviour
 {
-    public ConsumableNone(PlayerMimic player) : base(player)
+    public ConsumableNone() : base()
     {
         Priority = 0f;
     }

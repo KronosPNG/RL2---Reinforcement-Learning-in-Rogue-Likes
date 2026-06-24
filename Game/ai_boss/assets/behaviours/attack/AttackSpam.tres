@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="AttackSpam" format=3 uid="uid://d1kiv2himv75f"]
+
+[ext_resource type="Script" uid="uid://cla3wgxxon67y" path="res://scripts/entities/Behaviours/Attacking/PlayerMimic/AttackSpam.cs" id="1_w3cpa"]
+
+[resource]
+script = ExtResource("1_w3cpa")
+metadata/_custom_type_script = "uid://cla3wgxxon67y"

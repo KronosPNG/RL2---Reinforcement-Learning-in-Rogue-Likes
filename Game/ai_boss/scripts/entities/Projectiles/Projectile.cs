@@ -194,9 +194,9 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 	protected override void UpdateAI(float delta)
 	{
 		// Find and update target for aggro behavior
-		if (Behaviour != null &&(_target == null || !IsInstanceValid(_target)))
+		if (Behaviour != null &&(Target == null || !IsInstanceValid(Target)))
 			{
-			_target = FindTarget();
+			Target = FindTarget();
 		}
 	}
 

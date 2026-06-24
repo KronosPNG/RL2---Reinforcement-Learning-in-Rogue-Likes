@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cm5iymce7d884" path="res://scripts/visual_effects/VisualControllers/BossVisualController.cs" id="1_iypoq"]
 [ext_resource type="Texture2D" uid="uid://05shjb47opj5" path="res://art/animations/boss/boss-Sheet.png" id="1_lvxv8"]
+[ext_resource type="Script" uid="uid://t1ydhgwatwy8" path="res://scripts/entities/Enemies/BossRL.cs" id="1_sdtpy"]
 [ext_resource type="Script" uid="uid://dmtgk3bebd5qu" path="res://scripts/entities/Enemies/BossAttackManager.cs" id="2_f2vct"]
 [ext_resource type="Script" uid="uid://hjik14ol648t" path="res://scripts/visual_effects/effects/VisualBlinking.cs" id="2_sdtpy"]
 [ext_resource type="PackedScene" uid="uid://h20pgitnp43i" path="res://scenes/weapons/projectiles/explosion.tscn" id="3_3eye7"]
@@ -18,7 +19,8 @@ radius = 5.0
 height = 22.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_iypoq"]
-radius = 11.0
+radius = 13.0
+height = 28.0
 
 [sub_resource type="Resource" id="Resource_fkl6j"]
 script = ExtResource("2_sdtpy")
@@ -1148,23 +1150,28 @@ ProjectileScene = ExtResource("7_mdwjs")
 ProjectileSpeed = 200.0
 ProjectileCount = 3
 Damage = 1.0
+Cooldown = 0.1
 Active = 1.8
 Knockback = 8.0
 Range = 320.0
 metadata/_custom_type_script = "uid://5alhbkf2df8r"
 
 [node name="BossRL" type="CharacterBody2D" unique_id=1883322666 groups=["Boss", "Enemy"]]
-collision_layer = 6
+collision_layer = 2
 collision_mask = 7
+script = ExtResource("1_sdtpy")
+BaseSpeed = 24.0
+TargetType = "Player"
 
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1559321127]
 visible = false
 shape = SubResource("CapsuleShape2D_sdtpy")
 
 [node name="HitArea" type="Area2D" parent="." unique_id=1064389255]
+collision_layer = 32
+collision_mask = 16
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=1328894895]
-visible = false
 shape = SubResource("CapsuleShape2D_iypoq")
 debug_color = Color(0.9551211, 0.2146208, 1.92523e-07, 0.41960785)
 
@@ -1207,9 +1214,17 @@ one_shot = true
 [node name="MagicAttack1CooldownTimer" type="Timer" parent="AttackManager/Timers" unique_id=880183447]
 one_shot = true
 
-[node name="MagicAttack2CooldownTimer2" type="Timer" parent="AttackManager/Timers" unique_id=314045647]
+[node name="MagicAttack2CooldownTimer" type="Timer" parent="AttackManager/Timers" unique_id=314045647]
 wait_time = 0.5
 one_shot = true
+
+[node name="AttackArea" type="Area2D" parent="AttackManager" unique_id=1309750079]
+collision_layer = 2
+collision_mask = 64
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="AttackManager/AttackArea" unique_id=1561030319]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AttackManager" unique_id=368644962]
 
 [node name="Timers" type="Node2D" parent="." unique_id=323837017]
 
@@ -1219,4 +1234,8 @@ one_shot = true
 
 [node name="InvulnerabilityTimer" type="Timer" parent="Timers" unique_id=2039029774]
 wait_time = 0.1
+one_shot = true
+
+[node name="DashTimer" type="Timer" parent="Timers" unique_id=2123414151]
+wait_time = 2.0
 one_shot = true

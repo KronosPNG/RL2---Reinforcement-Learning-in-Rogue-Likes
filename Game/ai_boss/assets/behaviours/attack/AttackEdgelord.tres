@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="AttackEdgelord" format=3 uid="uid://cunhggwayrgys"]
+
+[ext_resource type="Script" uid="uid://bdacr6k72sv4j" path="res://scripts/entities/Behaviours/Attacking/PlayerMimic/AttackEdgelord.cs" id="1_yneth"]
+
+[resource]
+script = ExtResource("1_yneth")
+metadata/_custom_type_script = "uid://bdacr6k72sv4j"

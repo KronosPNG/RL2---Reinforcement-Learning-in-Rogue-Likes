@@ -7,9 +7,9 @@ computes rewards, and queues batches for centralized training.
 
 from __future__ import annotations
 
-from .state import SessionState
-from ..ai.agent import BossAI
-from .protocol import (
+from network.state import SessionState
+from ai.agent import BossAI
+from network.protocol import (
     STATIC_STATE,
     DYNAMIC_STATE,
     OUTCOME,

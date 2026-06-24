@@ -46,7 +46,12 @@ public partial class WanderHide : WanderBehaviour
  
     public override bool ShouldStopWandering(IEntity entity)
     {
-        return false;
+        if (entity.StateTimer > WanderMaxDuration)
+		{
+			return true;
+		}
+
+		return false;
     }
 
     private Vector2 GenerateFurthestHidingSpot(IEntity entity)

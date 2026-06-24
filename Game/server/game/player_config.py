@@ -25,7 +25,7 @@ class PlayerConfig:
     dodge_behavior: str   # DodgeNever, DodgePreemptive, DodgeRandom, DodgeReactive
     consumable_behavior: str  # ConsumableNone, ConsumableRandom, ConsumableScaredyCat, ConsumableTactical, ConsumableThreshold
     wander_behavior: str  # WanderHide, WanderImmovable, WanderRandomWalk
-    aggro_behavior: str  # AggroFollowTarget, AggroKeepDistance (NOT AggroFollowGaze)
+    aggro_behavior: str  # AggroFollowTarget, AggroKeepDistance, AggroKeepDistanceStrafe (NOT AggroFollowGaze)
     
     # Metadata
     seed: int = 0  # For reproducibility
@@ -72,7 +72,7 @@ class PlayerFactory:
     CONSUMABLE_BEHAVIORS = ["ConsumableNone", "ConsumableRandom", "ConsumableScaredyCat", 
                             "ConsumableTactical", "ConsumableThreshold"]
     WANDER_BEHAVIORS = ["WanderHide", "WanderImmovable", "WanderRandomWalk"]
-    AGGRO_BEHAVIORS = ["AggroFollowTarget", "AggroKeepDistance"]  # Exclude AggroFollowGaze
+    AGGRO_BEHAVIORS = ["AggroFollowTarget", "AggroKeepDistance", "AggroKeepDistanceStrafe", "AggroStandStill"]  # Exclude AggroFollowGaze
     
     def __init__(self, seed: int = 42):
         """

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DodgeNever" format=3 uid="uid://bslky2xt5rx7k"]
+
+[ext_resource type="Script" uid="uid://b42gaq0dyfbno" path="res://scripts/entities/Behaviours/Dodging/DodgeNever.cs" id="1_yxt15"]
+
+[resource]
+script = ExtResource("1_yxt15")
+metadata/_custom_type_script = "uid://b42gaq0dyfbno"

@@ -6,9 +6,15 @@ public partial class ConsumableTactical : ConsumableBehaviour
     private float minDistanceToEnemy = 200f; // Use consumable when enemy is within this distance
     private float maxHealthGain;
 
-    public ConsumableTactical(PlayerMimic player) : base(player)
+    public ConsumableTactical() : base()
     {
         Priority = 0.8f; // Moderate priority for tactical use
+        
+    }
+
+    public override void Initialize(PlayerMimic player)
+    {
+        base.Initialize(player);
         maxHealthGain = player.EquippedConsumable.EffectConfig.EffectValue;
     }
 
@@ -16,7 +22,7 @@ public partial class ConsumableTactical : ConsumableBehaviour
     {
         if (player.EquippedConsumable == null) return 0f;
 
-        var boss = player.Target;
+        var boss = player.Target as BossRL;
 
         if (player.CurrentHealth + maxHealthGain > player.MaxHealth * 0.8f)
             return .25f; // Low priority if consumable would overheal or provide minimal benefit

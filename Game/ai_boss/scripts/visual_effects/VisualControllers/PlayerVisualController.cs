@@ -69,6 +69,7 @@ public partial class PlayerVisualController : EntityVisualController<EntityState
 		{
 			EntityState.Dodging => "dodge",
 			EntityState.Walking => "walking",
+			EntityState.Aggro => "walking",
 			EntityState.Idle => "idle",
 			EntityState.Attacking => IsMoving ? "walking" : "idle",
 			EntityState.AttackCharging => IsMoving ? "charge_walking" : "charge_idle",

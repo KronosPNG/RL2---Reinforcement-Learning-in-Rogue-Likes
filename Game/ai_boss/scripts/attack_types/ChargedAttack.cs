@@ -187,4 +187,5 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
     // ---- Getters ----
     public float getCurrentChargeTime() => _currentChargeTime;
     public float getMaxChargeTime() => MaxChargeTime;
+    public bool IsFullyCharged() => _isFullyCharged;
 }

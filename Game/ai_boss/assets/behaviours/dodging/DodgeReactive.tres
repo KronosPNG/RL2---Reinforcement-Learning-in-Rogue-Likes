@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DodgeReactive" format=3 uid="uid://bt6ui45nwfjjb"]
+
+[ext_resource type="Script" uid="uid://lrf2fl5uefk" path="res://scripts/entities/Behaviours/Dodging/DodgeReactive.cs" id="1_sa7bg"]
+
+[resource]
+script = ExtResource("1_sa7bg")
+metadata/_custom_type_script = "uid://lrf2fl5uefk"

@@ -135,9 +135,9 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 	protected override void UpdateAI(float delta)
 	{
 		// Find target (usually player). If current target was freed, reacquire.
-		if (_target == null || !IsInstanceValid(_target))
+		if (Target == null || !IsInstanceValid(Target))
 		{
-			_target = FindTarget();
+			Target = FindTarget();
 		}
 	}
 		
@@ -242,7 +242,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		if (StateTimer >= _hitStunDuration)
 		{
 			// If we have a valid target (set when hit), transition to Aggro even if outside detection range
-			if (_target != null && IsInstanceValid(_target))
+			if (Target != null && IsInstanceValid(Target))
 				TransitionToState(EntityState.Aggro);
 			else if (AggroBehavior.CanSeeTarget(this))
 				TransitionToState(EntityState.Aggro);
@@ -422,7 +422,7 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		// Set the attacker as target when hit (aggro on hit regardless of detection range)
 		if (attacker != null && !isLethalDamage)
 		{
-			_target = attacker;
+			Target = attacker;
 			_lastKnownTargetPosition = attacker.GlobalPosition;
 		}
 

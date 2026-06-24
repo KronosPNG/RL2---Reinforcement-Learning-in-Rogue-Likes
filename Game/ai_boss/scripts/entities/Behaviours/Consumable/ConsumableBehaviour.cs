@@ -6,7 +6,9 @@ public abstract partial class ConsumableBehaviour : Resource, IConsumableBehavio
     public float Priority {get; protected set;}
     public ConsumableUsageMode usageMode;
 
-    public ConsumableBehaviour(PlayerMimic player)
+    public ConsumableBehaviour(){}
+
+    public virtual void Initialize(PlayerMimic player)
     {
         usageMode = GetUsageMode(player);
     }
@@ -18,6 +20,9 @@ public abstract partial class ConsumableBehaviour : Resource, IConsumableBehavio
 
     public virtual ConsumableUsageMode GetUsageMode(PlayerMimic player)
     {
+        if (player.EquippedConsumable == null)
+            return ConsumableUsageMode.None;
+
         if(player.EquippedConsumable.EffectConfig is IChargeableConsumable)
             return ConsumableUsageMode.Charged;
         else

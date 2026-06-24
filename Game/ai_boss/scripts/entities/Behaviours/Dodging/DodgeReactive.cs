@@ -4,14 +4,28 @@ using Godot;
 [GlobalClass]
 public partial class DodgeReactive : DodgeBehaviour
 {
-    public DodgeReactive(IDodgeDirectionStrategy dodgeDirection) : base(dodgeDirection)
-    {
+    Node2D closestProjectile;
+
+    public DodgeReactive() { 
         Priority = 0.8f;
+        TimeBetweenDodges = 1f;
+    }
+
+    public override Vector2 GetDodgeDirection(PlayerMimic player)
+    {
+        var boss = player.Target as BossRL;
+        var bossDistance = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
+        var projDistance = player.GlobalPosition.DistanceTo(closestProjectile.GlobalPosition);
+
+        var collider = projDistance < bossDistance ? closestProjectile : boss;
+
+        return DodgeDirection.GetDodgeDirection(player, collider);
     }
 
     public override float EvaluateOpportunity(PlayerMimic player)
     {
-        var bossState = player.Target.CurrentState;
+        var boss = player.Target as BossRL;
+        var bossState = boss.CurrentState;
         var bossDistance = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
 
         if (bossState == BossState.Attacking)
@@ -23,17 +37,19 @@ public partial class DodgeReactive : DodgeBehaviour
         if (player.DetectedProjectiles.Count > 0)
         {
             // If there are incoming projectiles, prioritize dodging based on proximity
-            float closestProjectileDistance = player.DetectedProjectiles
-                .Select(proj => player.GlobalPosition.DistanceTo(proj.GlobalPosition))
-                .DefaultIfEmpty(float.MaxValue)
-                .Min();
+            closestProjectile = player.DetectedProjectiles
+                .MinBy(proj => player.GlobalPosition.DistanceTo(proj.GlobalPosition));
 
-            if (closestProjectileDistance < 100f) // If a projectile is very close, high priority to dodge
+            float closestProjectileDistance = closestProjectile != null
+                ? player.GlobalPosition.DistanceTo(closestProjectile.GlobalPosition)
+                : float.MaxValue;
+
+            if (closestProjectileDistance < 16f) // If a projectile is very close, high priority to dodge
                 return 1f;
-            else if (closestProjectileDistance < 300f) // Projectile is approaching, moderate priority
-                return 0.5f;
+            else if (closestProjectileDistance < 32f) // Projectile is approaching, moderate priority
+                return 0.9f;
             else // Projectiles are detected but far away, low priority
-                return 0.25f;
+                return 0.75f;
         }
 
         return 0f; // No immediate threat detected, no need to dodge

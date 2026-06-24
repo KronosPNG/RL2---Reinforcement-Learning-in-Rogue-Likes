@@ -102,21 +102,20 @@ public partial class GlobalState : Node
 
 	public class StaticState
 	{
-		public EquipmentData Equipment;
-		public RoomBounds RoomData;
+		public EquipmentData Equipment = new EquipmentData();
+		public RoomBounds RoomData = new RoomBounds();
 	}
 
 	public class DynamicsState
 	{
-		public PlayerState Player;
-		public BossState Boss;
-		public ProjectileState Projectiles;
-
+		public PlayerState Player = new PlayerState();
+		public BossState Boss = new BossState();
+		public ProjectileState Projectiles = new ProjectileState();
 	}
-	
+
 	// ============= PUBLIC STATE INSTANCES =============
-	public StaticState statState;
-	public DynamicsState dynState;
+	public StaticState statState = new StaticState();
+	public DynamicsState dynState = new DynamicsState();
 	
 	public PlayableCharacter PlayerReference { get; set; } // Direct reference for AI to query additional data if needed
 	public BossRL BossReference { get; set; } // Direct reference for AI to query additional data if needed
@@ -380,13 +379,8 @@ public partial class GlobalState : Node
 	{
 		PlayerReference = null;
 		BossReference = null;
-
-		statState.Equipment = new EquipmentData();
-		statState.RoomData = new RoomBounds();
-
-		dynState.Player = new PlayerState();
-		dynState.Boss = new BossState();
-		dynState.Projectiles = new ProjectileState();
+		statState = new StaticState();
+		dynState = new DynamicsState();
 	}
 }
 

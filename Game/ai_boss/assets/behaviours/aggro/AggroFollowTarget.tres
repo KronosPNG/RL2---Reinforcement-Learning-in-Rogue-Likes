@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="AggroFollowTarget" format=3 uid="uid://duomdupbfcgns"]
+
+[ext_resource type="Script" uid="uid://cl5nwfa1ckc4i" path="res://scripts/entities/Behaviours/Aggro/AggroFollowTarget.cs" id="1_7t5k0"]
+
+[resource]
+script = ExtResource("1_7t5k0")
+metadata/_custom_type_script = "uid://cl5nwfa1ckc4i"

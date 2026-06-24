@@ -9,10 +9,14 @@ Supports two modes:
 import asyncio
 import websockets
 import sys
+import os
 import logging
 import json
 from typing import Optional
 import torch
+
+# Add current directory to path so relative imports work
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from network.connection import PacketHandler
 from training.training_manager import TrainingManager
@@ -276,54 +280,49 @@ async def main():
         
         print(f"Checkpoint directory: {training_manager.checkpoint_dir}")
         print(f"Checkpoint interval: every {training_manager.checkpoint_interval} training steps")
-        
-        # Initialize orchestrator if multi-instance mode
-        if num_instances > 1:
+        print("="*60)
+
+    # Start server first so Godot can connect immediately after being spawned
+    async with websockets.serve(connection_handler, "localhost", server_port):
+        print(f"[SERVER] Listening on ws://localhost:{server_port}")
+
+        if mode == "training":
+            # Spawn Godot instances now that the server is ready
             try:
+                server_dir = os.path.dirname(os.path.abspath(__file__))
+                godot_project_path = os.path.normpath(os.path.join(server_dir, "..", "ai_boss"))
                 orchestrator = TrainingOrchestrator(
                     num_instances=num_instances,
                     godot_executable=godot_exec,
+                    godot_project_path=godot_project_path,
                     headless=False
                 )
-                print(f"Multi-instance mode: {num_instances} instances")
+                print(f"Spawning {num_instances} instance(s)")
                 print(f"Godot executable: {orchestrator.godot_executable}")
-                
-                # Spawn instances
+
                 configs = orchestrator.create_instance_configs(base_seed=42)
                 success = await orchestrator.spawn_instances(configs)
-                
+
                 if not success:
                     print("[ERROR] Failed to spawn instances")
                     return
-                
-                # Start monitoring task
+
                 asyncio.create_task(orchestrator.monitor_instances())
-                
-                # Give instances time to connect
+
                 print("Waiting for instances to connect...")
                 await asyncio.sleep(5)
-                
+
                 connected = orchestrator.get_connected_instances()
                 print(f"Connected instances: {len(connected)}/{num_instances}")
             except Exception as e:
                 print(f"[ERROR] Failed to initialize orchestrator: {e}")
                 logger.exception(e)
                 return
-        else:
-            print("Single-instance mode")
-        
-        print("="*60)
-    
-    # Start server
-    async with websockets.serve(connection_handler, "localhost", server_port):
-        print(f"[SERVER] Listening on ws://localhost:{server_port}")
-        
-        if mode == "training":
+
             print(f"[SERVER] Training loop starting (checks every 2 seconds)\n")
             await training_loop()
         else:
             print(f"[SERVER] Inference mode active (no training)\n")
-            # In inference mode, just keep the server running forever
             await asyncio.Event().wait()
 
 

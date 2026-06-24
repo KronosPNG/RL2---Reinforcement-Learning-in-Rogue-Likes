@@ -5,12 +5,10 @@ using Godot;
 public abstract partial class DodgeBehaviour : Resource, IDodgeBehaviour
 {
     public float Priority {get; protected set;}
-    protected IDodgeDirectionStrategy DodgeDirection;
+    public float TimeBetweenDodges {get; protected set;}
+    public IDodgeDirectionStrategy DodgeDirection { get; set; } = new DodgeDirectionRandom();
 
-    public DodgeBehaviour(IDodgeDirectionStrategy dodgeDirection)
-    {
-        DodgeDirection = dodgeDirection;
-    }
+    public DodgeBehaviour(){}
 
     public virtual Vector2 GetDodgeDirection(PlayerMimic player)
     {

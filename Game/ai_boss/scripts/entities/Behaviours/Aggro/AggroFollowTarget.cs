@@ -3,6 +3,11 @@ using Godot;
 [GlobalClass]
 public partial class AggroFollowTarget : AggroBehaviour
 {
+    public override void Initialize(IEntity entity)
+    {
+        return;
+    }
+
     public override bool CanSeeTarget(IEntity entity)
     {
         return base.CanSeeTarget(entity);
@@ -19,20 +24,21 @@ public partial class AggroFollowTarget : AggroBehaviour
         {
             NavigationAgent2D navAgent = navigableEntity.NavAgent;
 
-            if (navAgent != null && !navAgent.IsNavigationFinished())
+            if (navAgent != null)
             {   
-                Vector2 nextPos = navAgent.GetNextPathPosition();
-                    
-                if (entity.GlobalPosition.DistanceSquaredTo(nextPos) > 1.0f)
+                if(!navAgent.IsNavigationFinished())
                 {
-                    // GD.Print($"AggroFollowTarget: Using pathfinding direction towards next path position {nextPos}");
-                    return entity.GlobalPosition.DirectionTo(nextPos);
+                    Vector2 nextPos = navAgent.GetNextPathPosition();
+                    
+                    if (entity.GlobalPosition.DistanceSquaredTo(nextPos) > 1.0f)
+                    {
+                        // GD.Print($"AggroFollowTarget: Using pathfinding direction towards next path position {nextPos}");
+                        return entity.GlobalPosition.DirectionTo(nextPos);
+                    }
+
                 }
 
-                else
-                {
-                    return Vector2.Zero; // Close enough to next path point, wait for next frame to update path
-                }
+                return Vector2.Zero; // Close enough to next path point, wait for next frame to update path
             } 
             
             else
