@@ -15,6 +15,7 @@ import torch.nn.functional as F
 from torch.optim import Adam
 
 from ai.policy import HybridPPOPolicy
+from utils.device import DEVICE
 
 
 @dataclass
@@ -88,7 +89,10 @@ class PPOTrainer:
 
         # Returns = advantages + values (not bootstrapped)
         returns = [adv + val for adv, val in zip(advantages, values[:-1])]
-        return torch.tensor(advantages, dtype=torch.float32), torch.tensor(returns, dtype=torch.float32)
+        return (
+            torch.tensor(advantages, dtype=torch.float32, device=DEVICE),
+            torch.tensor(returns, dtype=torch.float32, device=DEVICE),
+        )
 
     def update(self, batch):
         """

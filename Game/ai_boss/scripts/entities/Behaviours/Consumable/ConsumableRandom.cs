@@ -11,6 +11,8 @@ public partial class ConsumableRandom : ConsumableBehaviour
     public override float EvaluateOpportunity(PlayerMimic player)
     {
         if (player.EquippedConsumable == null) return 0f;
+        if (player.CurrentHealth >= player.MaxHealth) return 0f;
+        if (!player.EquippedConsumable.CanUse()) return 0f;
 
         // Randomly decide to use the consumable with a 50% chance each evaluation
         return GD.Randf() < 0.5f ? Priority : 0f;

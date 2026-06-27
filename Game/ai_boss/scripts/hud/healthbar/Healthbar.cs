@@ -28,6 +28,7 @@ public partial class Healthbar : HBoxContainer
         _damageEffect.InitializeVisuals(this);
         
         EventBus.OnPlayerHealthChanged += OnPlayerHealthChanged;
+        EventBus.OnPlayerSpawned += (player) => Reset();
     }
 
     public void OnPlayerHealthChanged(float playerHealth)
@@ -73,5 +74,14 @@ public partial class Healthbar : HBoxContainer
         }
 
         _damageEffect.PlayEffect(this);
+    }
+
+    private void Reset()
+    {
+        _currentHealth = _maxHealth;
+        for (int i = 0; i < _heartContainers.Length; i++)
+        {
+            _heartContainers[i].HealHeart(_heartContainers[i].MaxHealthPerHeart);
+        }
     }
 }

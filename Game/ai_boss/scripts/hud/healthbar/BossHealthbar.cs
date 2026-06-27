@@ -16,21 +16,19 @@ public partial class BossHealthbar : CanvasLayer
 
 		EventBus.OnBossSpawned += SetHealth;
 		EventBus.OnBossRoomEntered += () => Visible = true;
-		EventBus.OnBossDamaged += UpdateHealth;
-		EventBus.OnBossKilled += () =>
-		{
-			EventBus.OnBossDamaged -= UpdateHealth;
-		};
-
 	}
 
 	private void SetHealth(BossRL boss)
 	{
 		_maxHealth = boss.MaxHealth;
 		_currentHealth = boss.MaxHealth;
-		
+
 		_progressBar.MaxValue = boss.MaxHealth;
 		_progressBar.Value = boss.MaxHealth;
+
+		// Re-subscribe each episode so damage updates survive across boss respawns.
+		EventBus.OnBossDamaged -= UpdateHealth;
+		EventBus.OnBossDamaged += UpdateHealth;
 	}
 
 	private void UpdateHealth(float amount)

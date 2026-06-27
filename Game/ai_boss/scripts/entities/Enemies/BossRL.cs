@@ -16,7 +16,7 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 	[Export] public float MaxHealth {get; set; } = 2000f;
 	public bool IsAlive => CurrentHealth > 0 || CurrentState != BossState.Dead;
 	public bool IsInvulnerable { get; private set; }
-	[Export(PropertyHint.Range, "0,1,0.1")] public float DamageModifier { get; set; } = 0.5f;
+	[Export(PropertyHint.Range, "0,5,0.1")] public float DamageModifier { get; set; } = 4f;
 
 	// --- Movement properties ---
 	[ExportGroup("Movement")]
@@ -27,7 +27,9 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 	public Vector2 AttackDirection { get; private set; }
 	[Export(PropertyHint.Range, "0,1,0.1")] float KnockbackModifier { get; set; } = 0.1f;
 
-	// --- Knockback Smoothing ---
+	// --- Knockback ---
+	protected Area2D _knockbackArea;
+	[Export ]protected float _bodyKnockbackStrength = 32f;
 	protected Vector2 _knockbackVelocity = Vector2.Zero;
 	protected Tween _knockbackTween;
 
@@ -52,16 +54,20 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 	{
 		base._Ready();
 
+		_knockbackArea = GetNode<Area2D>("KnockbackArea");
 		VisualController = GetNodeOrNull<BossVisualController>("VisualController");
-		AttackManager = GetNodeOrNull<BossAttackManager>("BossAttackManager");
+		AttackManager = GetNodeOrNull<BossAttackManager>("AttackManager");
 		DashTimer = GetNodeOrNull<Timer>("Timers/DashTimer");
 		CooldownTimer = GetNodeOrNull<Timer>("Timers/CooldownTimer");
 		InvulnerabilityTimer = GetNodeOrNull<Timer>("Timers/InvulnerabilityTimer");
+
+		_knockbackArea.BodyEntered += PushEnemies;
 
 		VisualController.AnimationFinished += OnAnimationFinished;
 
 		InvulnerabilityTimer.Timeout += InvulnerabilityEnd;
 		DashTimer.Timeout += () => TransitionToState(BossState.Cooldown);
+		CooldownTimer.Timeout += ()  => TransitionToState(BossState.Idle);
 		
 		_baseCollisionMask = CollisionMask;
 		_baseCollisionLayer = CollisionLayer;
@@ -71,19 +77,40 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 		EventBus.RaiseBossSpawnedEvent(this);
 	}
 
+	public override void _Process(double delta)
+	{
+		UpdateFacing();
+
+		ApplyMovementByState((float)delta);
+
+		UpdateAnimationIfNeeded();
+
+		UpdateTimers((float)delta);
+	}
+
 	public override void TransitionToState(BossState newState)
 	{
+		if (newState == BossState.Dying || newState == BossState.Dead)
+		{
+			GD.Print($"[BOSS] Current state: {newState}");
+			base.TransitionToState(newState);
+			return;
+		}
+
 		if (CurrentState == BossState.Dashing && DashTimer.TimeLeft > 0)
 			return;
 
 		if (CurrentState == BossState.Cooldown && CooldownTimer.TimeLeft > 0)
 			return;
 
+		GD.Print($"[BOSS] Current state: {newState}");
 		base.TransitionToState(newState);
 	}
 
 	public override void OnEnterState(BossState state)
 	{
+		VisualController.PlayState(state);
+
 		switch (state)
 		{
 			case BossState.Idle:
@@ -97,11 +124,11 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitoring, false);
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
+				IsInvulnerable = true;
 				
 				// disable collision with player
 				CollisionLayer = _baseCollisionLayer & ~2u; // player on layer 2;
-				CollisionMask = _baseCollisionMask & ~2u; // other enemies detection on layer 2;
-				CollisionMask = _baseCollisionMask & ~4u; // player on layer 2, player attacks on layer 3
+				CollisionMask = _baseCollisionMask & ~2u & ~4u; // ignore player (layer 2) and player attacks (layer 3)
 				break;
 
 			case BossState.Walking:
@@ -113,6 +140,7 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 				break;
 
 			case BossState.Cooldown:
+				IsInvulnerable = false;
 				CooldownTimer.Start();
 				break;
 
@@ -124,6 +152,8 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 				_hitArea.SetDeferred(Area2D.PropertyName.Monitorable, false);
 
 				SetPhysicsProcess(false);
+				SetProcess(false);
+				EventBus.RaiseBossKilledEvent();
 				break;
 		}
 	}
@@ -155,10 +185,7 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 				break;
 				
 			case BossState.Attacking:
-				if (AttackManager.CurrentAttack == BossAttackType.Melee2)
-					break;
-
-				Velocity = Vector2.Zero;
+				Velocity = _knockbackVelocity;
 				MoveAndSlide();
 				break;
 
@@ -188,6 +215,15 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 
 	public void ApplyAction(AiAction action)
 	{
+		switch (CurrentState)
+		{
+			case BossState.Attacking:
+			case BossState.AttackPrepare:
+			case BossState.Cooldown:
+			case BossState.Dashing:
+				return;
+		}
+
 		ActionType type = (ActionType)action.ActionId;
 		Vector2 direction = new Vector2(action.X, action.Y);
 		BossAttackType attack = BossAttackType.Melee1;
@@ -237,9 +273,11 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 		}
 
 		VisualController.CurrentAttackType = attack;
+		VisualController.FacingDirection = direction;
 
 		_movementDirection = Vector2.Zero;
 		AttackDirection = direction;
+		UpdateFacing();
 		
 		TransitionToState(BossState.AttackPrepare);
 		return;
@@ -247,10 +285,12 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 
 	protected override void UpdateFacing()
 	{
-		if (!Mathf.IsEqualApprox(_movementDirection.X, 0) || !Mathf.IsEqualApprox(_movementDirection.Y, 0))
-		{
-			VisualController.FacingDirection = _movementDirection;
-		}
+		Vector2 facingSource = (CurrentState == BossState.AttackPrepare || CurrentState == BossState.Attacking)
+			? AttackDirection
+			: _movementDirection;
+
+		if (!Mathf.IsEqualApprox(facingSource.X, 0) || !Mathf.IsEqualApprox(facingSource.Y, 0))
+			VisualController.FacingDirection = facingSource;
 	}
 
 	protected override void UpdateTimers(float delta)
@@ -277,11 +317,13 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 
 		CurrentHealth -= realDamage;
 		EventBus.RaiseBossDamaged(realDamage);
+
+		GD.Print($"[BOSS DAMAGED] Health: {CurrentHealth}/{MaxHealth}");
 		
-		if (CurrentHealth > 0)
-		{
-			TransitionToState(BossState.Hit);
-		}
+		// if (CurrentHealth > 0)
+		// {
+		// 	TransitionToState(BossState.Hit);
+		// }
 
 		if (attacker != null)
 		{
@@ -361,5 +403,22 @@ public partial class BossRL : Entity<BossState>, IDamageable, IHasHealth, INavig
 		_knockbackTween = CreateTween();
 		_knockbackTween.SetTrans(Tween.TransitionType.Linear);
 		_knockbackTween.TweenProperty(this, "_knockbackVelocity", Vector2.Zero, 0.2f);
+	}
+
+	public override void ApplyImpulse(Vector2 direction, float speed, float duration)
+	{
+		if (_knockbackTween != null && _knockbackTween.IsValid())
+			_knockbackTween.Kill();
+		_knockbackVelocity = direction.Normalized() * speed;
+		_knockbackTween = CreateTween();
+		_knockbackTween.SetTrans(Tween.TransitionType.Linear);
+		_knockbackTween.TweenProperty(this, "_knockbackVelocity", Vector2.Zero, duration);
+	}
+
+	public void PushEnemies(Node Body)
+	{
+		var player = Body as PlayableCharacter;
+
+		player.ApplyKnockback(GlobalPosition, _bodyKnockbackStrength);
 	}
 }

@@ -5,8 +5,8 @@ public partial class DodgeDirectionRandom : DodgeDirection, IDodgeDirectionStrat
 {
     public override Vector2 GetDodgeDirection(IEntity entity, Node2D collider)
     {
-        // Dodge in a random direction (snap to 8 directions for more intentional dodges)
-        var direction = new Vector2(GD.Randf(), GD.Randf()).Normalized();
-        return new Vector2(Mathf.Round(direction.X * 4) / 4, Mathf.Round(direction.Y * 4) / 4).Normalized();
+        var direction = new Vector2(GD.Randf() * 2 - 1, GD.Randf() * 2 - 1);
+        var snappedAngle = Mathf.Round(direction.Angle() / (Mathf.Pi / 4)) * (Mathf.Pi / 4);
+        return Vector2.FromAngle(snappedAngle);
     }
 }

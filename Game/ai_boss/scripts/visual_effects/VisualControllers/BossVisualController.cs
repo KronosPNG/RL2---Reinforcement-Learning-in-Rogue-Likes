@@ -26,25 +26,24 @@ public partial class BossVisualController : EntityVisualController<BossState>
 
     public override string GetLibraryForFacing()
 	{
-		if (FacingDirection.X == 0)
+		Vector2 dir = FacingDirection;
+
+		// During attacks, snap to cardinal so diagonal RL output picks the correct animation library
+		if (_currentState == BossState.AttackPrepare || _currentState == BossState.Attacking)
 		{
-			if (FacingDirection.Y > 0)
-				return "down";
-			else if (FacingDirection.Y < 0)
-				return "up";
-			else
-				return "horizontal"; // no vertical facing, return base animation
+			dir = Mathf.Abs(dir.X) > Mathf.Abs(dir.Y)
+				? new Vector2(Mathf.Sign(dir.X), 0)
+				: new Vector2(0, Mathf.Sign(dir.Y));
 		}
 
-		else
+		if (dir.X == 0)
 		{
-			if (FacingDirection.Y > 0)
-				return "horizontal"; // horizontal facing takes precedence over vertical, so return base animation
-			else if (FacingDirection.Y < 0)
-				return "up";
-			else
-				return "horizontal";
-		}	
+			if (dir.Y > 0) return "down";
+			if (dir.Y < 0) return "up";
+			return "horizontal";
+		}
+
+		return dir.Y < 0 ? "up" : "horizontal";
 	}
 
     public override string GetAnimationNameForState(BossState state)
@@ -82,15 +81,15 @@ public partial class BossVisualController : EntityVisualController<BossState>
     {
         base.PlayState(state);
 
-        if (state == BossState.Hit)
-        {
-            _hitEffect.PlayEffect(_baseSprite);
-        }
-
         if (state == BossState.Dashing)
         {
             _dashEffect.PlayEffect(_baseSprite);
         }
+    }
+
+    public void PlayHitEffect()
+    {
+        _hitEffect.PlayEffect(_baseSprite);
     }
 
     

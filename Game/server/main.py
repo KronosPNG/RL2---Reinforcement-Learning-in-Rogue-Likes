@@ -32,6 +32,19 @@ orchestrator: Optional[TrainingOrchestrator] = None
 inference_policy: Optional[HybridPPOPolicy] = None  # For inference-only mode
 instance_id_to_websocket = {}  # Map instance_id to websocket for messaging
 server_mode = "training"  # "training" or "inference"
+max_episodes: int = 0  # 0 = unlimited
+
+
+async def do_shutdown(reason: str):
+    """Save the final policy and terminate all Godot instances."""
+    print(f"\n[SHUTDOWN] {reason}")
+    if training_manager:
+        final_path = os.path.join(training_manager.checkpoint_dir, "final_policy.pt")
+        torch.save(training_manager.policy.state_dict(), final_path)
+        print(f"[SHUTDOWN] Final policy saved → {final_path}")
+    if orchestrator:
+        await orchestrator.cleanup()
+        print("[SHUTDOWN] Godot instances terminated")
 
 
 async def connection_handler(websocket, path: str = ""):
@@ -69,7 +82,8 @@ async def connection_handler(websocket, path: str = ""):
         shared_policy=training_manager.get_policy() if training_manager else inference_policy,
         training_manager=training_manager,
         instance_id=instance_id,
-        orchestrator=orchestrator
+        orchestrator=orchestrator,
+        instance_websockets=instance_id_to_websocket,
     )
     
     # Mark instance as connected if using orchestrator
@@ -88,8 +102,13 @@ async def connection_handler(websocket, path: str = ""):
         if initial_payload and len(initial_payload) > 1:
             msg_type = initial_payload[0]
             payload = initial_payload[1:]
-            await handler.handle(websocket, msg_type, payload)
-        
+            try:
+                await handler.handle(websocket, msg_type, payload)
+            except Exception as exc:
+                import traceback
+                print(f"[ERROR] Handler exception on initial message: {exc}")
+                traceback.print_exc()
+
         # Handle remaining messages
         async for packet in websocket:
             if isinstance(packet, str):
@@ -98,7 +117,12 @@ async def connection_handler(websocket, path: str = ""):
 
             msg_type = packet[0]
             payload = packet[1:]
-            await handler.handle(websocket, msg_type, payload)
+            try:
+                await handler.handle(websocket, msg_type, payload)
+            except Exception as exc:
+                import traceback
+                print(f"[ERROR] Handler exception (msg_type={msg_type}): {exc}")
+                traceback.print_exc()
 
     except websockets.ConnectionClosed:
         if orchestrator:
@@ -113,55 +137,43 @@ async def connection_handler(websocket, path: str = ""):
 async def training_loop():
     """
     Trigger training when enough experience accumulates (not on fixed timer).
-    
+
     With real-time gameplay where episodes can be 2-10 minutes long,
     we train based on:
     - Episode count: when 4+ episodes are queued
     - OR transition count: when 512+ transitions accumulated
-    - OR timeout: if 30 seconds since last training (safety net)
-    
+
     This adapts to fight length instead of forcing training every 5 seconds.
     """
-    last_training_time = asyncio.get_event_loop().time()
-    
     while True:
         await asyncio.sleep(2.0)  # Check frequently but don't spam
-        
-        current_time = asyncio.get_event_loop().time()
-        time_since_last_training = current_time - last_training_time
-        
+
         # Calculate total transitions in queue
         total_transitions = sum(
             batch["obs"].shape[0] for batch in training_manager.batch_queue
             if "obs" in batch
         ) if hasattr(training_manager.batch_queue, '__iter__') else 0
-        
+
         # Train if:
         # - 4+ episodes queued (good batch for PPO)
         # - OR 512+ transitions accumulated (enough for 4 epochs of training)
-        # - OR 30 seconds elapsed since last training (prevents long waits)
         should_train = (
             len(training_manager.batch_queue) >= 4
             or total_transitions >= 512
-            or time_since_last_training >= 30.0
         )
-        
+
         if should_train and training_manager.batch_queue:
             batches_trained = await training_manager.training_step(force=False)
             
             if batches_trained > 0:
-                last_training_time = current_time
                 stats = training_manager.get_stats()
-                
+
                 # Log training info with trigger reason
-                trigger_reason = ""
                 if len(training_manager.batch_queue) >= 4:
                     trigger_reason = f"episode_count={len(training_manager.batch_queue)}"
-                elif total_transitions >= 512:
-                    trigger_reason = f"transition_count={total_transitions}"
                 else:
-                    trigger_reason = f"timeout={time_since_last_training:.1f}s"
-                
+                    trigger_reason = f"transition_count={total_transitions}"
+
                 # Log basic stats
                 print(f"\n{'='*60}")
                 print(f"Training Step #{stats['training_steps_completed']} [trigger: {trigger_reason}]")
@@ -202,6 +214,17 @@ async def training_loop():
                 
                 print(f"{'='*60}\n")
 
+                # --- Stopping conditions ---
+                stop_reason = None
+                if max_episodes > 0 and training_manager.episodes_processed >= max_episodes:
+                    stop_reason = f"reached max episodes ({max_episodes})"
+                elif training_manager.check_plateau():
+                    stop_reason = "performance plateau detected (loss not improving)"
+
+                if stop_reason:
+                    print(f"[TRAINING] Stopping: {stop_reason}")
+                    return  # main() finally block handles save + cleanup
+
 
 
 async def main():
@@ -227,11 +250,15 @@ async def main():
     
     # Parse command-line arguments
     mode = "training"
+    global max_episodes
+
     num_instances = 1
     godot_exec = ""
     server_port = 7000
     policy_path = ""
-    
+    debug_collisions = False
+    debug_navigation = False
+
     for arg in sys.argv[1:]:
         if arg.startswith("--mode="):
             mode = arg.split("=")[1]
@@ -243,6 +270,12 @@ async def main():
             server_port = int(arg.split("=")[1])
         elif arg.startswith("--policy-path="):
             policy_path = arg.split("=", 1)[1]
+        elif arg.startswith("--max-episodes="):
+            max_episodes = int(arg.split("=")[1])
+        elif arg == "--debug-collisions":
+            debug_collisions = True
+        elif arg == "--debug-navigation":
+            debug_navigation = True
     
     server_mode = mode
     
@@ -272,8 +305,8 @@ async def main():
     else:
         # Initialize the centralized training manager
         training_manager = TrainingManager(
-            obs_dim=62, 
-            num_actions=9,
+            obs_dim=56,
+            num_actions=7,
             checkpoint_dir="checkpoints",
             checkpoint_interval=10
         )
@@ -295,7 +328,9 @@ async def main():
                     num_instances=num_instances,
                     godot_executable=godot_exec,
                     godot_project_path=godot_project_path,
-                    headless=False
+                    headless=False,
+                    debug_collisions=debug_collisions,
+                    debug_navigation=debug_navigation,
                 )
                 print(f"Spawning {num_instances} instance(s)")
                 print(f"Godot executable: {orchestrator.godot_executable}")
@@ -319,14 +354,28 @@ async def main():
                 logger.exception(e)
                 return
 
+            if max_episodes > 0:
+                print(f"Max episodes: {max_episodes}")
+            else:
+                print("Max episodes: unlimited (stops on plateau or Ctrl+C)")
             print(f"[SERVER] Training loop starting (checks every 2 seconds)\n")
-            await training_loop()
+
+            try:
+                await training_loop()
+            except (KeyboardInterrupt, asyncio.CancelledError):
+                pass
+            finally:
+                await do_shutdown("Training ended")
         else:
             print(f"[SERVER] Inference mode active (no training)\n")
-            await asyncio.Event().wait()
-
-
+            try:
+                await asyncio.Event().wait()
+            except (KeyboardInterrupt, asyncio.CancelledError):
+                pass
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass  # Clean exit, shutdown already handled inside main()

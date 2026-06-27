@@ -30,7 +30,6 @@ tracks/0/keys = {
 [sub_resource type="Animation" id="Animation_gdm88"]
 resource_name = "default"
 length = 0.4
-loop_mode = 1
 step = 0.1
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -95,7 +94,7 @@ collision_mask = 64
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=477509972]
 visible = false
-z_index = 1
+z_index = 2
 shape = SubResource("CircleShape2D_fiu4u")
 debug_color = Color(0.682353, 0, 0.0745098, 0.419608)
 

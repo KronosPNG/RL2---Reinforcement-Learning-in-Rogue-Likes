@@ -26,6 +26,7 @@ public partial class BossAttackManager : WeaponBase
 	public override void _Ready()
 	{
 		OwnerCharacter = GetParent<BossRL>();
+		base.OwnerCharacter = OwnerCharacter;
 
 		// Override base class node initialization to match Entity weapon structure
 		// In entity weapons, the HitArea is called "AttackArea" and uses CollisionPolygon2D
@@ -117,16 +118,21 @@ public partial class BossAttackManager : WeaponBase
 		State = WeaponState.Active;
 		_playerAlreadyHit = false;
 
+		// Attack Execute() methods expect a world-space position as target.
+		// Melee direction is already snapped to cardinal; project it to a world position.
+		// Magic attacks pass the direction directly (works when boss is near origin).
+		Vector2 meleeTarget = OwnerCharacter.GlobalPosition + GetAimDirection() * 1000f;
+
 		switch (CurrentAttack)
 		{
 			case BossRL.BossAttackType.Melee1:
-				MeleeAttack1.Execute(this, GetAimDirection(), FacingLeft);
+				MeleeAttack1.Execute(this, meleeTarget, FacingLeft);
 				break;
 
 			case BossRL.BossAttackType.Melee2:
-				MeleeAttack2.Execute(this, GetAimDirection(), FacingLeft);
+				MeleeAttack2.Execute(this, meleeTarget, FacingLeft);
 				break;
-			
+
 			case BossRL.BossAttackType.Magic1:
 				MagicAttack1.Execute(this, GetAimDirection(), FacingLeft);
 				break;
@@ -185,7 +191,7 @@ public partial class BossAttackManager : WeaponBase
 		{
 			case BossRL.BossAttackType.Melee1:
 			case BossRL.BossAttackType.Melee2:
-				// Melee attacks snap to cardinal directions
+				// Snap to cardinal directions
 				if (Mathf.Abs(direction.X) > Mathf.Abs(direction.Y))
 					return new Vector2(Mathf.Sign(direction.X), 0);
 				else
@@ -195,7 +201,7 @@ public partial class BossAttackManager : WeaponBase
 			case BossRL.BossAttackType.Magic2:
 				return direction;
 			default:
-				return Vector2.Right; // Default direction
+				return Vector2.Right;
 		}
 	}
 

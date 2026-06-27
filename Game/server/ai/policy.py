@@ -11,6 +11,8 @@ import torch
 import torch.nn as nn
 from torch.distributions import Normal, Categorical
 
+from utils.device import DEVICE
+
 
 class HybridPPOPolicy(nn.Module):
     """
@@ -42,10 +44,12 @@ class HybridPPOPolicy(nn.Module):
         # learned global std for movement
         self.log_std = nn.Parameter(torch.zeros(2))
 
+        self.to(DEVICE)
+
     def forward(self, obs: torch.Tensor):
         """Compute policy outputs (deterministic)."""
         h = self.trunk(obs)
-        move_mean = torch.tanh(self.move_mean(h))     # X, Y in [-1, 1]
+        move_mean = self.move_mean(h)
         action_logits = self.action_logits(h)
         value = self.value_head(h).squeeze(-1)
         return move_mean, action_logits, value
@@ -58,10 +62,12 @@ class HybridPPOPolicy(nn.Module):
         move_dist = Normal(move_mean, move_std)
         action_dist = Categorical(logits=action_logits)
 
-        movement = move_dist.sample()
+        raw_movement = move_dist.sample()
+        movement = torch.tanh(raw_movement)
         action_id = action_dist.sample()
 
-        log_prob = move_dist.log_prob(movement).sum(-1) + action_dist.log_prob(action_id)
+        # Correct log_prob for tanh squashing: log|d(tanh)/dx| = log(1 - tanh²)
+        log_prob = (move_dist.log_prob(raw_movement) - torch.log(1 - movement.pow(2) + 1e-6)).sum(-1) + action_dist.log_prob(action_id)
 
         return {
             "movement": movement,
@@ -78,7 +84,8 @@ class HybridPPOPolicy(nn.Module):
         move_dist = Normal(move_mean, move_std)
         action_dist = Categorical(logits=action_logits)
 
-        log_prob = move_dist.log_prob(movement).sum(-1) + action_dist.log_prob(action_id)
+        raw_movement = torch.atanh(movement.clamp(-1 + 1e-6, 1 - 1e-6))
+        log_prob = (move_dist.log_prob(raw_movement) - torch.log(1 - movement.pow(2) + 1e-6)).sum(-1) + action_dist.log_prob(action_id)
         entropy = move_dist.entropy().sum(-1) + action_dist.entropy()
 
         return log_prob, entropy, value

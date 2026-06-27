@@ -13,8 +13,8 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 	[Export] public WanderBehaviour wanderBehaviour;
 	[Export] public AggroBehaviour aggroBehaviour;
 	
-	// --- Utility --- 
-	private List<(float priority, int originalIndex, Action action)> BehaviourPriorityList;
+	// --- Utility ---
+	private List<(float priority, int originalIndex, Action action)> BehaviourPriorityList = new();
 	public List<Projectile> DetectedProjectiles = new List<Projectile>();
 	
 	// --- Node References ---
@@ -24,6 +24,12 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 	// --- Timers ---
 	private Timer _attackTimer;
 	private Timer _dodgeTimer;
+
+	// --- EventBus handlers (stored for clean unsubscription on exit) ---
+	private Action<BossRL> _onBossSpawned;
+	private Action<Weapon> _onWeaponEquipped;
+	private Action<Consumable> _onConsumableEquipped;
+	private Action<string> _onWeaponAttackStarted;
 
 	// --- Constants ---
 	private const float MIN_PRIORITY_THRESHOLD = 0.25f; // Minimum priority to consider executing a behaviour
@@ -38,53 +44,62 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 		_attackTimer = GetNode<Timer>("Timers/AttackTimer");
 		_dodgeTimer = GetNode<Timer>("Timers/DodgeTimer");
 
-		EventBus.OnBossSpawned += (boss) => Target = boss;
+		_onBossSpawned = (boss) => Target = boss;
+		EventBus.OnBossSpawned += _onBossSpawned;
 
 		EquipWeapon(EquippedWeaponScene);
 		EquipArmor(EquippedArmorScene);
 		EquipConsumable(EquippedConsumableScene);
 
-		EventBus.OnConsumableEquipped += (consumable) => consumableBehaviour.Initialize(this);
-		EventBus.OnWeaponEquipped += (weapon) => attackBehaviour.Initialize(this);
-		EventBus.OnWeaponEquipped += (weapon) => aggroBehaviour.Initialize(this);
+		_onConsumableEquipped = (consumable) => consumableBehaviour.Initialize(this);
+		EventBus.OnConsumableEquipped += _onConsumableEquipped;
 
-		ProjectileDetectionArea.AreaEntered += OnProjectileAreaEntered; 
+		_onWeaponEquipped = (weapon) =>
+		{
+			attackBehaviour.Initialize(this);
+			aggroBehaviour.Initialize(this);
+
+			if (attackBehaviour.TimeBetweenAttacks > 0)
+				_attackTimer.WaitTime = attackBehaviour.TimeBetweenAttacks;
+		};
+		EventBus.OnWeaponEquipped += _onWeaponEquipped;
+
+		if (attackBehaviour.TimeBetweenAttacks > 0)
+		{
+			_onWeaponAttackStarted = (s) => _attackTimer.Start();
+			EventBus.OnWeaponAttackStarted += _onWeaponAttackStarted;
+		}
+
+		ProjectileDetectionArea.AreaEntered += OnProjectileAreaEntered;
 		ProjectileDetectionArea.AreaExited += OnProjectileAreaExited;
 		ProjectileDetectionArea.BodyEntered += OnProjectileEntered;
 		ProjectileDetectionArea.BodyExited += OnProjectileExited;
-
-		// Attack Cooldown
-		if(attackBehaviour.TimeBetweenAttacks > 0)
-		{
-			_attackTimer.WaitTime = attackBehaviour.TimeBetweenAttacks;
-			EventBus.OnWeaponAttackStarted += (s) =>
-			{
-				_attackTimer.Start();
-			};
-		}
-
-		// Dodge Cooldown
+		
 		if(dodgeBehaviour.TimeBetweenDodges > 0)
-		{
 			_dodgeTimer.WaitTime = dodgeBehaviour.TimeBetweenDodges;
-			EventBus.OnPlayerDodged += (v) =>
-			{
-				_dodgeTimer.Start();
-			};
-		}
 
 		StateTimer = 0f;
 	}
 
+	public void DisconnectFromEventBus()
+	{
+		EventBus.OnBossSpawned -= _onBossSpawned;
+		EventBus.OnWeaponEquipped -= _onWeaponEquipped;
+		EventBus.OnConsumableEquipped -= _onConsumableEquipped;
+		if (_onWeaponAttackStarted != null)
+			EventBus.OnWeaponAttackStarted -= _onWeaponAttackStarted;
+	}
+
+	public override void _ExitTree() => DisconnectFromEventBus();
+
 	public override void _PhysicsProcess(double delta)
 	{
-		base._PhysicsProcess(delta);
-
+		// Compute direction and AI priorities BEFORE base processes state transitions and movement
 		_movementDirection = GetDesiredMovementDirection();
 		EventBus.RaisePlayerDirectionChanged(_movementDirection);
-
 		UpdateAI((float)delta);
 
+		base._PhysicsProcess(delta);
 	}
 
 	protected override void UpdateAI(float delta)
@@ -159,6 +174,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 		{
 			case EntityState.Dodging:
 				// move using dodge vector & speed, plus any active knockback
+				Velocity = Vector2.Zero;
 				Velocity = _dodgeDirection * DodgeSpeed * armorSpeedModifier + _knockbackVelocity;
 				MoveAndSlide();
 				break;
@@ -206,6 +222,11 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 		}
 	}
 
+	public override void TransitionToState(EntityState newState)
+	{
+		GD.Print($"[PLAYER_MIMIC] Transitioning to state {newState}");
+		base.TransitionToState(newState);
+	}
 
 	public override void HandleStateTransitions()
 	{
@@ -239,14 +260,21 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 				HandleCombatControl();
 				break;
 
+			case EntityState.Attacking:
+				if (StateTimer > 2f)
+					TransitionToState(EntityState.Walking);
+				break;
+
+			case EntityState.ConsumableUse:
+				if (EquippedConsumable == null || EquippedConsumable.State != ConsumableState.Windup)
+					HandleAggroControl();
+				break;
+
 			case EntityState.Hit:
 				if (StateTimer >= HitStunDuration)
 				{
 					StateTimer = 0f;
-					if(!ExecuteValidBehaviour())
-					{
-						HandleAggroControl();
-					}
+					HandleAggroControl();
 				}
 				break;
 		}
@@ -263,15 +291,17 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 		}
 
 		var actualAim = decision.AimDirection;
-
+		
 		if (decision.Type == AttackType.Light)
 		{
+			GD.Print($"[PLAYER_MIMIC] Attacking: {AttackType.Light} attack");
 			TransitionToState(EntityState.Attacking);
 			EquippedWeapon.AttackLight(actualAim);
 		}
 
 		else if (decision.Type == AttackType.Heavy)
 		{
+			GD.Print($"[PLAYER_MIMIC] Attacking: {AttackType.Heavy} attack");
 			TransitionToState(EntityState.Attacking);
 			EquippedWeapon.AttackHeavy(actualAim);
 		}
@@ -293,7 +323,6 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 				CancelChargingConsumable();
 				return;
 		}
-
 		var decision = attackBehaviour.GetAttackDecision(this);
 		ExecuteAttackDecision(decision);
 	}
@@ -304,6 +333,13 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 
 		if (CurrentState == EntityState.AttackCharging)
 		{
+			if (!EquippedWeapon.IsCharging)
+			{
+				_isChargingAttack = false;
+				HandleAggroControl();
+				return;
+			}
+
 			EquippedWeapon.UpdateCharge((float)GetProcessDeltaTime());
 
 			// Only fire when the behaviour explicitly says so (Light/Heavy = release, ChargedLight/ChargedHeavy = keep charging)
@@ -311,6 +347,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 
 			if (shouldFire && EquippedWeapon.CanReleaseCharge())
 			{
+				GD.Print($"[PLAYER_MIMIC] Executing charged attack");
 				bool wasHeavy = EquippedWeapon.IsCurrentAttackHeavy;
 				Vector2 aim = attackBehaviour.GetAimDirection(this);
 
@@ -325,8 +362,10 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 
 		else
 		{
+			GD.Print($"[PLAYER_MIMIC] Start Charging Attack");
 			TransitionToState(EntityState.AttackCharging);
 			EquippedWeapon.StartCharge(decision.AimDirection, isHeavy);
+			_isChargingAttack = true;
 		}
 	}
 
@@ -350,6 +389,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 				break;
 		}
 
+		GD.Print($"[PLAYER_MIMIC] Dodging");
 		TransitionToState(EntityState.DodgePrep);
 
 		_dodgeDirection = dodgeBehaviour.GetDodgeDirection(this);
@@ -363,6 +403,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 		}
 
 		EventBus.RaisePlayerDodged(_dodgeDirection);
+		_dodgeTimer.Start();
 		TransitionToState(EntityState.Dodging);
 	}
 
@@ -383,12 +424,13 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 				break;
 		}
 
-		
+		GD.Print($"[PLAYER_MIMIC] Consumable Action");
 		var consumableAction = consumableBehaviour.GetConsumableAction(this);
 
 		if (consumableAction == ConsumableAction.Use)
 		{
 			UseConsumable();
+			GD.Print($"[PLAYER_MIMIC] Using Consumable");
 		}
 
 		else if (consumableAction == ConsumableAction.Charge)
@@ -397,6 +439,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 			{
 				if (EquippedConsumable.CanReleaseCharge())
 				{
+					GD.Print($"[PLAYER_MIMIC] Continue Charging Consumable");
 					TransitionToState(EntityState.ConsumableUse);
 					EquippedConsumable.ExecuteCharged();
 					EventBus.RaiseConsumableUsed();
@@ -404,6 +447,7 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 			}
 
 			else {
+				GD.Print($"[PLAYER_MIMIC] Start Charging Consumable");
 				StartChargingConsumable();
 			}
 		}
@@ -411,13 +455,14 @@ public partial class PlayerMimic : PlayableCharacter, IDamageable, IHasHealth, I
 
 	private void HandleAggroControl()
 	{
+		GD.Print($"[PLAYER_MIMIC] Switching to Aggro");
 		TransitionToState(EntityState.Aggro);
 		aggroBehaviour.PerformAggroBehaviour(this);
 	}
 
 	private void HandleWanderControl()
 	{
-		
+		GD.Print($"[PLAYER_MIMIC] Switching to Wandering");
 	}
 
 

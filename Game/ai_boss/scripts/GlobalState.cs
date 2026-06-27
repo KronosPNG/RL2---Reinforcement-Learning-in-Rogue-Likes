@@ -328,6 +328,11 @@ public partial class GlobalState : Node
 
 	public void UpdateBossState(BossRL bossRef){
 		if (bossRef == null) return;
+		if (bossRef.AttackManager == null)
+		{
+			GD.PrintErr("[GlobalState] BossRL.AttackManager is null — BossAttackManager node missing from boss scene");
+			return;
+		}
 
 		dynState.Boss.Position = bossRef.Position;
 		dynState.Boss.Health = bossRef.CurrentHealth;

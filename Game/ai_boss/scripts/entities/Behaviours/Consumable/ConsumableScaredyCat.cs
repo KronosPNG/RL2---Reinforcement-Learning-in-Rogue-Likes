@@ -11,6 +11,8 @@ public partial class ConsumableScaredyCat : ConsumableBehaviour
     public override float EvaluateOpportunity(PlayerMimic player)
     {
         if (player.EquippedConsumable == null) return 0f;
+        if (player.CurrentHealth >= player.MaxHealth) return 0f;
+        if (!player.EquippedConsumable.CanUse()) return 0f;
 
         if (player.CurrentState == EntityState.ConsumableCharging)
             return 0.9f;

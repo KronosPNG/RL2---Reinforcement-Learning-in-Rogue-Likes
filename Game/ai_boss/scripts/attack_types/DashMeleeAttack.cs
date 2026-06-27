@@ -15,11 +15,7 @@ public partial class DashMeleeAttack : CrescentMeleeAttack
         Vector2 dashDirection = (target - weapon.GlobalPosition).Normalized();
         
         // Move Owner forward by the dash distance
-        var character = weapon.OwnerCharacter as CharacterBody2D;
-
-        var tween = weapon.GetTree().CreateTween();
-        tween.SetEase(Tween.EaseType.In);
-        tween.SetTrans(Tween.TransitionType.Linear);
-        tween.TweenProperty(character, "velocity", dashDirection * (DashDistance / DashDuration), DashDuration);
+        var character = weapon.OwnerCharacter as IEntity;
+        character.ApplyImpulse(dashDirection, DashDistance / DashDuration, DashDuration);
     }
 }

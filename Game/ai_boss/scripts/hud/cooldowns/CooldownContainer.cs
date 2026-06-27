@@ -22,7 +22,7 @@ public partial class CooldownContainer : HBoxContainer
 
 	private void OnWeaponAttackStarted(string attackName)
 	{
-		GD.Print($"[CooldownContainer] Received attack started event for '{attackName}' attack.");
+		// GD.Print($"[CooldownContainer] Received attack started event for '{attackName}' attack.");
 
 		if (attackName == "light")
 		{
@@ -36,7 +36,7 @@ public partial class CooldownContainer : HBoxContainer
 
 	private void OnWeaponEquipped(Weapon weapon)
 	{
-		GD.Print($"[CooldownContainer] Weapon equipped with light attack cooldown: {weapon.LightAttackConfig.Cooldown}s, heavy attack cooldown: {weapon.HeavyAttackConfig.Cooldown}s");
+		// GD.Print($"[CooldownContainer] Weapon equipped with light attack cooldown: {weapon.LightAttackConfig.Cooldown}s, heavy attack cooldown: {weapon.HeavyAttackConfig.Cooldown}s");
 		_lightAttackIndicator.SetCooldownDuration(weapon.LightAttackConfig.Cooldown);
 		_heavyAttackIndicator.SetCooldownDuration(weapon.HeavyAttackConfig.Cooldown);
 	}

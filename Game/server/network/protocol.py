@@ -11,7 +11,7 @@ ACTION = 10
 
 # Fixed sizes from your C# code
 STATIC_STATE_SIZE = 73
-DYNAMIC_STATE_SIZE = 142
+DYNAMIC_STATE_SIZE = 146
 ACTION_SIZE = 12  # 4 + 4 + 4
 
 

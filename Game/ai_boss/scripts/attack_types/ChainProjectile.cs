@@ -11,11 +11,10 @@ public partial class ChainProjectile : ProjectileAttack
     private Vector2 _lastProjectilePosition;
 
     public override void SpawnProjectile(WeaponBase weapon, Vector2 spawnPosition, Vector2 baseDirection, int projectileIndex)
-    {
-        base.SpawnProjectile(weapon, spawnPosition, baseDirection, projectileIndex);
-        
+    {   
         if(_currentChain < ChainCount)
-        {
+        {   
+            base.SpawnProjectile(weapon, spawnPosition, baseDirection, projectileIndex);
             _currentChain++;
             _lastProjectilePosition = spawnPosition;
             // Schedule next projectile in the chain
@@ -24,6 +23,11 @@ public partial class ChainProjectile : ProjectileAttack
                 Vector2 nextSpawnPosition = _lastProjectilePosition + (baseDirection * ProjectileDistance);
                 SpawnProjectile(weapon, nextSpawnPosition, baseDirection, projectileIndex);
             }));
+
+
+            return;
         }
+
+        _currentChain = 0;
     }
 }

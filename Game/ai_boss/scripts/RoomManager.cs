@@ -7,8 +7,8 @@ public partial class RoomManager : Node2D
 
 	[Export] private PackedScene _firstRoom;
 	private PlayerController _player;
-	private CameraController _camera;
 	private Room _currentRoom;
+	private CameraController _camera;
 	private bool _isTransitioning = false;
 
 	public override void _Ready()
@@ -27,6 +27,8 @@ public partial class RoomManager : Node2D
 
 		EventBus.OnSceneTransition += OnTransitionToScene;
 
+		_camera = GetNode<CameraController>("Camera2D");
+
 		// Load player and spawn in the center of the first room
 		var _beanScene = ResourceLoader.Load<PackedScene>("res://scenes/bean.tscn");
 		_player = _beanScene.Instantiate<PlayerController>();
@@ -35,7 +37,6 @@ public partial class RoomManager : Node2D
 		var sortedElements = _currentRoom.GetNodeOrNull<Node2D>("SortSceneElements");
 		sortedElements.AddChild(_player);
 		_player.Position = Vector2.Zero; // Center of the room
-		
 
 		// Wait for Bean to be ready, then spawn sword in hand and no armor
 		PackedScene weaponScene = ResourceLoader.Load<PackedScene>("res://scenes/weapons/sword.tscn");
@@ -44,8 +45,8 @@ public partial class RoomManager : Node2D
 		_player.CallDeferred("EquipWeapon", weaponScene);
 		_player.CallDeferred("EquipArmor", armorScene);
 
-		_camera = GetNode<CameraController>("Camera2D");
 		_camera.SetTarget(_player);
+		EventBus.OnPlayerDamagedEffect += _camera.Shake;
 	}
 
 	private void OnTransitionToScene(string spawnPointName, string targetScenePath)

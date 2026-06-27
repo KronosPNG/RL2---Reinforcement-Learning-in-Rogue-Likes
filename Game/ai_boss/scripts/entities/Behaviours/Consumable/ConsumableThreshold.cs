@@ -13,6 +13,8 @@ public partial class ConsumableThreshold : ConsumableBehaviour
     public override float EvaluateOpportunity(PlayerMimic player)
     {
         if (player.EquippedConsumable == null) return 0f;
+        if (player.CurrentHealth >= player.MaxHealth) return 0f;
+        if (!player.EquippedConsumable.CanUse()) return 0f;
 
         if (player.CurrentHealth / player.MaxHealth < HealthThreshold)
             return Priority;

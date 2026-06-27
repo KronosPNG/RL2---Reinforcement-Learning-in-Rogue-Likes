@@ -1,39 +1,40 @@
 [gd_scene format=3 uid="uid://b3ulf43cs1r0v"]
 
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_27ayr"]
-[ext_resource type="Script" uid="uid://du1cukgdxdir" path="res://scripts/attack_types/SweepingCrescentMeleeAttack.cs" id="2_e0eh6"]
-[ext_resource type="Script" uid="uid://be81cyox7ag2q" path="res://scripts/attack_types/ChargedMeleeAttack.cs" id="3_j4qet"]
+[ext_resource type="Script" uid="uid://bnuq6ls5abmcq" path="res://scripts/attack_types/DashMeleeAttack.cs" id="2_e0eh6"]
+[ext_resource type="PackedScene" uid="uid://h20pgitnp43i" path="res://scenes/weapons/projectiles/explosion.tscn" id="3_j4qet"]
+[ext_resource type="Script" uid="uid://jekxcdrd8yf5" path="res://scripts/attack_types/ChainProjectile.cs" id="4_7qa5c"]
+[ext_resource type="Script" uid="uid://bnf81lu0vxq2m" path="res://scripts/attack_types/MeleeProjectileAttack.cs" id="4_e0eh6"]
 [ext_resource type="Texture2D" uid="uid://diffyoy8gok5y" path="res://art/animations/weapons/sword_sprite_sheet.png" id="4_kkibt"]
 [ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="5_7qa5c"]
 
-[sub_resource type="Resource" id="Resource_s4ec8"]
+[sub_resource type="Resource" id="Resource_7qa5c"]
 script = ExtResource("2_e0eh6")
-SweepStepDelay = 0.016
+DashDistance = 200.0
 InnerRadius = 0.0
-OuterRadius = 17.5
-Damage = 1000.0
-Active = 0.5
-Knockback = 16.0
-
-[sub_resource type="Resource" id="Resource_xs7jb"]
-script = ExtResource("2_e0eh6")
-SweepStepDelay = 0.016
-InnerRadius = 10.0
-OuterRadius = 26.0
-AngleDeg = 120.0
-Damage = 65.0
 Cooldown = 1.0
 Active = 0.5
+Range = 16.0
+metadata/_custom_type_script = "uid://bnuq6ls5abmcq"
 
-[sub_resource type="Resource" id="Resource_w46s4"]
-script = ExtResource("3_j4qet")
-MeleeAttack = SubResource("Resource_xs7jb")
-MinChargeTime = 2.75
-MaxChargeTime = 2.75
-MinChargeDamagePercentage = 1.0
-Damage = 1000.0
-Cooldown = 1.0
+[sub_resource type="Resource" id="Resource_j4qet"]
+script = ExtResource("4_7qa5c")
+ChainCount = 5
+ProjectileDistance = 32.0
+ProjectileScene = ExtResource("3_j4qet")
+ProjectileSpeed = 0.0
+SpawnDistanceFromPlayer = 32.0
+ProjectileLifetime = 0.5
+DestroyOnHit = false
+Range = 1.0
+metadata/_custom_type_script = "uid://jekxcdrd8yf5"
+
+[sub_resource type="Resource" id="Resource_kkibt"]
+script = ExtResource("4_e0eh6")
+ProjectileAttack = SubResource("Resource_j4qet")
 Active = 0.5
+Range = 32.0
+metadata/_custom_type_script = "uid://bnf81lu0vxq2m"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gwb47"]
 atlas = ExtResource("4_kkibt")
@@ -333,11 +334,11 @@ animations = [{
 [node name="GodSword" type="Node2D" unique_id=1704924115 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_27ayr")
 ItemName = "Godsword"
-Description = "A well balanced two-handed melee weapon with good melee range."
+Description = "Hey, you shouldn't have this!"
 PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
 PedestalDisplayScale = Vector2(1, 1)
-LightAttackConfig = SubResource("Resource_s4ec8")
-HeavyAttackConfig = SubResource("Resource_w46s4")
+LightAttackConfig = SubResource("Resource_7qa5c")
+HeavyAttackConfig = SubResource("Resource_kkibt")
 EnableLightAutoswing = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=106185956]
@@ -348,7 +349,6 @@ animation = &"idle"
 [node name="Pivot" type="Node2D" parent="." unique_id=1484761435]
 
 [node name="HitArea" type="Area2D" parent="." unique_id=966691943]
-visible = false
 collision_layer = 16
 collision_mask = 32
 

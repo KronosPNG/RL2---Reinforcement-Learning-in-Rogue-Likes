@@ -1,36 +1,8 @@
 [gd_scene format=4 uid="uid://dqpmorckn3wck"]
 
 [ext_resource type="Script" uid="uid://j6bttx2q68sq" path="res://scripts/room_management/BossRoom.cs" id="1_u6evn"]
-[ext_resource type="Script" uid="uid://c6obgfsoy2hye" path="res://scripts/entities/Behaviours/Attacking/PlayerMimic/AttackTactical.cs" id="4_4hilx"]
-[ext_resource type="PackedScene" uid="uid://bl4loqa83m485" path="res://scenes/entities/player_mimic.tscn" id="4_gfdek"]
 [ext_resource type="PackedScene" uid="uid://c1fqi244my31e" path="res://scenes/objects/doors/door_down.tscn" id="4_u6evn"]
 [ext_resource type="TileSet" uid="uid://cncwrtmglwj0e" path="res://assets/tileset/main_tileset.tres" id="5_1cvy8"]
-[ext_resource type="Script" uid="uid://b7elf4dm1j55e" path="res://scripts/entities/Behaviours/Dodging/DodgeRandom.cs" id="5_4hilx"]
-[ext_resource type="Script" uid="uid://scmjrllljorm" path="res://scripts/entities/Behaviours/Consumable/ConsumableNone.cs" id="7_0p40x"]
-[ext_resource type="Script" uid="uid://sq726rok2yho" path="res://scripts/entities/Behaviours/Wandering/WanderImmovable.cs" id="8_bsn33"]
-[ext_resource type="Script" uid="uid://cvknijbdebtxr" path="res://scripts/entities/Behaviours/Aggro/AggroKeepDistance.cs" id="9_4hilx"]
-[ext_resource type="PackedScene" uid="uid://3ck2mhc1l2m0" path="res://scenes/weapons/bow.tscn" id="10_4hilx"]
-[ext_resource type="PackedScene" uid="uid://nnfsgfoe1uu6" path="res://scenes/armors/shirt.tscn" id="11_655tv"]
-
-[sub_resource type="Resource" id="Resource_4hilx"]
-script = ExtResource("4_4hilx")
-metadata/_custom_type_script = "uid://c6obgfsoy2hye"
-
-[sub_resource type="Resource" id="Resource_jipsg"]
-script = ExtResource("5_4hilx")
-metadata/_custom_type_script = "uid://b7elf4dm1j55e"
-
-[sub_resource type="Resource" id="Resource_ir4o7"]
-script = ExtResource("7_0p40x")
-metadata/_custom_type_script = "uid://scmjrllljorm"
-
-[sub_resource type="Resource" id="Resource_bsn33"]
-script = ExtResource("8_bsn33")
-metadata/_custom_type_script = "uid://sq726rok2yho"
-
-[sub_resource type="Resource" id="Resource_e6cx8"]
-script = ExtResource("9_4hilx")
-metadata/_custom_type_script = "uid://cvknijbdebtxr"
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_4hilx"]
 vertices = PackedVector2Array(9, 129, 9, 137, -9, 137, -9, 129, -169, 129, -169, -121, 169, -121, 169, 128, 168.97656, 129)
@@ -57,15 +29,6 @@ tile_set = ExtResource("5_1cvy8")
 collision_visibility_mode = 2
 navigation_enabled = false
 
-[node name="PlayerMimic" parent="SortSceneElements" unique_id=894734572 instance=ExtResource("4_gfdek")]
-attackBehaviour = SubResource("Resource_4hilx")
-dodgeBehaviour = SubResource("Resource_jipsg")
-consumableBehaviour = SubResource("Resource_ir4o7")
-wanderBehaviour = SubResource("Resource_bsn33")
-aggroBehaviour = SubResource("Resource_e6cx8")
-EquippedWeaponScene = ExtResource("10_4hilx")
-EquippedArmorScene = ExtResource("11_655tv")
-
 [node name="Doors" type="Node2D" parent="SortSceneElements" unique_id=1974097487]
 
 [node name="DoorDown" parent="SortSceneElements/Doors" unique_id=695948323 instance=ExtResource("4_u6evn")]
@@ -75,7 +38,7 @@ TargetRoomPath = "res://scenes/rooms/starting_room.tscn"
 [node name="SpawningPoints" type="Node2D" parent="." unique_id=875782561]
 
 [node name="Node2D" type="Node2D" parent="SpawningPoints" unique_id=1715824549]
-position = Vector2(-100, 0)
+position = Vector2(0, -48)
 
 [node name="PedestalPoints" type="Node2D" parent="." unique_id=172890717]
 

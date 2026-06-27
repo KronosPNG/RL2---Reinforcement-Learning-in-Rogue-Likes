@@ -106,7 +106,7 @@ public partial class AttackTactical : PlayerAttackBehaviour
         }
 
         // No instant attacks available - in safe windows, we CAN commit to charged attacks
-        if (bossState == BossState.Idle || bossState == BossState.Cooldown)
+        if (bossState == BossState.Idle || bossState == BossState.Cooldown || bossState == BossState.Walking)
         {
             if (heavyAvailable && heavyInRange)
             {

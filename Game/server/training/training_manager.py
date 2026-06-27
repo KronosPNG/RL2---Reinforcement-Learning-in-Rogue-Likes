@@ -18,6 +18,7 @@ import torch
 
 from ai.policy import HybridPPOPolicy
 from training.trainer import PPOTrainer, PPOConfig
+from utils.device import DEVICE
 
 
 class TrainingManager:
@@ -31,7 +32,7 @@ class TrainingManager:
     - Tracks training statistics
     """
     
-    def __init__(self, obs_dim: int = 62, num_actions: int = 9, 
+    def __init__(self, obs_dim: int = 56, num_actions: int = 7,
                  cfg: PPOConfig | None = None, batch_queue_size: int = 32,
                  checkpoint_dir: str = "checkpoints", checkpoint_interval: int = 10,
                  metrics_dir: str = "metrics"):
@@ -231,7 +232,7 @@ class TrainingManager:
         Args:
             path: File path to load from
         """
-        self.policy.load_state_dict(torch.load(path))
+        self.policy.load_state_dict(torch.load(path, map_location=DEVICE))
         self.trainer.model = self.policy
     
     def get_stats(self) -> dict:
@@ -252,6 +253,26 @@ class TrainingManager:
             "recent_metrics": recent_metrics,
         }
     
+    def check_plateau(self, window: int = 20, threshold: float = 0.005) -> bool:
+        """
+        Returns True when training has plateaued.
+
+        Compares the average total_loss of the last `window` training steps
+        against the `window` steps before that. Plateau is declared when the
+        relative improvement drops below `threshold` (default 0.5%).
+        Requires at least 2*window steps of history before it can fire.
+        """
+        min_steps = 2 * window
+        if len(self.metrics_history) < min_steps:
+            return False
+
+        losses = [m.get("total_loss", 0.0) for m in self.metrics_history]
+        recent_avg   = sum(losses[-window:])          / window
+        previous_avg = sum(losses[-2*window:-window]) / window
+
+        improvement = (previous_avg - recent_avg) / (abs(previous_avg) + 1e-8)
+        return improvement < threshold
+
     def get_metrics_summary(self) -> dict:
         """
         Get summary statistics of recent training metrics.

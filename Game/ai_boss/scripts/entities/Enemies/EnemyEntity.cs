@@ -532,4 +532,14 @@ public partial class EnemyEntity : Entity<EntityState>, IDamageable, IHasHealth,
 		_physicalCollision.Scale = collisionScale;
 		
 	}
+
+	public override void ApplyImpulse(Vector2 direction, float speed, float duration)
+	{
+		if (_knockbackTween != null && _knockbackTween.IsValid())
+			_knockbackTween.Kill();
+		_knockbackVelocity = direction.Normalized() * speed;
+		_knockbackTween = CreateTween();
+		_knockbackTween.SetTrans(Tween.TransitionType.Linear);
+		_knockbackTween.TweenProperty(this, "_knockbackVelocity", Vector2.Zero, duration);
+	}
 }

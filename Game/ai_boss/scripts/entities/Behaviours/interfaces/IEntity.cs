@@ -8,4 +8,6 @@ public interface IEntity
     public float StateTimer { get; set; }
     public float BaseSpeed { get; set; }  
     public Vector2 FacingDirection { get; set; }
+    public void ApplyImpulse(Vector2 direction, float speed, float duration);
+    
 }

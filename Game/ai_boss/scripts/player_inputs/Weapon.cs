@@ -93,6 +93,8 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	{
 		// Logic for equipping the weapon
 		OwnerCharacter = owner as PlayableCharacter;
+		if (owner is IEntity entity)
+			base.OwnerCharacter = entity;
 		// Enable physics processing now that we have a valid owner
 		SetPhysicsProcess(true);
 		EmitSignal(nameof(Equipped));
@@ -104,6 +106,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		// Disable physics processing when unequipped
 		SetPhysicsProcess(false);
 		OwnerCharacter = null;
+		base.OwnerCharacter = null;
 		EmitSignal(nameof(Unequipped));
 	}
 
@@ -186,7 +189,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		else HeavyCooldownTimer = HeavyAttackConfig.Cooldown;
 
 		State = WeaponState.Windup;
-		GD.Print($"[Weapon] Attack sequence started: isHeavy={isHeavyAttack}");
+		// GD.Print($"[Weapon] Attack sequence started: isHeavy={isHeavyAttack}");
 		EventBus.RaiseWeaponAttackStarted(IsCurrentAttackHeavy ? "heavy" : "light");
 		EmitSignal(nameof(AttackStarted), isHeavyAttack ? "heavy" : "light");
 
@@ -307,7 +310,7 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			LightCooldownTimer = LightAttackConfig.Cooldown;
 
 		// Emit signals
-		GD.Print($"[Weapon] Executing charged {(IsCurrentAttackHeavy ? "heavy" : "light")} attack.");
+		// GD.Print($"[Weapon] Executing charged {(IsCurrentAttackHeavy ? "heavy" : "light")} attack.");
 		EventBus.RaiseWeaponAttackStarted(IsCurrentAttackHeavy ? "heavy" : "light");
 		EmitSignal(nameof(AttackStarted), IsCurrentAttackHeavy ? "heavy" : "light");
 		EmitSignal(nameof(ChargeReleased), IsCurrentAttackHeavy ? "heavy" : "light");

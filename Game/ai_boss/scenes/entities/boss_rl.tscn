@@ -14,6 +14,10 @@
 [ext_resource type="PackedScene" uid="uid://dt68ok6b2ws01" path="res://scenes/weapons/projectiles/explosion_spell.tscn" id="9_grfbg"]
 [ext_resource type="Script" uid="uid://c6jjcvu5u1kjv" path="res://scripts/attack_types/SelfCenteredAttack.cs" id="9_mdwjs"]
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fkl6j"]
+radius = 8.0
+height = 26.0
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_sdtpy"]
 radius = 5.0
 height = 22.0
@@ -32,7 +36,6 @@ metadata/_custom_type_script = "uid://hjik14ol648t"
 script = ExtResource("2_sdtpy")
 ModulateB = Color(0.7159233, 0, 0.68577677, 1)
 BlinkInterval = 0.1
-EffectDuration = 1.0
 metadata/_custom_type_script = "uid://hjik14ol648t"
 
 [sub_resource type="Animation" id="Animation_yi2pq"]
@@ -1101,13 +1104,17 @@ _data = {
 
 [sub_resource type="Resource" id="Resource_7ecxn"]
 script = ExtResource("3_d0cad")
+ChainCount = 5
+ProjectileDistance = 32.0
 ProjectileScene = ExtResource("3_3eye7")
 ProjectileSpeed = 0.0
+SpawnDistanceFromPlayer = 32.0
+ProjectileLifetime = 0.5
 DestroyOnHit = false
-DestroyOnWallHit = false
 Damage = 2.0
 Active = 1.0
 Knockback = 32.0
+Range = 1.0
 metadata/_custom_type_script = "uid://jekxcdrd8yf5"
 
 [sub_resource type="Resource" id="Resource_06sei"]
@@ -1124,6 +1131,7 @@ metadata/_custom_type_script = "uid://bnf81lu0vxq2m"
 
 [sub_resource type="Resource" id="Resource_uo6hv"]
 script = ExtResource("6_mt3r5")
+DashDistance = 80.0
 InnerRadius = 0.0
 AngleDeg = 30.0
 Damage = 1.0
@@ -1137,6 +1145,7 @@ metadata/_custom_type_script = "uid://bnuq6ls5abmcq"
 script = ExtResource("9_mdwjs")
 ProjectileScene = ExtResource("9_grfbg")
 ProjectileSpeed = 0.0
+ProjectileLifetime = 0.5
 Damage = 6.0
 Cooldown = 1.0
 Active = 2.5
@@ -1157,14 +1166,22 @@ Range = 320.0
 metadata/_custom_type_script = "uid://5alhbkf2df8r"
 
 [node name="BossRL" type="CharacterBody2D" unique_id=1883322666 groups=["Boss", "Enemy"]]
+z_index = 2
+y_sort_enabled = true
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_sdtpy")
 BaseSpeed = 24.0
 TargetType = "Player"
 
+[node name="KnockbackArea" type="Area2D" parent="." unique_id=939166800]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KnockbackArea" unique_id=1582493907]
+shape = SubResource("CapsuleShape2D_fkl6j")
+
 [node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1559321127]
-visible = false
 shape = SubResource("CapsuleShape2D_sdtpy")
 
 [node name="HitArea" type="Area2D" parent="." unique_id=1064389255]

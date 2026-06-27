@@ -13,6 +13,7 @@ import time
 from game.rewards import RewardTracker
 from game.collector import flatten_observation
 from .trainer import PPOTrainer
+from utils.device import DEVICE
 
 
 class TrajectoryCollector:
@@ -182,19 +183,20 @@ class TrajectoryCollector:
         batch = {
             "obs": torch.stack([t["obs"] for t in self.trajectory]),
             "movement": torch.stack([t["movement"] for t in self.trajectory]),
-            "action_id": torch.tensor([t["action_id"] for t in self.trajectory]),
+            "action_id": torch.tensor([t["action_id"] for t in self.trajectory], device=DEVICE),
             "log_prob": torch.stack([t["log_prob"] for t in self.trajectory]),
             "value": torch.stack([t["value"] for t in self.trajectory]),
             "advantages": advantages,
             "returns": returns,
         }
         
-        # Clear trajectory and reset trackers
+        # Clear trajectory and reset trackers for the next episode
         self.trajectory = []
         self.reward_tracker.reset()
         self.last_player_hp = None
         self.last_boss_hp = None
-        
+        self.episode_start_time = None
+
         return batch
 
     def reset(self):

@@ -185,7 +185,7 @@ public partial class Projectile : Entity<ProjectileState>, IStateful<ProjectileS
 		_lifetime -= (float)delta;
 		if (_lifetime <= 0f)
 		{
-			TransitionToState(ProjectileState.Destroyed);
+			TransitionToState(ProjectileState.Fading);
 		}
 
 		_previousPosition = this.GlobalPosition;

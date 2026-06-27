@@ -8,9 +8,11 @@ public partial class MainHandler : Node
 	GlobalState globalState;
 	AnimationPlayer _cutscenePlayer;
 	WebSocketPeer socket = new WebSocketPeer();
+	BossRL _bossRef;
 
 	public override void _Ready()
 	{
+		Engine.MaxFps = 60;
 		_cutscenePlayer = GetNode<AnimationPlayer>("CutscenePlayer");
 
 		// Subscribe to EventBus events
@@ -22,6 +24,7 @@ public partial class MainHandler : Node
 		EventBus.OnPlayerDied += HandlePlayerDied;
 		EventBus.OnPlayerDied += () => SendOutcome(won: false);
 
+		EventBus.OnBossSpawned += (boss) => _bossRef = boss;
 		EventBus.OnBossRoomEntered += BossCutscene;
 		EventBus.OnBossRoomEntered += StartConnection;
 		EventBus.OnBossKilled += EndGameSequence;
@@ -170,8 +173,7 @@ public partial class MainHandler : Node
 
 	private void ApplyAiAction(AiAction action)
 	{
-		// TODO:
-		// bossController.ApplyAction(action);
+		_bossRef.ApplyAction(action);
 		GD.Print($"AI action received: X={action.X}, Y={action.Y}, ActionId={action.ActionId}");
 	}
 

@@ -103,4 +103,8 @@ public abstract partial class Entity<TState> : CharacterBody2D, IEntity, IStatef
 		set => StateMachine.PreviousState = value;
 	}
 
+	public virtual void ApplyImpulse(Vector2 direction, float speed, float duration)
+	{
+		return;
+	}
 }

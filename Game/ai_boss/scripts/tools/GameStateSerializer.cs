@@ -15,10 +15,10 @@ public static class GameStateSerializer
     public const int RoomBoundsSize = 4 * 4;                     // 4 floats = 16
     public const int StaticStateSize = EquipmentSize + RoomBoundsSize; // 73
 
-    public const int PlayerStateSize = (4 * 4) + 4 + (9 * 4);    // 2 Vector2 + 1 int + 9 floats = 52
+    public const int PlayerStateSize = (4 * 4) + 4 + (9 * 4);    // 2 Vector2 + 1 int + 9 floats = 56
     public const int BossStateSize = (2 * 4) + 4 + 4 + (4 * 4) + (4 * 4) + 2 + (4 * 4); // 66
     public const int ProjectileStateSize = 4 + 4 + 4 + (2 * 4) + 4; // 24
-    public const int DynamicsStateSize = PlayerStateSize + BossStateSize + ProjectileStateSize; // 142
+    public const int DynamicsStateSize = PlayerStateSize + BossStateSize + ProjectileStateSize; // 146
 
     // ===================== StaticState =====================
 

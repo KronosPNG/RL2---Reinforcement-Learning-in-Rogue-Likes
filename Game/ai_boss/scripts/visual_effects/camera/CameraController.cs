@@ -10,17 +10,9 @@ public partial class CameraController : Camera2D
 	[Export] public float SmoothSpeed = 16.0f;
 	
 	public override void _Ready()
-	{
-		if (TargetNode == null)
-		{
-			SetTarget(GetParent<Node2D>());
-		}
-		
+	{		
 		// Initial position
-		GlobalPosition = TargetNode.GlobalPosition;
 		MakeCurrent();
-
-		EventBus.OnPlayerDamagedEffect += Shake;
 	}
 
 	public override void _Process(double delta)
@@ -34,6 +26,7 @@ public partial class CameraController : Camera2D
 	public void SetTarget(Node2D newTarget)
 	{	
 		TargetNode = newTarget;
+		GlobalPosition = TargetNode.GlobalPosition;
 	}
 
 	public void ChangeTarget(Node2D newTarget)

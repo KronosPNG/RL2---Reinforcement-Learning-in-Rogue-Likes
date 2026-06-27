@@ -15,25 +15,29 @@ public partial class ConsumableTactical : ConsumableBehaviour
     public override void Initialize(PlayerMimic player)
     {
         base.Initialize(player);
-        maxHealthGain = player.EquippedConsumable.EffectConfig.EffectValue;
+        if (player.EquippedConsumable?.EffectConfig != null)
+            maxHealthGain = player.EquippedConsumable.EffectConfig.EffectValue;
     }
 
     public override float EvaluateOpportunity(PlayerMimic player)
     {
         if (player.EquippedConsumable == null) return 0f;
+        if (player.CurrentHealth >= player.MaxHealth) return 0f;
+        if (!player.EquippedConsumable.CanUse()) return 0f;
 
         var boss = player.Target as BossRL;
+        if (boss == null) return 0f;
 
         if (player.CurrentHealth + maxHealthGain > player.MaxHealth * 0.8f)
-            return .25f; // Low priority if consumable would overheal or provide minimal benefit
+            return 0f; // Low priority if consumable would overheal or provide minimal benefit
 
         // if player too close to boss lower priority to avoid using consumable in dangerous situations
         if(player.Position.DistanceTo(boss.Position) < minDistanceToEnemy)
         {
             if (boss.PreviousState == BossState.Attacking)
-                return 0.75f; // High priority to use when boss is attacking and player is close
+                return 0.75f; // High priority to use when boss was attacking and player is close
             else
-                return 0f; // Moderate priority when close but boss is not attacking
+                return 0f; // Moderate priority when close but boss could be prepare to attack
         } 
 
         return 0.85f; // High priority to use when boss is far away, as it's safer to heal

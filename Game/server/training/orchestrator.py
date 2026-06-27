@@ -76,9 +76,11 @@ class TrainingOrchestrator:
                  godot_executable: str = "",
                  godot_project_path: str = "",
                  game_scene: str = "res://scenes/train.tscn",
-                 max_instance_lifetime: float = 3600.0,  # 1 hour
+                 max_instance_lifetime: float = 0.0,  # when 0, infinite
                  max_episode_duration: float = 600.0,  # 10 minutes
-                 headless: bool = True):
+                 headless: bool = True,
+                 debug_collisions: bool = False,
+                 debug_navigation: bool = False):
         """
         Initialize the orchestrator.
         
@@ -97,7 +99,9 @@ class TrainingOrchestrator:
         self.max_instance_lifetime = max_instance_lifetime
         self.max_episode_duration = max_episode_duration
         self.headless = headless
-        
+        self.debug_collisions = debug_collisions
+        self.debug_navigation = debug_navigation
+
         self.instances: dict[int, InstanceInfo] = {}
         self.factory = PlayerFactory(seed=42)
         
@@ -207,17 +211,29 @@ class TrainingOrchestrator:
         if self.headless:
             args.append("--headless")
 
+        if self.debug_collisions:
+            args.append("--debug-collisions")
+
+        if self.debug_navigation:
+            args.append("--debug-navigation")
+
         # Separator: everything after -- is available via OS.GetCmdlineUserArgs() in Godot
         args.append("--")
         args.append(f"--instance-id={instance_id}")
         args.extend(config.to_godot_args())
         
         try:
+            log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
+            os.makedirs(log_dir, exist_ok=True)
+            log_path = os.path.join(log_dir, f"godot_instance_{instance_id}.log")
+            log_file = open(log_path, "w", buffering=1)  # line-buffered so output is visible immediately
+            logger.info(f"Instance {instance_id} output → {os.path.abspath(log_path)}")
+
             # Spawn process with subprocess (not await, as it's sync)
             process = subprocess.Popen(
                 args,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=log_file,
+                stderr=log_file,
                 creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == "win32" else 0
             )
             
@@ -385,7 +401,9 @@ class TrainingOrchestrator:
                 # Check for instance lifetime timeout
                 if info.process_start_time:
                     elapsed = (datetime.now() - info.process_start_time).total_seconds()
-                    if elapsed > self.max_instance_lifetime:
+                    if self.max_instance_lifetime == 0:
+                        continue
+                    elif elapsed > self.max_instance_lifetime:
                         logger.warning(f"Instance {instance_id} exceeded max lifetime")
                         info.state = InstanceState.TIMEOUT
                         await self._terminate_instance(instance_id)
@@ -420,3 +438,20 @@ class TrainingOrchestrator:
             instance_id for instance_id, info in self.instances.items()
             if info.state in (InstanceState.CONNECTED, InstanceState.EPISODE_ACTIVE, InstanceState.EPISODE_DONE)
         ]
+
+    def all_episodes_done(self) -> bool:
+        """Return True when every connected instance has finished its current episode."""
+        connected = self.get_connected_instances()
+        if not connected:
+            return False
+        return all(
+            self.instances[iid].state == InstanceState.EPISODE_DONE
+            for iid in connected
+        )
+
+    def mark_all_episode_start(self):
+        """Reset all EPISODE_DONE instances to EPISODE_ACTIVE for the next generation."""
+        for info in self.instances.values():
+            if info.state == InstanceState.EPISODE_DONE:
+                info.state = InstanceState.EPISODE_ACTIVE
+                info.episode_start_time = datetime.now()

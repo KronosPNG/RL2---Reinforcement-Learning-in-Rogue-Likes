@@ -734,7 +734,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		// Emit health changed signal and damage taken signal
 		EventBus.RaisePlayerHealthChanged(CurrentHealth);
 		EventBus.RaisePlayerDamaged(amount);
-		GD.Print($"Player health: {CurrentHealth}/{MaxHealth}");
+		// GD.Print($"Player health: {CurrentHealth}/{MaxHealth}");
 		EventBus.RaisePlayerDamagedEffect(5, .25f);
 
 		if (isLethalDamage)
@@ -744,7 +744,7 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 		}
 	}
 
-	protected void ApplyKnockback(Vector2 attackerPosition, float strength)
+	public void ApplyKnockback(Vector2 attackerPosition, float strength)
 	{
 		// Kill existing tween if one is active (allows new knockback to override)
 		if (_knockbackTween != null && _knockbackTween.IsValid())
@@ -832,6 +832,16 @@ public partial class PlayableCharacter : Entity<EntityState>, IDamageable, IHasH
 	public void PlayDeathEffect()
 	{
 		throw new NotImplementedException();
+	}
+
+	public override void ApplyImpulse(Vector2 direction, float speed, float duration)
+	{
+		if (_knockbackTween != null && _knockbackTween.IsValid())
+			_knockbackTween.Kill();
+		_knockbackVelocity = direction.Normalized() * speed;
+		_knockbackTween = CreateTween();
+		_knockbackTween.SetTrans(Tween.TransitionType.Linear);
+		_knockbackTween.TweenProperty(this, "_knockbackVelocity", Vector2.Zero, duration);
 	}
 
 }

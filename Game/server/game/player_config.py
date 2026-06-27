@@ -61,18 +61,30 @@ class PlayerConfig:
 
 class PlayerFactory:
     """Factory for generating diverse PlayerMimic configurations."""
-    
+
     # Available options for each category
     WEAPONS = ["sword", "dagger", "bow", "staff"]
     ARMORS = ["light_armor", "medium_armor", "heavy_armor", "shirt"]
     CONSUMABLES = ["none", "medkit", "potion"]
-    
+
     ATTACK_BEHAVIORS = ["AttackCowardly", "AttackEdgelord", "AttackSpam", "AttackTactical"]
     DODGE_BEHAVIORS = ["DodgeNever", "DodgePreemptive", "DodgeRandom", "DodgeReactive"]
-    CONSUMABLE_BEHAVIORS = ["ConsumableNone", "ConsumableRandom", "ConsumableScaredyCat", 
+    CONSUMABLE_BEHAVIORS = ["ConsumableNone", "ConsumableRandom", "ConsumableScaredyCat",
                             "ConsumableTactical", "ConsumableThreshold"]
     WANDER_BEHAVIORS = ["WanderHide", "WanderImmovable", "WanderRandomWalk"]
     AGGRO_BEHAVIORS = ["AggroFollowTarget", "AggroKeepDistance", "AggroKeepDistanceStrafe", "AggroStandStill"]  # Exclude AggroFollowGaze
+
+    # The first 8 slots are always these named archetypes; extras are randomly generated.
+    ARCHETYPES: list[PlayerConfig] = [
+        PlayerConfig("sword",  "medium_armor", "potion", "AttackTactical",  "DodgePreemptive", "ConsumableTactical",   "WanderRandomWalk", "AggroFollowTarget",         name="Adventurer"),
+        PlayerConfig("dagger", "light_armor",  "medkit", "AttackSpam",      "DodgeReactive",   "ConsumableThreshold",  "WanderHide",       "AggroFollowTarget",         name="Rogue"),
+        PlayerConfig("bow",    "shirt",        "medkit", "AttackTactical",  "DodgeReactive",   "ConsumableTactical",   "WanderRandomWalk", "AggroKeepDistanceStrafe",   name="Ranger"),
+        PlayerConfig("sword",  "heavy_armor",  "none",   "AttackEdgelord",  "DodgeNever",      "ConsumableNone",       "WanderImmovable",  "AggroStandStill",           name="Edgelord"),
+        PlayerConfig("staff",  "light_armor",  "potion", "AttackEdgelord",  "DodgeNever",      "ConsumableScaredyCat", "WanderHide",       "AggroKeepDistance",         name="Wizard"),
+        PlayerConfig("dagger", "shirt",        "none",   "AttackCowardly",  "DodgeRandom",     "ConsumableNone",       "WanderImmovable",  "AggroFollowTarget",         name="Noob"),
+        PlayerConfig("staff",  "heavy_armor",  "potion", "AttackCowardly",  "DodgeRandom",     "ConsumableScaredyCat", "WanderHide",       "AggroKeepDistanceStrafe",   name="Coward"),
+        PlayerConfig("bow",    "medium_armor", "medkit", "AttackSpam",      "DodgePreemptive", "ConsumableThreshold",  "WanderImmovable",  "AggroKeepDistance",         name="Sniper"),
+    ]
     
     def __init__(self, seed: int = 42):
         """
@@ -161,17 +173,20 @@ class PlayerFactory:
     
     def create_batch(self, count: int, base_seed: int = 0) -> list[PlayerConfig]:
         """
-        Generate a batch of diverse player configurations.
-        
+        Generate a batch of player configurations.
+
+        The first 8 slots are always the named archetypes (Adventurer, Rogue, …).
+        Any additional slots beyond 8 are randomly generated.
+
         Args:
             count: Number of configs to generate
-            base_seed: Starting seed (each config gets base_seed + index)
-        
+            base_seed: Starting seed for random configs beyond the first 8
+
         Returns:
             List of PlayerConfig instances
         """
-        configs = []
-        for i in range(count):
+        configs = list(self.ARCHETYPES[:count])
+        for i in range(len(configs), count):
             config = self.create_random_config(
                 seed=base_seed + i,
                 name=f"P{i+1}"

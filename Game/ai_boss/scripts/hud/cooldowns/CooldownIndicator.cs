@@ -20,11 +20,11 @@ public partial class CooldownIndicator : SimpleIndicator
 	{
 		if (_cooldownDuration <= 0)
 		{
-			GD.PrintErr($"[CooldownIndicator] Cooldown duration not set for {Name}. Cannot start cooldown.");
+			// GD.PrintErr($"[CooldownIndicator] Cooldown duration not set for {Name}. Cannot start cooldown.");
 			return; // No cooldown to display
 		}
 
-		GD.Print($"[CooldownIndicator] Starting cooldown for {Name} with duration {_cooldownDuration} seconds.");
+		// GD.Print($"[CooldownIndicator] Starting cooldown for {Name} with duration {_cooldownDuration} seconds.");
 
 		_timerLabel.Text = $"{_cooldownDuration:0.00}s";
 		_timerLabel.Visible = true;
@@ -63,7 +63,7 @@ public partial class CooldownIndicator : SimpleIndicator
 
 	private void OnCooldownComplete()
 	{
-		GD.Print($"[CooldownIndicator] Cooldown complete for {Name}.");// Hide the timer label when cooldown is complete  
+		// GD.Print($"[CooldownIndicator] Cooldown complete for {Name}.");// Hide the timer label when cooldown is complete  
 		_timerLabel.Visible = false;
 	}
 }
