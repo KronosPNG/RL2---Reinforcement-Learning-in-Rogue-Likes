@@ -79,7 +79,7 @@ class PlayerFactory:
         PlayerConfig("sword",  "medium_armor", "potion", "AttackTactical",  "DodgePreemptive", "ConsumableTactical",   "WanderRandomWalk", "AggroFollowTarget",         name="Adventurer"),
         PlayerConfig("dagger", "light_armor",  "medkit", "AttackSpam",      "DodgeReactive",   "ConsumableThreshold",  "WanderHide",       "AggroFollowTarget",         name="Rogue"),
         PlayerConfig("bow",    "shirt",        "medkit", "AttackTactical",  "DodgeReactive",   "ConsumableTactical",   "WanderRandomWalk", "AggroKeepDistanceStrafe",   name="Ranger"),
-        PlayerConfig("sword",  "heavy_armor",  "none",   "AttackEdgelord",  "DodgeNever",      "ConsumableNone",       "WanderImmovable",  "AggroStandStill",           name="Edgelord"),
+        PlayerConfig("sword",  "heavy_armor",  "none",   "AttackEdgelord",  "DodgeNever",      "ConsumableNone",       "WanderImmovable",  "AggroKeepDistanceStrafe",           name="Edgelord"),
         PlayerConfig("staff",  "light_armor",  "potion", "AttackEdgelord",  "DodgeNever",      "ConsumableScaredyCat", "WanderHide",       "AggroKeepDistance",         name="Wizard"),
         PlayerConfig("dagger", "shirt",        "none",   "AttackCowardly",  "DodgeRandom",     "ConsumableNone",       "WanderImmovable",  "AggroFollowTarget",         name="Noob"),
         PlayerConfig("staff",  "heavy_armor",  "potion", "AttackCowardly",  "DodgeRandom",     "ConsumableScaredyCat", "WanderHide",       "AggroKeepDistanceStrafe",   name="Coward"),

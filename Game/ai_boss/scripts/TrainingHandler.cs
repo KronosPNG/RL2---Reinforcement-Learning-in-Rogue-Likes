@@ -248,7 +248,11 @@ public partial class TrainingHandler : Node
 		if (_playerConfig.TryGetValue("consumable", out string consumable))
 		{
 			GD.Print($"[TRAINING: {Time.GetDatetimeStringFromSystem()}] Setting consumable scene: {consumable}");
-			playerMimic.EquippedConsumableScene = ResourceLoader.Load<PackedScene>($"res://scenes/consumables/{consumable}.tscn");
+			if(consumable != "none")
+			{
+				playerMimic.EquippedConsumableScene = ResourceLoader.Load<PackedScene>($"res://scenes/consumables/{consumable}.tscn");
+			}
+			
 		}
 
 		// Set behavior exports — _Ready's timer setup and OnWeaponEquipped/OnConsumableEquipped

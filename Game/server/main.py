@@ -293,8 +293,10 @@ async def main():
         
         try:
             print(f"Loading policy from: {policy_path}")
-            inference_policy = torch.load(policy_path)
-            inference_policy.eval()  # Set to eval mode (no dropout, etc)
+            inference_policy = HybridPPOPolicy(obs_dim=56, num_actions=7)
+            state_dict = torch.load(policy_path, map_location="cpu")
+            inference_policy.load_state_dict(state_dict)
+            inference_policy.eval()
             print(f"Policy loaded successfully")
             print("="*60)
         except Exception as e:

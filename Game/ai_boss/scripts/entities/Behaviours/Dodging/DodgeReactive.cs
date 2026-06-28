@@ -4,7 +4,7 @@ using Godot;
 [GlobalClass]
 public partial class DodgeReactive : DodgeBehaviour
 {
-    Node2D closestProjectile;
+    Node2D closestProjectile = null;
 
     public DodgeReactive() { 
         Priority = 0.8f;
@@ -15,9 +15,20 @@ public partial class DodgeReactive : DodgeBehaviour
     {
         var boss = player.Target as BossRL;
         var bossDistance = player.GlobalPosition.DistanceTo(player.Target.GlobalPosition);
-        var projDistance = player.GlobalPosition.DistanceTo(closestProjectile.GlobalPosition);
+        
+        Node2D collider;
+        
+        if(closestProjectile == null || !IsInstanceValid(closestProjectile))
+        {
+            closestProjectile = null;
+            collider = boss;
+        }
 
-        var collider = projDistance < bossDistance ? closestProjectile : boss;
+        else
+        {
+            var projDistance = player.GlobalPosition.DistanceTo(closestProjectile.GlobalPosition);
+            collider = projDistance < bossDistance ? closestProjectile : boss;
+        }
 
         return DodgeDirection.GetDodgeDirection(player, collider);
     }
@@ -52,6 +63,7 @@ public partial class DodgeReactive : DodgeBehaviour
                 return 0.75f;
         }
 
+        closestProjectile = null;
         return 0f; // No immediate threat detected, no need to dodge
     }
 }
