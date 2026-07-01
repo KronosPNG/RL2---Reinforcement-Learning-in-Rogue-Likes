@@ -289,17 +289,29 @@ public partial class GlobalState : Node
 
 		dynState.Player.Health = player.CurrentHealth;
 
-		dynState.Player.CurrentLightAttackCooldown = player.EquippedWeapon.LightCooldownTimer;
-		dynState.Player.CurrentHeavyAttackCooldown = player.EquippedWeapon.HeavyCooldownTimer;
+		if(player.EquippedWeapon != null)
+		{
+			dynState.Player.CurrentLightAttackCooldown = player.EquippedWeapon.LightCooldownTimer;
+			dynState.Player.CurrentHeavyAttackCooldown = player.EquippedWeapon.HeavyCooldownTimer;
 
-		if (player.EquippedWeapon.LightAttackConfig is IChargeable lightChargeable)
-		{
-			dynState.Player.CurrentLightAttackChargeTime = lightChargeable.getCurrentChargeTime();
+			if (player.EquippedWeapon.LightAttackConfig is IChargeable lightChargeable)
+			{
+				dynState.Player.CurrentLightAttackChargeTime = lightChargeable.getCurrentChargeTime();
+			}
+			
+			if (player.EquippedWeapon.HeavyAttackConfig is IChargeable heavyChargeable)
+			{
+				dynState.Player.CurrentLightAttackChargeTime = heavyChargeable.getCurrentChargeTime();
+			}
 		}
-		
-		if (player.EquippedWeapon.HeavyAttackConfig is IChargeable heavyChargeable)
+
+		else
 		{
-			dynState.Player.CurrentLightAttackChargeTime = heavyChargeable.getCurrentChargeTime();
+			dynState.Player.CurrentLightAttackCooldown = 0f;
+			dynState.Player.CurrentHeavyAttackCooldown = 0f;
+
+			dynState.Player.CurrentLightAttackChargeTime = 0f;
+			dynState.Player.CurrentLightAttackChargeTime = 0f;
 		}
 
 		dynState.Player.InvulnerabilityTimeRemaining = player.InvulnerabilityTimer;
@@ -346,7 +358,7 @@ public partial class GlobalState : Node
 		dynState.Boss.InvulnerabilityTimeRemaining = (float) bossRef.InvulnerabilityTimer.TimeLeft;
 
 		dynState.Boss.DistanceToPlayer = dynState.Boss.Position.DistanceTo(dynState.Player.Position);
-		dynState.Boss.AngleToPlayer = dynState.Boss.Position.AngleTo(dynState.Player.Position);
+		dynState.Boss.AngleToPlayer = (dynState.Player.Position - dynState.Boss.Position).Angle();
 	
 		dynState.Boss.DamageTaken = 0f;
 	}

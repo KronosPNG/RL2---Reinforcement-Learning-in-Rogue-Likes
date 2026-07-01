@@ -18,6 +18,7 @@ _data = {
 
 [node name="Main" type="Node2D" unique_id=1241760868]
 script = ExtResource("1_sugp2")
+_frameInterval = 10
 
 [node name="BossHealthbar" parent="." unique_id=106652635 instance=ExtResource("2_tefeu")]
 visible = false

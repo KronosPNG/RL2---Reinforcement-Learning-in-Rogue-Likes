@@ -77,20 +77,28 @@ class TrajectoryCollector:
         player_hp = dynamic_state["player"]["Health"]
         boss_hp = dynamic_state["boss"]["Health"]
         
+        angle_to_player = dynamic_state["boss"]["AngleToPlayer"]
+
+        # Check if the chosen attack is on cooldown (game will ignore it)
+        on_cooldown = False
+        if action_id in (3, 4, 5, 6):
+            attack_index = action_id - 3  # Melee1→0, Melee2→1, Magic1→2, Magic2→3
+            on_cooldown = dynamic_state["boss"]["AttackCooldownTimers"][attack_index] > 0
+
         if self.last_player_hp is not None:
             # Compute damage deltas since last step
             # player_damage = damage dealt TO player (positive if player hp decreased)
             player_damage = self.last_player_hp - player_hp
             # boss_damage = damage dealt TO boss (positive if boss hp decreased)
             boss_damage = self.last_boss_hp - boss_hp
-            
+
             step_reward = self.reward_tracker.step_reward(
-                player_damage, boss_damage, action_id
+                player_damage, boss_damage, action_id, angle_to_player, on_cooldown
             )
         else:
-            # First step: only anti-spam penalty applies
+            # First step: no damage yet, no attack fires
             step_reward = self.reward_tracker.step_reward(
-                0.0, 0.0, action_id
+                0.0, 0.0, action_id, 0.0, False
             )
         
         # Store transition in trajectory

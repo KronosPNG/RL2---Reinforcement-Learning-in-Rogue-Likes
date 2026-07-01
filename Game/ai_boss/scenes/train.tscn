@@ -15,6 +15,7 @@ _data = {
 
 [node name="Main" type="Node2D" unique_id=1241760868]
 script = ExtResource("1_fr42t")
+_frameInterval = 10
 
 [node name="Hud" parent="." unique_id=2069667942 instance=ExtResource("3_o1hdh")]
 

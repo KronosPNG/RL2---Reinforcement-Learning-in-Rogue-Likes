@@ -161,7 +161,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_7ecxn"]
 resource_name = "magic1_attack"
-length = 0.6
+length = 0.3
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -170,7 +170,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857146),
+"times": PackedFloat32Array(0, 0.071428575, 0.14285715, 0.21428573),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [76, 77, 78, 79]
@@ -190,7 +190,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_06sei"]
 resource_name = "magic2_attack_prepare"
-length = 1.8
+length = 0.9
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -199,7 +199,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857146, 0.5714286, 0.71428573, 0.8571429, 1, 1.1428572, 1.2857144, 1.4285715),
+"times": PackedFloat32Array(0, 0.071428575, 0.14285715, 0.21428573, 0.2857143, 0.35714287, 0.42857146, 0.5, 0.5714286, 0.6428572, 0.71428573),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75]
@@ -305,7 +305,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_mdwjs"]
 resource_name = "melee1_attack_prepare"
-length = 1.2
+length = 0.6
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -314,7 +314,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [32, 33, 34, 35, 36, 37]
@@ -334,7 +334,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_grfbg"]
 resource_name = "melee2_attack"
-length = 0.4
+length = 0.2
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -343,7 +343,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2),
+"times": PackedFloat32Array(0, 0.1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [53, 54]
@@ -363,6 +363,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_uo6hv"]
 resource_name = "melee2_attack_prepare"
+length = 0.5
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -371,7 +372,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [48, 49, 50, 51, 52]
@@ -495,7 +496,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_jfjmh"]
 resource_name = "magic1_attack"
-length = 0.6
+length = 0.3
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -504,7 +505,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857146),
+"times": PackedFloat32Array(0, 0.071428575, 0.14285715, 0.21428573),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [76, 77, 78, 79]
@@ -524,7 +525,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_5pvt7"]
 resource_name = "magic1_attack_prepare"
-length = 1.8
+length = 0.9
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -533,7 +534,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857146, 0.5714286, 0.71428573, 0.8571429, 1, 1.1428572, 1.2857144, 1.4285715),
+"times": PackedFloat32Array(0, 0.071428575, 0.14285715, 0.21428573, 0.2857143, 0.35714287, 0.42857146, 0.5, 0.5714286, 0.6428572, 0.71428573),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75]
@@ -639,7 +640,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_pesic"]
 resource_name = "melee1_attack_prepare"
-length = 1.2
+length = 0.6
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -648,7 +649,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [32, 33, 34, 35, 36, 37]
@@ -668,7 +669,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_ig8t2"]
 resource_name = "melee2_attack"
-length = 0.4
+length = 0.2
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -677,7 +678,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2),
+"times": PackedFloat32Array(0, 0.1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [53, 54]
@@ -697,6 +698,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_4oke3"]
 resource_name = "melee2_attack_prepare"
+length = 0.5
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -705,7 +707,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [48, 49, 50, 51, 52]
@@ -829,7 +831,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_o330c"]
 resource_name = "magic1_attack"
-length = 0.6
+length = 0.3
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -838,7 +840,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857146),
+"times": PackedFloat32Array(0, 0.071428575, 0.14285715, 0.21428573),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [76, 77, 78, 79]
@@ -858,7 +860,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_ixayy"]
 resource_name = "magic1_attack_prepare"
-length = 1.8
+length = 0.9
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -867,7 +869,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857146, 0.5714286, 0.71428573, 0.8571429, 1, 1.1428572, 1.2857144, 1.4285715),
+"times": PackedFloat32Array(0, 0.071428575, 0.14285715, 0.21428573, 0.2857143, 0.35714287, 0.42857146, 0.5, 0.5714286, 0.6428572, 0.71428573),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75]
@@ -973,7 +975,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_l1p2m"]
 resource_name = "melee1_attack_prepare"
-length = 1.2
+length = 0.6
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -982,7 +984,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [32, 33, 34, 35, 36, 37]
@@ -1002,7 +1004,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_yhtha"]
 resource_name = "melee2_attack"
-length = 0.4
+length = 0.2
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1011,7 +1013,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2),
+"times": PackedFloat32Array(0, 0.1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [53, 54]
@@ -1031,6 +1033,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_cvj1x"]
 resource_name = "melee2_attack_prepare"
+length = 0.5
 step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1039,7 +1042,7 @@ tracks/0/path = NodePath("Sprite2D:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [48, 49, 50, 51, 52]
@@ -1171,6 +1174,7 @@ y_sort_enabled = true
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_sdtpy")
+DamageModifier = 2.5
 BaseSpeed = 24.0
 TargetType = "Player"
 

@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://yqpjq4vr7dvt"]
+
+[ext_resource type="Script" uid="uid://d2c0gawwbg3y" path="res://scripts/hud/training_data/TrainingData.cs" id="1_ijxya"]
+
+[node name="TrainingData" type="HBoxContainer" unique_id=239629513]
+script = ExtResource("1_ijxya")
+
+[node name="Labels" type="VBoxContainer" parent="." unique_id=1211113408]
+layout_mode = 2
+
+[node name="EpisodeLabel" type="Label" parent="Labels" unique_id=144692935]
+layout_mode = 2
+text = "Episode: "
+
+[node name="TimeLabel" type="Label" parent="Labels" unique_id=201521998]
+layout_mode = 2
+text = "Time(s): "
+
+[node name="ActionLabel" type="Label" parent="Labels" unique_id=1996772368]
+layout_mode = 2
+text = "Action:"
+
+[node name="XLabel" type="Label" parent="Labels" unique_id=1369388324]
+layout_mode = 2
+text = "X:"
+
+[node name="YLabel" type="Label" parent="Labels" unique_id=263358425]
+layout_mode = 2
+text = "Y:"
+
+[node name="Values" type="VBoxContainer" parent="." unique_id=471356187]
+custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+
+[node name="EpisodeValue" type="Label" parent="Values" unique_id=664582210]
+layout_mode = 2
+text = "0"
+
+[node name="TimeValue" type="Label" parent="Values" unique_id=1672085211]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="ActionValue" type="Label" parent="Values" unique_id=515313456]
+layout_mode = 2
+text = "Melee1"
+
+[node name="XValue" type="Label" parent="Values" unique_id=1098630199]
+layout_mode = 2
+text = "0.0"
+
+[node name="YValue" type="Label" parent="Values" unique_id=2023574876]
+layout_mode = 2
+text = "0.0"

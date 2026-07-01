@@ -183,4 +183,18 @@ public static class EventBus
     {
         OnBossDamaged?.Invoke(amount);
     }
+
+    // --- Training Events ---
+    public static event Action OnRestartEpisode;
+    public static event Action<AiAction> OnActionReceived;
+
+    public static void RaiseRestartEpisode()
+    {
+        OnRestartEpisode?.Invoke();
+    }
+
+    public static void RaiseActionReceived(AiAction action)
+    {
+        OnActionReceived?.Invoke(action);
+    }
 }

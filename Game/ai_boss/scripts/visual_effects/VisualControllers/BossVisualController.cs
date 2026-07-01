@@ -26,6 +26,10 @@ public partial class BossVisualController : EntityVisualController<BossState>
 
     public override string GetLibraryForFacing()
 	{
+
+        if(_currentState == BossState.Dying || _currentState == BossState.Dead)
+            return "";
+
 		Vector2 dir = FacingDirection;
 
 		// During attacks, snap to cardinal so diagonal RL output picks the correct animation library

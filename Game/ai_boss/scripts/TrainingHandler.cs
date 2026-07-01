@@ -335,6 +335,7 @@ public partial class TrainingHandler : Node
 			{
 				case NetMsgType.Action:
 					var action = NetworkProtocol.DeserializeAction(payload);
+					EventBus.RaiseActionReceived(action);
 					ApplyAiAction(action);
 					break;
 
@@ -379,6 +380,7 @@ public partial class TrainingHandler : Node
 	private void RestartEpisode()
 	{
 		GD.Print($"[TRAINING: {Time.GetDatetimeStringFromSystem()}] Restarting episode");
+		EventBus.RaiseRestartEpisode();
 
 		// Disconnect EventBus handlers synchronously BEFORE QueueFree — deferred equip callbacks
 		// for the new episode must not see stale handlers from this episode's player.
