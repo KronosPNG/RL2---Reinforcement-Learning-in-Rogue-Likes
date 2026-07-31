@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ConsumableTactical" format=3 uid="uid://nf55hx8wmeox"]
+
+[ext_resource type="Script" uid="uid://bs7cctmfofw5f" path="res://scripts/entities/Behaviours/Consumable/ConsumableTactical.cs" id="1_txa67"]
+
+[resource]
+script = ExtResource("1_txa67")
+metadata/_custom_type_script = "uid://bs7cctmfofw5f"

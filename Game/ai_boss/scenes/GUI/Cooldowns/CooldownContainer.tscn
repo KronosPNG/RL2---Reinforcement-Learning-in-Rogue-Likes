@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://dwbay7tnan58f"]
+
+[ext_resource type="Script" uid="uid://dsg20k5k6kigj" path="res://scripts/hud/cooldowns/CooldownContainer.cs" id="1_dhvfn"]
+[ext_resource type="PackedScene" uid="uid://cv0uu3fevcwqb" path="res://scenes/GUI/Cooldowns/LightAttackCooldown.tscn" id="1_fksf4"]
+[ext_resource type="PackedScene" uid="uid://d1nu4t5d65o7" path="res://scenes/GUI/Cooldowns/HeavyAttackCooldown.tscn" id="2_dhvfn"]
+[ext_resource type="PackedScene" uid="uid://r2wl01cfmbei" path="res://scenes/GUI/Cooldowns/ConsumableIndicator.tscn" id="4_71jdd"]
+
+[node name="CooldownContainer" type="HBoxContainer" unique_id=1776488148]
+custom_minimum_size = Vector2(32, 16)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -26.0
+offset_right = 56.0
+grow_vertical = 0
+mouse_filter = 2
+accessibility_name = "Cooldowns Container"
+accessibility_description = "Container of all cooldown indicators"
+accessibility_live = 2
+script = ExtResource("1_dhvfn")
+
+[node name="LightAttackCooldown" parent="." unique_id=251948909 instance=ExtResource("1_fksf4")]
+layout_mode = 2
+
+[node name="HeavyAttackCooldown" parent="." unique_id=1617536752 instance=ExtResource("2_dhvfn")]
+layout_mode = 2
+
+[node name="ConsumableIndicator" parent="." unique_id=635768501 instance=ExtResource("4_71jdd")]
+layout_mode = 2

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="AttackCowardly" format=3 uid="uid://dnh3yx5icoglh"]
+
+[ext_resource type="Script" uid="uid://ci8f3lni6yx" path="res://scripts/entities/Behaviours/Attacking/PlayerMimic/AttackCowardly.cs" id="1_5s4pm"]
+
+[resource]
+script = ExtResource("1_5s4pm")
+metadata/_custom_type_script = "uid://ci8f3lni6yx"

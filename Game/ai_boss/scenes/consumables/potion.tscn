@@ -1,0 +1,206 @@
+[gd_scene format=3 uid="uid://2jfgq8rtprvv"]
+
+[ext_resource type="Script" uid="uid://dneu0jdgv74uo" path="res://scripts/combat/consumables/Consumable.cs" id="1_consumable"]
+[ext_resource type="Script" uid="uid://cw0sygpgrpifg" path="res://scripts/combat/consumables/InstantHealEffect.cs" id="2_rmdn2"]
+[ext_resource type="Texture2D" uid="uid://1862sp1gdlit" path="res://art/animations/bean/consumables/potion-Sheet.png" id="3_ykp20"]
+[ext_resource type="Texture2D" uid="uid://b5pwu4brh2b84" path="res://art/static_sprites/potion.png" id="4_ykp20"]
+
+[sub_resource type="Resource" id="Resource_qqepg"]
+script = ExtResource("2_rmdn2")
+EffectValue = 8.0
+UsageTime = 2.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_prsoh"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3sbcd"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rtc68"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x7ym5"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_80mmo"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qxclh"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mh8ol"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0esre"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t58mc"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(128, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j07yf"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(144, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fq6tu"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(160, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vv48l"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(176, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gon1b"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(192, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5y8de"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(208, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b50mi"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(224, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bxof3"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(240, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_regcv"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(256, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7coei"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(272, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5di5l"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(288, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mr8p3"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(304, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ujac1"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(320, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d80p8"]
+atlas = ExtResource("3_ykp20")
+region = Rect2(336, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3c737"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_prsoh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3sbcd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rtc68")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x7ym5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_80mmo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qxclh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mh8ol")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0esre")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t58mc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j07yf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fq6tu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vv48l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gon1b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5y8de")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b50mi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bxof3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_regcv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7coei")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5di5l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mr8p3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ujac1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d80p8")
+}],
+"loop": false,
+"name": &"use",
+"speed": 12.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qqepg"]
+atlas = ExtResource("4_ykp20")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_prsoh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qqepg")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}]
+
+[node name="Potion" type="Node2D" unique_id=1166084879 node_paths=PackedStringArray("PedestalDisplaySprite")]
+z_index = 1
+script = ExtResource("1_consumable")
+ItemName = "Healing Potion"
+Description = "A magic potion that instantly heals any kind of wound."
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
+EffectConfig = SubResource("Resource_qqepg")
+IsSingleUse = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=548618642]
+sprite_frames = SubResource("SpriteFrames_3c737")
+animation = &"use"
+frame = 21
+frame_progress = 1.0
+
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=1060323142]
+sprite_frames = SubResource("SpriteFrames_prsoh")

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://b46kfyw61dvsb"]
+
+[ext_resource type="Script" uid="uid://c2vd4rg5utpde" path="res://scripts/TrainingHandler.cs" id="1_fr42t"]
+[ext_resource type="PackedScene" uid="uid://chpwf2m0bn8pu" path="res://scenes/GUI/HUDTraining.tscn" id="3_o1hdh"]
+[ext_resource type="Script" uid="uid://c0vfyk77xy53h" path="res://scripts/TrainingRoomManager.cs" id="4_o1hdh"]
+[ext_resource type="Script" uid="uid://dmw4cugteb6vt" path="res://scripts/visual_effects/camera/CameraController.cs" id="6_g7hjf"]
+
+[sub_resource type="Animation" id="Animation_tbgi4"]
+resource_name = "BossIntro"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tefeu"]
+_data = {
+&"BossIntro": SubResource("Animation_tbgi4")
+}
+
+[node name="Main" type="Node2D" unique_id=1241760868]
+script = ExtResource("1_fr42t")
+_frameInterval = 10
+
+[node name="Hud" parent="." unique_id=2069667942 instance=ExtResource("3_o1hdh")]
+
+[node name="RoomManager" type="Node2D" parent="." unique_id=318667351 groups=["Room"]]
+script = ExtResource("4_o1hdh")
+
+[node name="Camera2D" type="Camera2D" parent="RoomManager" unique_id=2005641649]
+zoom = Vector2(2, 2)
+script = ExtResource("6_g7hjf")
+
+[node name="CutscenePlayer" type="AnimationPlayer" parent="." unique_id=1387689413]
+libraries/ = SubResource("AnimationLibrary_tefeu")

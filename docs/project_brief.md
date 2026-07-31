@@ -16,7 +16,7 @@
 
 ## 2. Synopsis (one paragraph)
 
-This project implements and evaluates a deep reinforcement learning (DRL) driven boss for a compact 2D game. The game has a fixed layout of four item rooms followed by a boss room; item rewards in the item rooms are randomized per run. The research focus is the boss: a single encounter whose behavior (combat tactics and item selection) adapts to different player builds and playstyles using PyTorch‑based DRL. The goal is to demonstrate that an adaptive ML policy can (1) respond to repeated player strategies, (2) counter different archetypes, and (3) produce an alternative paradigm to traditional NPCs AIs.
+This project implements and evaluates a deep reinforcement learning (DRL) driven boss for a compact 2D game. The game has a fixed layout of four item rooms followed by a boss room. The research focus is the boss: a single encounter whose behavior (combat tactics and item selection) adapts to different player builds and playstyles using PyTorch‑based DRL. The goal is to demonstrate that an adaptive ML policy can (1) respond to repeated player strategies, (2) counter different archetypes, and (3) produce an alternative paradigm to traditional NPCs AIs.
 
 ---
 
@@ -129,7 +129,3 @@ This project implements and evaluates a deep reinforcement learning (DRL) driven
 * **NPC:** Non Playable Character.
 * **Episode:** a single boss encounter run from entering boss room to win/lose or timeout.
 * **Policy:** trained ML agent (boss).
-
----
-
-*End of project brief*

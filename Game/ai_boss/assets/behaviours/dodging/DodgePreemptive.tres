@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DodgePreemptive" format=3 uid="uid://co5j1noiwkgnu"]
+
+[ext_resource type="Script" uid="uid://vjnh1h5lxsbw" path="res://scripts/entities/Behaviours/Dodging/DodgePreemptive.cs" id="1_wej57"]
+
+[resource]
+script = ExtResource("1_wej57")
+metadata/_custom_type_script = "uid://vjnh1h5lxsbw"

@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://dga6m0jed3vlt"]
+
+[ext_resource type="PackedScene" uid="uid://dqjwsn7g8fpdv" path="res://scenes/GUI/Health/Healthbar.tscn" id="1_fsbs6"]
+[ext_resource type="PackedScene" uid="uid://dwbay7tnan58f" path="res://scenes/GUI/Cooldowns/CooldownContainer.tscn" id="2_0jvll"]
+
+[node name="Hud" type="CanvasLayer" unique_id=2069667942]
+
+[node name="Healthbar" parent="." unique_id=1933731018 instance=ExtResource("1_fsbs6")]
+
+[node name="CooldownContainer" parent="." unique_id=1776488148 instance=ExtResource("2_0jvll")]
+texture_filter = 1
+anchors_preset = -1
+anchor_top = 0.88
+scale = Vector2(3.5, 3.5)

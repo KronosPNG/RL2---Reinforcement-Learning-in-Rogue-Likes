@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://bxj74s3k6eolb"]
+
+[ext_resource type="Script" uid="uid://giys1snvgx4f" path="res://scripts/hud/healthbar/HeartContainer.cs" id="1_kr80v"]
+[ext_resource type="Texture2D" uid="uid://d1bwonrxukpo8" path="res://art/hud/heart_sheet.png" id="2_p2qb7"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sdwjh"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p2qb7"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w51bg"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nfq3i"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ckpkp"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rurns"]
+atlas = ExtResource("2_p2qb7")
+region = Rect2(0, 0, 16, 16)
+
+[node name="HeartContainer" type="Control" unique_id=885061721]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1136.0
+offset_bottom = -632.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+accessibility_name = "Heart Container"
+accessibility_description = "Heart Container containing the health of a single heart"
+accessibility_live = 2
+script = ExtResource("1_kr80v")
+TextureEmpty = SubResource("AtlasTexture_sdwjh")
+TextureQuarter = SubResource("AtlasTexture_p2qb7")
+TextureHalf = SubResource("AtlasTexture_w51bg")
+TextureThreeQuarters = SubResource("AtlasTexture_nfq3i")
+TextureFull = SubResource("AtlasTexture_ckpkp")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2009635882]
+z_index = 10
+layout_mode = 0
+offset_right = 16.0
+offset_bottom = 16.0
+mouse_filter = 2
+accessibility_name = "HeartContainer"
+accessibility_description = "Container for hearts in healthbar"
+texture = SubResource("AtlasTexture_rurns")
+stretch_mode = 2

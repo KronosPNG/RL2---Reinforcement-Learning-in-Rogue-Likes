@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://h20pgitnp43i"]
+
+[ext_resource type="Script" uid="uid://bjepcxymx41yd" path="res://scripts/entities/Projectiles/Projectile.cs" id="1_qxthx"]
+[ext_resource type="Script" uid="uid://bn0hi44v7jyf" path="res://scripts/visual_effects/VisualControllers/ProjectileVisualController.cs" id="2_i528v"]
+[ext_resource type="Texture2D" uid="uid://mydf813wciac" path="res://art/animations/weapons/explosion.png" id="3_qxthx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ead6x"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_di1w4"]
+size = Vector2(0.571429, 0.28571433)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fiu4u"]
+radius = 13.0
+
+[sub_resource type="Animation" id="Animation_lxf1j"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [1]
+}
+
+[sub_resource type="Animation" id="Animation_gdm88"]
+resource_name = "default"
+length = 0.4
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_bu1j0"]
+resource_name = "fading"
+length = 0.4
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [4, 5]
+}
+
+[sub_resource type="Animation" id="Animation_xjs4b"]
+resource_name = "hit"
+length = 0.25
+step = 0.0833
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_bu1j0"]
+_data = {
+&"RESET": SubResource("Animation_lxf1j"),
+&"default": SubResource("Animation_gdm88"),
+&"fading": SubResource("Animation_bu1j0"),
+&"hit": SubResource("Animation_xjs4b")
+}
+
+[node name="Explosion" type="CharacterBody2D" unique_id=811999087]
+z_index = 2
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_ead6x")
+collision_layer = 0
+script = ExtResource("1_qxthx")
+
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1685691667]
+visible = false
+position = Vector2(4.7683716e-07, -2.3841858e-07)
+scale = Vector2(7, 7)
+shape = SubResource("RectangleShape2D_di1w4")
+debug_color = Color(0.522613, 0.13251, 0.652217, 0.42)
+
+[node name="HitArea" type="Area2D" parent="." unique_id=1901405652]
+collision_layer = 16
+collision_mask = 64
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=477509972]
+visible = false
+z_index = 2
+shape = SubResource("CircleShape2D_fiu4u")
+debug_color = Color(0.682353, 0, 0.0745098, 0.419608)
+
+[node name="VisualController" type="Node2D" parent="." unique_id=636743750]
+script = ExtResource("2_i528v")
+
+[node name="Sprite2D" type="Sprite2D" parent="VisualController" unique_id=1151264954]
+texture = ExtResource("3_qxthx")
+offset = Vector2(0, -0.6)
+hframes = 6
+frame = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualController" unique_id=1504000961]
+libraries/ = SubResource("AnimationLibrary_bu1j0")

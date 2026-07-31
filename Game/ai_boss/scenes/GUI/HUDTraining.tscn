@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://chpwf2m0bn8pu"]
+
+[ext_resource type="PackedScene" uid="uid://dqjwsn7g8fpdv" path="res://scenes/GUI/Health/Healthbar.tscn" id="1_do80j"]
+[ext_resource type="PackedScene" uid="uid://bho26uagji2ed" path="res://scenes/GUI/BossHealthbar/BossHealthbar.tscn" id="2_do80j"]
+[ext_resource type="PackedScene" uid="uid://yqpjq4vr7dvt" path="res://scenes/GUI/Training/TrainingData.tscn" id="3_aoacm"]
+
+[node name="Hud" type="CanvasLayer" unique_id=2069667942]
+
+[node name="Healthbar" parent="." unique_id=1933731018 instance=ExtResource("1_do80j")]
+
+[node name="BossHealthbar" parent="." unique_id=106652635 instance=ExtResource("2_do80j")]
+offset = Vector2(300, 300)
+scale = Vector2(0.5, 0.5)
+transform = Transform2D(0.5, 0, 0, 0.5, 300, 300)
+
+[node name="TrainingData" parent="." unique_id=239629513 instance=ExtResource("3_aoacm")]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -55.0
+offset_bottom = 24.0
+grow_horizontal = 0
+scale = Vector2(2, 2)
+pivot_offset = Vector2(100, -16)

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ConsumableThreshold" format=3 uid="uid://d0k3yib4xpqw0"]
+
+[ext_resource type="Script" uid="uid://f8jhxyf54l38" path="res://scripts/entities/Behaviours/Consumable/ConsumableThreshold.cs" id="1_vklay"]
+
+[resource]
+script = ExtResource("1_vklay")
+metadata/_custom_type_script = "uid://f8jhxyf54l38"

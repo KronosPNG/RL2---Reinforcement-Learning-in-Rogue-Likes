@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="WanderHide" format=3 uid="uid://bnvfqrpi3f60o"]
+
+[ext_resource type="Script" uid="uid://d1iorltjuv0qr" path="res://scripts/entities/Behaviours/Wandering/WanderHide.cs" id="1_cf503"]
+
+[resource]
+script = ExtResource("1_cf503")
+metadata/_custom_type_script = "uid://d1iorltjuv0qr"

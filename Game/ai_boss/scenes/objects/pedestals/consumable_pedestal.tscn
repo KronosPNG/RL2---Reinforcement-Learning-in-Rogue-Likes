@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://cr1lvpxgwegk8"]
+
+[ext_resource type="Script" uid="uid://cm3m28fewiglc" path="res://scripts/entities/Pedestal/ConsumablePedestal.cs" id="1_w0nlm"]
+[ext_resource type="Texture2D" uid="uid://b8421fvshacxu" path="res://art/objects/consumables_pedestal.png" id="2_w0nlm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aedhk"]
+size = Vector2(16, 4)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hsd6d"]
+radius = 14.0357
+
+[node name="ConsumablePedestal" type="CharacterBody2D" unique_id=1710822934]
+z_index = 2
+collision_mask = 14
+script = ExtResource("1_w0nlm")
+
+[node name="PhysicalCollision" type="CollisionShape2D" parent="." unique_id=1807267303]
+position = Vector2(-2.72478e-07, 0)
+shape = SubResource("RectangleShape2D_aedhk")
+
+[node name="HitArea" type="Area2D" parent="." unique_id=849157743]
+visible = false
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=315851154]
+shape = SubResource("CircleShape2D_hsd6d")
+
+[node name="ItemSprite" type="AnimatedSprite2D" parent="." unique_id=1896848123]
+z_index = 1
+
+[node name="InteractPrompt" type="Label" parent="." unique_id=1779565352]
+z_index = 1
+offset_left = -15.0
+offset_top = -20.0
+offset_right = 85.0
+offset_bottom = 3.0
+scale = Vector2(0.3, 0.3)
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VisualController" type="Node2D" parent="." unique_id=527215032]
+
+[node name="Sprite2D" type="Sprite2D" parent="VisualController" unique_id=2106456764]
+texture = ExtResource("2_w0nlm")

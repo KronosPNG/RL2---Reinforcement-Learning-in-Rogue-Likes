@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ConsumableNone" format=3 uid="uid://cranjk78imugr"]
+
+[ext_resource type="Script" uid="uid://scmjrllljorm" path="res://scripts/entities/Behaviours/Consumable/ConsumableNone.cs" id="1_f4co5"]
+
+[resource]
+script = ExtResource("1_f4co5")
+metadata/_custom_type_script = "uid://scmjrllljorm"

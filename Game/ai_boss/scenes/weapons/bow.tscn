@@ -1,64 +1,46 @@
-[gd_scene load_steps=30 format=3 uid="uid://3ck2mhc1l2m0"]
+[gd_scene format=3 uid="uid://3ck2mhc1l2m0"]
 
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_rs3f0"]
 [ext_resource type="Texture2D" uid="uid://c6pcpe0mr10b6" path="res://art/animations/weapons/bow-Sheet.png" id="2_pevdf"]
 [ext_resource type="PackedScene" uid="uid://dufefxrpx60dr" path="res://scenes/weapons/projectiles/arrow.tscn" id="2_rs3f0"]
-[ext_resource type="Script" uid="uid://behghmgcgacq5" path="res://scripts/attack_types/ProjectileAttack.cs" id="2_wr7d4"]
-[ext_resource type="Script" uid="uid://yslsc0gfiae4" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_cwr1y"]
+[ext_resource type="Script" uid="uid://5alhbkf2df8r" path="res://scripts/attack_types/ProjectileAttack.cs" id="2_wr7d4"]
+[ext_resource type="Script" uid="uid://br2k1oubrxxrw" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_cwr1y"]
+[ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="6_0hpek"]
 
 [sub_resource type="Resource" id="Resource_cwr1y"]
 script = ExtResource("2_wr7d4")
 ProjectileScene = ExtResource("2_rs3f0")
-ProjectileSpeed = 1500.0
-ProjectileLifetime = 1.0
-ProjectileCount = 1
-SpreadAngleDeg = 0.0
-SpawnDistanceFromPlayer = 0.0
+DestroyOnWallHit = false
 Damage = 5.0
-Cooldown = 0.0
-Windup = 0.0
-Active = 0.0
-metadata/_custom_type_script = "uid://behghmgcgacq5"
+Range = 200.0
 
 [sub_resource type="Resource" id="Resource_hl64m"]
 script = ExtResource("4_cwr1y")
 ProjectileAttack = SubResource("Resource_cwr1y")
 ScaleProjectileCountWithCharge = false
-MaxProjectileCount = 5
-ScaleSpeedWithCharge = true
-MinProjectileSpeedMultiplier = 0.75
-MaxProjectileSpeedMultiplier = 1.0
-ScaleProjectileLifeWithCharge = true
-MinProjectileLifeMultiplier = 0.1
-MaxProjectileLifeMultiplier = 1.0
-UseExponentialLifeScaling = true
-LifeScalingExponent = 0.25
-MinChargeTime = 1.5
-MaxChargeTime = 4.0
+MinProjectileSpeedMultiplier = 0.6
+MinProjectileRangeMultiplier = 0.15
+MinChargeTime = 0.75
+MaxChargeTime = 1.75
 MinChargeDamagePercentage = 0.1
-MaxChargeDamagePercentage = 1.0
-RequiresMinCharge = true
-ChargeAnimation = "charge"
-IdleAnimation = "idle"
-Damage = 0.0
-Cooldown = 0.0
-Windup = 0.0
-Active = 0.0
-metadata/_custom_type_script = "uid://yslsc0gfiae4"
+Damage = 35.0
+Cooldown = 0.1
+Active = 0.75
+Knockback = 24.0
+Range = 640.0
 
 [sub_resource type="Resource" id="Resource_rs3f0"]
 script = ExtResource("2_wr7d4")
 ProjectileScene = ExtResource("2_rs3f0")
-ProjectileSpeed = 1200.0
-ProjectileLifetime = 3.0
+ProjectileSpeed = 240.0
 ProjectileCount = 3
 SpreadAngleDeg = 20.0
-SpawnDistanceFromPlayer = 0.0
-Damage = 5.0
-Cooldown = 0.0
+DestroyOnWallHit = false
+Damage = 25.0
+Cooldown = 3.0
 Windup = 0.25
-Active = 0.0
-metadata/_custom_type_script = "uid://behghmgcgacq5"
+Knockback = 16.0
+Range = 240.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jug75"]
 atlas = ExtResource("2_pevdf")
@@ -83,6 +65,38 @@ region = Rect2(128, 0, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_qsm82"]
 atlas = ExtResource("2_pevdf")
 region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jga22"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x7f65"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c1owu"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aoq2u"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(96, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dvk8n"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(128, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x41v2"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(160, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v0rsj"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(192, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7rb8j"]
+atlas = ExtResource("2_pevdf")
+region = Rect2(224, 32, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wr7d4"]
 atlas = ExtResource("2_pevdf")
@@ -167,6 +181,35 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_jga22")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x7f65")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c1owu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aoq2u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dvk8n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x41v2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v0rsj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7rb8j")
+}],
+"loop": true,
+"name": &"fully_charged",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_wr7d4")
 }, {
 "duration": 1.0,
@@ -223,22 +266,44 @@ animations = [{
 "speed": 36.0
 }]
 
-[node name="Bow" type="Node2D"]
-scale = Vector2(7, 7)
+[sub_resource type="AtlasTexture" id="AtlasTexture_t87uk"]
+atlas = ExtResource("6_0hpek")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jga22"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t87uk")
+}],
+"loop": false,
+"name": &"idle",
+"speed": 0.0
+}]
+
+[node name="Bow" type="Node2D" unique_id=858920173 node_paths=PackedStringArray("PedestalDisplaySprite")]
 script = ExtResource("1_rs3f0")
-WeaponName = "Bow"
-Description = ""
+ItemName = "Shortbow"
+Description = "Ranged weapon with great range and speed"
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
+PedestalDisplayScale = Vector2(1, 1)
 LightAttackConfig = SubResource("Resource_hl64m")
 HeavyAttackConfig = SubResource("Resource_rs3f0")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1944169808]
 sprite_frames = SubResource("SpriteFrames_jvvga")
-animation = &"light_attack"
-frame = 3
-frame_progress = 1.0
+animation = &"idle"
 
-[node name="Pivot" type="Node2D" parent="."]
+[node name="Pivot" type="Node2D" parent="." unique_id=993419505]
 
-[node name="HitArea" type="Area2D" parent="."]
+[node name="HitArea" type="Area2D" parent="." unique_id=1684360838]
+collision_layer = 16
+collision_mask = 32
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="HitArea" unique_id=39010773]
+visible = false
+
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=317008876]
+visible = false
+sprite_frames = SubResource("SpriteFrames_jga22")
+animation = &"idle"

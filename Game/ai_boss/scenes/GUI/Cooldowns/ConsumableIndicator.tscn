@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://r2wl01cfmbei"]
+
+[ext_resource type="Script" uid="uid://bchwu6l0llc0d" path="res://scripts/hud/cooldowns/SimpleIndicator.cs" id="1_corr4"]
+[ext_resource type="Theme" uid="uid://dowfsv6q20axa" path="res://assets/theme/bean_theme.tres" id="1_w2ifo"]
+[ext_resource type="Texture2D" uid="uid://iay6g18lkqip" path="res://art/hud/indicators_sheet.png" id="3_w2ifo"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_cpwpp"]
+font_size = 4
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yidim"]
+atlas = ExtResource("3_w2ifo")
+region = Rect2(32, 0, 16, 16)
+
+[node name="ConsumableIndicator" type="Control" unique_id=251948909]
+custom_minimum_size = Vector2(16, 26)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1136.0
+offset_bottom = -621.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_w2ifo")
+script = ExtResource("1_corr4")
+
+[node name="ButtonLabel" type="Label" parent="." unique_id=1938718137]
+layout_mode = 0
+offset_right = 16.0
+offset_bottom = 5.0
+text = " [Q ]"
+label_settings = SubResource("LabelSettings_cpwpp")
+horizontal_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1899765200]
+layout_mode = 0
+offset_top = 6.0
+offset_right = 16.0
+offset_bottom = 22.0
+texture = SubResource("AtlasTexture_yidim")

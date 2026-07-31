@@ -1,0 +1,13 @@
+using Godot;
+
+public interface IEntity
+{
+    public Vector2 GlobalPosition { get; }
+    public Node2D Target { get; set; }  
+
+    public float StateTimer { get; set; }
+    public float BaseSpeed { get; set; }  
+    public Vector2 FacingDirection { get; set; }
+    public void ApplyImpulse(Vector2 direction, float speed, float duration);
+    
+}

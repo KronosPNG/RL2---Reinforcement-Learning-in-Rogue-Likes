@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://um62s86wrvvn"]
+
+[ext_resource type="Script" uid="uid://bni724410dhr7" path="res://scripts/player_inputs/Armor.cs" id="1_ed4n3"]
+[ext_resource type="Texture2D" uid="uid://bc5eor8bkwfe0" path="res://art/animations/bean/armor/heavy_armor-Sheet.png" id="3_ed4n3"]
+[ext_resource type="Texture2D" uid="uid://b30jw5y6lkyjx" path="res://art/static_sprites/armors-Sheet.png" id="4_fr7f1"]
+[ext_resource type="Texture2D" uid="uid://cbru6gvunkjd5" path="res://art/animations/bean/helmets/helmet-Sheet.png" id="4_wamww"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ed4n3"]
+atlas = ExtResource("4_fr7f1")
+region = Rect2(16, 16, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ivnlu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ed4n3")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}]
+
+[node name="HeavyArmor" type="Node2D" unique_id=1083528101 node_paths=PackedStringArray("PedestalDisplaySprite")]
+script = ExtResource("1_ed4n3")
+ItemName = "Heavy Armor"
+Description = "A well-forged heavy iron armor that grants great protection at the cost of movement"
+KnockbackModifier = 0.4
+DamageModifier = 0.25
+SpeedModifier = 0.65
+PedestalDisplaySprite = NodePath("PedestalDisplaySprite")
+PedestalDisplayScale = Vector2(1, 1)
+
+[node name="PedestalDisplaySprite" type="AnimatedSprite2D" parent="." unique_id=814572269]
+sprite_frames = SubResource("SpriteFrames_ivnlu")
+
+[node name="BodySprite" type="Sprite2D" parent="." unique_id=1493278320]
+visible = false
+texture = ExtResource("3_ed4n3")
+hframes = 10
+vframes = 6
+region_enabled = true
+region_rect = Rect2(0, 0, 160, 96)
+
+[node name="HelmetSprite" type="Sprite2D" parent="." unique_id=626227810]
+visible = false
+texture = ExtResource("4_wamww")
+hframes = 10
+vframes = 6
+region_enabled = true
+region_rect = Rect2(0, 0, 160, 96)
