@@ -72,7 +72,7 @@ public partial class GlobalState : Node
 		public float CurrentConsumableChargeTime { get; set; }
 	}
 	
-	public class BossState
+	public class BossActionState
 	{
 		public Vector2 Position { get; set; }
 		public float Health { get; set; }
@@ -82,7 +82,17 @@ public partial class GlobalState : Node
 		public float[] AttackCooldowns { get; set; } = new float[4];
 		public float[] AttackCooldownTimers { get; set; } = new float[4];
 		public short CurrentAttackId { get; set; } = -1; // -1 if idle
-		
+
+		// Time remaining before the boss can dash again (0 = ready), mirroring
+		// AttackCooldownTimers so the AI server can tell a genuine dash rejection
+		// (on cooldown) apart from a normal decision.
+		public float DashCooldownTimer { get; set; }
+
+		// True while the boss cannot act on a new command (attacking, winding up,
+		// dashing, or in post-dash cooldown). The AI server should not treat ticks
+		// where this is true as real decision points — ApplyAction() ignores input then.
+		public bool IsLocked { get; set; }
+
 		public float InvulnerabilityTimeRemaining { get; set; }
 		public float DamageTaken { get; set; } // Last frame damage
 		
@@ -109,7 +119,7 @@ public partial class GlobalState : Node
 	public class DynamicsState
 	{
 		public PlayerState Player = new PlayerState();
-		public BossState Boss = new BossState();
+		public BossActionState Boss = new BossActionState();
 		public ProjectileState Projectiles = new ProjectileState();
 	}
 
@@ -353,8 +363,13 @@ public partial class GlobalState : Node
 		dynState.Boss.AttackCooldownTimers[1] = (float) bossRef.AttackManager.MeleeAttack2CooldownTimer.TimeLeft;
 		dynState.Boss.AttackCooldownTimers[2] = (float) bossRef.AttackManager.MagicAttack1CooldownTimer.TimeLeft;
 		dynState.Boss.AttackCooldownTimers[3] = (float) bossRef.AttackManager.MagicAttack2CooldownTimer.TimeLeft;
+		dynState.Boss.DashCooldownTimer = (float) bossRef.DashCooldownTimer.TimeLeft;
 
 		dynState.Boss.CurrentAttackId = (short)bossRef.AttackManager.CurrentAttack;
+		dynState.Boss.IsLocked = bossRef.CurrentState is BossState.Attacking
+			or BossState.AttackPrepare
+			or BossState.Cooldown
+			or BossState.Dashing;
 		dynState.Boss.InvulnerabilityTimeRemaining = (float) bossRef.InvulnerabilityTimer.TimeLeft;
 
 		dynState.Boss.DistanceToPlayer = dynState.Boss.Position.DistanceTo(dynState.Player.Position);

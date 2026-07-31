@@ -67,12 +67,21 @@ public partial class BossAttackManager : WeaponBase
 
 	public override bool CanStartAttack()
 	{
+		return CanStartAttack(CurrentAttack);
+	}
+
+	// Checks readiness for a candidate attack type without depending on CurrentAttack
+	// already being set to it. ApplyAction() calls this BEFORE committing CurrentAttack,
+	// so a rejected attack request (still on cooldown / weapon not Ready) never overwrites
+	// the type belonging to whichever attack is actually in flight.
+	public bool CanStartAttack(BossRL.BossAttackType attack)
+	{
 		// Check if any attack is currently active
 		if (State != WeaponState.Ready)
 			return false;
 
-		// Check cooldowns based on the current attack type
-		return CurrentAttack switch
+		// Check cooldowns based on the given attack type
+		return attack switch
 		{
 			BossRL.BossAttackType.Melee1 => MeleeAttack1CooldownTimer.IsStopped(),
 			BossRL.BossAttackType.Melee2 => MeleeAttack2CooldownTimer.IsStopped(),
@@ -118,27 +127,28 @@ public partial class BossAttackManager : WeaponBase
 		State = WeaponState.Active;
 		_playerAlreadyHit = false;
 
-		// Attack Execute() methods expect a world-space position as target.
-		// Melee direction is already snapped to cardinal; project it to a world position.
-		// Magic attacks pass the direction directly (works when boss is near origin).
-		Vector2 meleeTarget = OwnerCharacter.GlobalPosition + GetAimDirection() * 1000f;
+		// Attack Execute() methods expect a world-space position as target, not a bare
+		// direction — ProjectileAttack.Execute() recovers the aim direction as
+		// (target - ownerPosition).Normalized(), so target must be a real point out
+		// along the aim direction, for melee AND magic alike.
+		Vector2 aimTarget = OwnerCharacter.GlobalPosition + GetAimDirection() * 1000f;
 
 		switch (CurrentAttack)
 		{
 			case BossRL.BossAttackType.Melee1:
-				MeleeAttack1.Execute(this, meleeTarget, FacingLeft);
+				MeleeAttack1.Execute(this, aimTarget, FacingLeft);
 				break;
 
 			case BossRL.BossAttackType.Melee2:
-				MeleeAttack2.Execute(this, meleeTarget, FacingLeft);
+				MeleeAttack2.Execute(this, aimTarget, FacingLeft);
 				break;
 
 			case BossRL.BossAttackType.Magic1:
-				MagicAttack1.Execute(this, GetAimDirection(), FacingLeft);
+				MagicAttack1.Execute(this, aimTarget, FacingLeft);
 				break;
 
 			case BossRL.BossAttackType.Magic2:
-				MagicAttack2.Execute(this, GetAimDirection(), FacingLeft);
+				MagicAttack2.Execute(this, aimTarget, FacingLeft);
 				break;
 		}
 
@@ -163,6 +173,16 @@ public partial class BossAttackManager : WeaponBase
 	{
 		State = WeaponState.Ready;
 		_playerAlreadyHit = false;
+
+		// Always clear the hitbox here rather than trusting each AttackBase.Interrupt()
+		// override to remember to do it — ProjectileAttack/SelfCenteredAttack's Interrupt()
+		// has no melee hitbox to clean up, so if AutoInterrupt() ever resolves the wrong
+		// attack type (e.g. CurrentAttack changed underneath it), a melee hitbox would
+		// otherwise be left Monitoring with a stale polygon indefinitely.
+		if (HitArea is not null)
+			HitArea.Monitoring = false;
+		if (HitAreaShape is not null)
+			HitAreaShape.Polygon = [];
 	}
 
 	protected async override Task AutoInterrupt(float secs)

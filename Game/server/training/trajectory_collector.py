@@ -10,7 +10,7 @@ from __future__ import annotations
 import torch
 import time
 
-from game.rewards import RewardTracker
+from game.rewards import RewardTracker, DASH
 from game.collector import flatten_observation
 from .trainer import PPOTrainer
 from utils.device import DEVICE
@@ -40,50 +40,66 @@ class TrajectoryCollector:
         self.trajectory = []
         self.last_player_hp = None
         self.last_boss_hp = None
+        self.last_action = (0.0, 0.0, 0)  # cached action resent while the boss is locked
         self.episode_start_time = None  # Track episode duration
         self.max_episode_duration = 600.0  # 10 minutes in seconds
 
     def collect_step(self, static_state: dict, dynamic_state: dict) -> tuple[float, float, int]:
         """
         Collect a single step of experience and return the action to execute.
-        
+
         Flow:
         1. Convert game state to observation tensor
         2. Sample action from policy (movement + action_id)
         3. Compute reward based on damage since last step
         4. Store in trajectory
         5. Return action to send to game
-        
+
+        While the boss is mid-attack, mid-dash, or in post-dash cooldown
+        (dynamic_state["boss"]["IsLocked"]), BossRL.ApplyAction() on the game side
+        ignores whatever action it receives. Sampling and scoring a fresh "decision"
+        on every one of those ticks would score the same in-flight attack many times
+        over (e.g. via the anti-spam streak) for a choice that was already made and
+        can't be changed. So those ticks are skipped entirely: no policy call, no
+        trajectory entry, no reward — HP deltas simply accumulate until the boss is
+        free to act again, and the whole commit window is scored as the single
+        decision that caused it.
+
         Args:
             static_state: Equipment and room bounds (from protocol.decode_static_state)
             dynamic_state: Player/boss position, health, etc. (from protocol.decode_dynamic_state)
-        
+
         Returns:
             Tuple of (movement_x, movement_y, action_id) to send to game
         """
         # Track episode start time on first step
         if self.episode_start_time is None:
             self.episode_start_time = time.time()
-        
+
+        if dynamic_state["boss"]["IsLocked"]:
+            return self.last_action
+
         obs = flatten_observation(static_state, dynamic_state)
-        
+
         # Get action and value from policy
         with torch.no_grad():
             action_dict = self.policy.get_action(obs.unsqueeze(0))
-        
+
         action_id = action_dict["action_id"][0].item()
-        
+
         # Track HP for reward computation
         player_hp = dynamic_state["player"]["Health"]
         boss_hp = dynamic_state["boss"]["Health"]
-        
+
         angle_to_player = dynamic_state["boss"]["AngleToPlayer"]
 
-        # Check if the chosen attack is on cooldown (game will ignore it)
+        # Check if the chosen attack/dash is on cooldown (game will ignore it)
         on_cooldown = False
         if action_id in (3, 4, 5, 6):
             attack_index = action_id - 3  # Melee1→0, Melee2→1, Magic1→2, Magic2→3
             on_cooldown = dynamic_state["boss"]["AttackCooldownTimers"][attack_index] > 0
+        elif action_id == DASH:
+            on_cooldown = dynamic_state["boss"]["DashCooldownTimer"] > 0
 
         if self.last_player_hp is not None:
             # Compute damage deltas since last step
@@ -115,10 +131,12 @@ class TrajectoryCollector:
         # Update HP tracking
         self.last_player_hp = player_hp
         self.last_boss_hp = boss_hp
-        
-        # Return action to send to game
+
+        # Return action to send to game, and cache it in case the boss locks up
+        # (attacks/dashes) before it's free to make another real decision.
         movement = action_dict["movement"][0].cpu().numpy()
-        return (float(movement[0]), float(movement[1]), int(action_id))
+        self.last_action = (float(movement[0]), float(movement[1]), int(action_id))
+        return self.last_action
 
     def end_episode(self, boss_won: bool, final_player_hp: float, final_boss_hp: float) -> dict | None:
         """
@@ -203,6 +221,7 @@ class TrajectoryCollector:
         self.reward_tracker.reset()
         self.last_player_hp = None
         self.last_boss_hp = None
+        self.last_action = (0.0, 0.0, 0)
         self.episode_start_time = None
 
         return batch
@@ -213,4 +232,5 @@ class TrajectoryCollector:
         self.reward_tracker.reset()
         self.last_player_hp = None
         self.last_boss_hp = None
+        self.last_action = (0.0, 0.0, 0)
         self.episode_start_time = None

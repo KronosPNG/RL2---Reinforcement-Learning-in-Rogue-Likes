@@ -16,9 +16,9 @@ public static class GameStateSerializer
     public const int StaticStateSize = EquipmentSize + RoomBoundsSize; // 73
 
     public const int PlayerStateSize = (4 * 4) + 4 + (9 * 4);    // 2 Vector2 + 1 int + 9 floats = 56
-    public const int BossStateSize = (2 * 4) + 4 + 4 + (4 * 4) + (4 * 4) + 2 + (4 * 4); // 66
+    public const int BossStateSize = (2 * 4) + 4 + 4 + (4 * 4) + 4 + (4 * 4) + 2 + 1 + (4 * 4); // 71
     public const int ProjectileStateSize = 4 + 4 + 4 + (2 * 4) + 4; // 24
-    public const int DynamicsStateSize = PlayerStateSize + BossStateSize + ProjectileStateSize; // 146
+    public const int DynamicsStateSize = PlayerStateSize + BossStateSize + ProjectileStateSize; // 151
 
     // ===================== StaticState =====================
 
@@ -201,7 +201,7 @@ public static class GameStateSerializer
 
     // ===================== BossState =====================
 
-    private static void WriteBossState(BinaryWriter w, GlobalState.BossState b)
+    private static void WriteBossState(BinaryWriter w, GlobalState.BossActionState b)
     {
         WriteVector2(w, b.Position);
         w.Write(b.Health);
@@ -209,8 +209,10 @@ public static class GameStateSerializer
 
         for (int i = 0; i < 4; i++) w.Write(b.AttackCooldowns[i]);
         for (int i = 0; i < 4; i++) w.Write(b.AttackCooldownTimers[i]);
+        w.Write(b.DashCooldownTimer);
 
         w.Write(b.CurrentAttackId);
+        w.Write(b.IsLocked);
 
         w.Write(b.InvulnerabilityTimeRemaining);
         w.Write(b.DamageTaken);
@@ -219,9 +221,9 @@ public static class GameStateSerializer
         w.Write(b.AngleToPlayer);
     }
 
-    private static GlobalState.BossState ReadBossState(BinaryReader r)
+    private static GlobalState.BossActionState ReadBossState(BinaryReader r)
     {
-        var b = new GlobalState.BossState
+        var b = new GlobalState.BossActionState
         {
             Position = ReadVector2(r),
             Health = r.ReadSingle(),
@@ -230,8 +232,10 @@ public static class GameStateSerializer
 
         for (int i = 0; i < 4; i++) b.AttackCooldowns[i] = r.ReadSingle();
         for (int i = 0; i < 4; i++) b.AttackCooldownTimers[i] = r.ReadSingle();
+        b.DashCooldownTimer = r.ReadSingle();
 
         b.CurrentAttackId = r.ReadInt16();
+        b.IsLocked = r.ReadBoolean();
 
         b.InvulnerabilityTimeRemaining = r.ReadSingle();
         b.DamageTaken = r.ReadSingle();

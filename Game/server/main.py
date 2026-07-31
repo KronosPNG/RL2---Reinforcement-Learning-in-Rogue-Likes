@@ -50,70 +50,67 @@ async def do_shutdown(reason: str):
 async def connection_handler(websocket, path: str = ""):
     """
     Handle a new game client connection.
-    
+
     Each client gets its own PacketHandler but shares the same policy
     via the global TrainingManager.
-    
-    Extracts instance_id from handshake or URL query.
-    
+
+    Orchestrated training instances (TrainingHandler.cs) send a JSON handshake
+    `{"instance_id": N}` as their first message. Manual/inference connections
+    (MainHandler.cs) send no handshake at all and go straight to the binary
+    protocol, STATIC_STATE first.
+
+    Messages are processed in arrival order via a single loop, with no fixed
+    timeout gambling on whether a handshake shows up. A previous version
+    peeked at the first message with a 2-second `asyncio.wait_for` timeout —
+    MainHandler.cs also waits ~2 seconds after connecting before sending
+    STATIC_STATE, so that peek and the client's first send raced each other.
+    When the peek lost (timing out right as STATIC_STATE arrived), the
+    underlying `websockets` library could drop that message entirely, leaving
+    SessionState.static permanently None and crashing the first DYNAMIC_STATE.
+
     Args:
         websocket: The new WebSocket connection from a client
         path: Optional path from WebSocket connection
     """
-    # Try to extract instance_id from various sources
     instance_id = 0
-    
-    # Check for instance_id in initial message (handshake)
-    try:
-        first_msg = await asyncio.wait_for(websocket.recv(), timeout=2.0)
-        if isinstance(first_msg, str):
-            try:
-                data = json.loads(first_msg)
-                instance_id = data.get("instance_id", 0)
-            except:
-                pass
-        
-        # Put message back by storing state
-        initial_payload = first_msg if isinstance(first_msg, bytes) else first_msg.encode()
-    except asyncio.TimeoutError:
-        initial_payload = None
-    
-    handler = PacketHandler(
-        shared_policy=training_manager.get_policy() if training_manager else inference_policy,
-        training_manager=training_manager,
-        instance_id=instance_id,
-        orchestrator=orchestrator,
-        instance_websockets=instance_id_to_websocket,
-    )
-    
-    # Mark instance as connected if using orchestrator
-    if orchestrator:
-        orchestrator.mark_instance_connected(instance_id)
-        instance_id_to_websocket[instance_id] = websocket
-        logger.info(f"Instance {instance_id} connected")
-    else:
-        if server_mode == "inference":
-            print(f"client connected (inference mode)")
+    handler = None
+
+    def ensure_handler():
+        nonlocal handler
+        if handler is not None:
+            return
+        handler = PacketHandler(
+            shared_policy=training_manager.get_policy() if training_manager else inference_policy,
+            training_manager=training_manager,
+            instance_id=instance_id,
+            orchestrator=orchestrator,
+            instance_websockets=instance_id_to_websocket,
+        )
+        if orchestrator:
+            orchestrator.mark_instance_connected(instance_id)
+            instance_id_to_websocket[instance_id] = websocket
+            logger.info(f"Instance {instance_id} connected")
         else:
-            print("client connected")
+            if server_mode == "inference":
+                print(f"client connected (inference mode)")
+            else:
+                print("client connected")
 
     try:
-        # Handle initial message if we captured it
-        if initial_payload and len(initial_payload) > 1:
-            msg_type = initial_payload[0]
-            payload = initial_payload[1:]
-            try:
-                await handler.handle(websocket, msg_type, payload)
-            except Exception as exc:
-                import traceback
-                print(f"[ERROR] Handler exception on initial message: {exc}")
-                traceback.print_exc()
-
-        # Handle remaining messages
         async for packet in websocket:
             if isinstance(packet, str):
-                # Skip text messages
+                # Optional JSON handshake — only orchestrated training instances send this.
+                try:
+                    data = json.loads(packet)
+                    instance_id = data.get("instance_id", 0)
+                except Exception:
+                    pass
                 continue
+
+            if len(packet) < 1:
+                continue
+
+            ensure_handler()
 
             msg_type = packet[0]
             payload = packet[1:]

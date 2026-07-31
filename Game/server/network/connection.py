@@ -72,6 +72,13 @@ class PacketHandler:
             # Player/boss positions, health, cooldowns
             self.state.dynamic = decode_dynamic_state(payload)
 
+            if self.state.static is None:
+                # STATIC_STATE hasn't arrived yet for this connection/episode — nothing
+                # to build an observation from. Should be rare now that MainHandler.cs
+                # gates DYNAMIC_STATE sends on STATIC_STATE having gone out first, but
+                # skip gracefully instead of crashing if it ever happens anyway.
+                return
+
             # Query AI for action
             x, y, action_id = self.ai.choose_action(self.state.static, self.state.dynamic)
             # Send action back to game
@@ -137,8 +144,13 @@ class PacketHandler:
             # Control commands from client
             cmd = decode_command(payload)
             if cmd == 0:
-                # Reset: new episode
+                # Reset: new episode. Preserve static state (equipment/room bounds)
+                # across the reset — the client doesn't necessarily resend STATIC_STATE
+                # before the next DYNAMIC_STATE arrives on this connection, and losing
+                # it here would crash flatten_observation() on the next dynamic packet.
+                static_backup = self.state.static
                 self.state = SessionState()
+                self.state.static = static_backup
                 self.ai.on_reset()
             elif cmd == 1:
                 # Close: disconnect

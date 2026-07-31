@@ -5,6 +5,12 @@ public partial class MainHandler : Node
 	[Export] int _frameInterval = 5;
 	bool _isPaused = false;
 
+	// _Process() checks socket state every frame independently of StartConnection()'s
+	// own coroutine; without this gate it starts sending DYNAMIC_STATE as soon as the
+	// socket reports Open (near-instant) instead of waiting for STATIC_STATE to have
+	// actually been sent first (which StartConnection() delays behind a fixed timer).
+	bool _hasSentStaticState = false;
+
 	GlobalState globalState;
 	AnimationPlayer _cutscenePlayer;
 	WebSocketPeer socket = new WebSocketPeer();
@@ -31,6 +37,10 @@ public partial class MainHandler : Node
 		EventBus.OnBossKilled += () => SendOutcome(won: true);
 
 		globalState = new GlobalState();
+		// Must be added to the tree — GlobalState._Ready()/_Process() (which wire up
+		// the EventBus subscriptions and populate statState/dynState every frame) only
+		// run for nodes actually in the scene tree. TrainingHandler.cs does this too.
+		AddChild(globalState);
 	}
 
 	public override void _Process(double delta)
@@ -42,7 +52,15 @@ public partial class MainHandler : Node
 			case WebSocketPeer.State.Open:
 				ProcessIncomingMessages();
 
-				if ((int)Engine.GetProcessFrames() % _frameInterval == 0)
+				// Send STATIC_STATE the moment the socket is actually usable, rather than
+				// guessing a fixed delay and hoping the handshake finished by then — this
+				// polls every frame until it succeeds, so it's correct regardless of how
+				// long the connection actually takes to open.
+				if (!_hasSentStaticState)
+				{
+					SendStaticState();
+				}
+				else if ((int)Engine.GetProcessFrames() % _frameInterval == 0)
 				{
 					SendDynamicState();
 				}
@@ -124,22 +142,15 @@ public partial class MainHandler : Node
 
 	// --- WebSocket implementation ---
 
-	private async void StartConnection()
+	private void StartConnection()
 	{
+		_hasSentStaticState = false;
+
 		var code = socket.ConnectToUrl("ws://localhost:7000");
 
-		if (code == Error.Ok)
-		{
-			await ToSignal(GetTree().CreateTimer(2f), "timeout");
-
-			socket.Poll();
-
-			if (socket.GetReadyState() == WebSocketPeer.State.Open)
-			{
-				SendStaticState();
-			}
-		}
-		else
+		// No fixed wait here — _Process() polls socket state every frame and sends
+		// STATIC_STATE as soon as it actually reports Open, however long that takes.
+		if (code != Error.Ok)
 		{
 			GD.PrintErr("Boss AI server is not available.");
 		}
@@ -181,6 +192,7 @@ public partial class MainHandler : Node
 	{
 		var payload = GameStateSerializer.SerializeStatic(globalState.statState);
 		SendMessage(NetMsgType.StaticState, payload);
+		_hasSentStaticState = true;
 	}
 
 	private void SendDynamicState()

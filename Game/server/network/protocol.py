@@ -11,7 +11,7 @@ ACTION = 10
 
 # Fixed sizes from your C# code
 STATIC_STATE_SIZE = 73
-DYNAMIC_STATE_SIZE = 146
+DYNAMIC_STATE_SIZE = 151
 ACTION_SIZE = 12  # 4 + 4 + 4
 
 
@@ -121,6 +121,13 @@ def decode_dynamic_state(payload: bytes) -> Dict[str, Any]:
         offset += 2
         return val
 
+    def boolean():
+        # C# BinaryWriter.Write(bool) writes 1 byte
+        nonlocal offset
+        val = struct.unpack_from("<?", payload, offset)[0]
+        offset += 1
+        return val
+
     def vec2():
         return (f(), f())
 
@@ -147,7 +154,9 @@ def decode_dynamic_state(payload: bytes) -> Dict[str, Any]:
         "MaxHealth": f(),
         "AttackCooldowns": tuple(f() for _ in range(4)),
         "AttackCooldownTimers": tuple(f() for _ in range(4)),
+        "DashCooldownTimer": f(),
         "CurrentAttackId": i16(),
+        "IsLocked": boolean(),
         "InvulnerabilityTimeRemaining": f(),
         "DamageTaken": f(),
         "DistanceToPlayer": f(),
