@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://bv30ncfyohfjq" path="res://scripts/player_inputs/Weapon.cs" id="1_lakth"]
 [ext_resource type="PackedScene" uid="uid://btlvl7kus6crp" path="res://scenes/weapons/projectiles/magic_missile.tscn" id="2_rh371"]
 [ext_resource type="Texture2D" uid="uid://bilq6snonsws4" path="res://art/animations/weapons/staff-Sheet.png" id="3_52f0k"]
-[ext_resource type="Script" uid="uid://5alhbkf2df8r" path="res://scripts/attack_types/ProjectileAttack.cs" id="3_j3civ"]
+[ext_resource type="Script" uid="uid://cwgabj5mhmkrw" path="res://scripts/attack_types/ProjectileAttack.cs" id="3_j3civ"]
 [ext_resource type="PackedScene" uid="uid://x7kojflwwlva" path="res://scenes/weapons/projectiles/giant_missile.tscn" id="4_hiblv"]
-[ext_resource type="Script" uid="uid://br2k1oubrxxrw" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_lakth"]
+[ext_resource type="Script" uid="uid://dlskteyrswv8o" path="res://scripts/attack_types/ChargedProjectileAttack.cs" id="4_lakth"]
 [ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="7_j3civ"]
 [ext_resource type="AudioStream" uid="uid://c57irx6s6om5o" path="res://assets/sound/spell_cast.mp3" id="8_epdv8"]
 
@@ -14,7 +14,7 @@ script = ExtResource("3_j3civ")
 ProjectileScene = ExtResource("2_rh371")
 ProjectileSpeed = 150.0
 SpawnDistanceFromPlayer = 16.0
-Damage = 20.0
+Damage = 5.0
 Cooldown = 0.1
 Windup = 0.25
 Active = 0.5

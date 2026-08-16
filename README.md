@@ -6,6 +6,8 @@ The player finds themselves in an empty room, can choose to clear up to three it
 
 This is an academic thesis project exploring the feasibility of using reinforcement learning in the game development pipeline. The full research framing, hypothesis and success criteria live in [`docs/project_brief.md`](docs/project_brief.md); the complete gameplay/mechanics spec lives in [`docs/game_design.md`](docs/game_design.md). This README is the technical entry point: what's in the repo, how the pieces fit together, and how to run or (re)build everything yourself.
 
+[![Screenshot of the game](docs/imgs/spell_clash.png)](docs/screenshot.png)
+
 ---
 
 ## Contents
