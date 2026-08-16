@@ -7,6 +7,10 @@
 [ext_resource type="Texture2D" uid="uid://bx0p8te3xcp2q" path="res://art/animations/bean/armor/no_armor.png" id="4_mjp81"]
 [ext_resource type="Texture2D" uid="uid://no3ubsc2rfbj" path="res://art/animations/bean/helmets/no_helmet-Sheet.png" id="4_rfort"]
 [ext_resource type="Script" uid="uid://bdh62hvlonw8f" path="res://scripts/visual_effects/VisualControllers/PlayerVisualController.cs" id="5_mjp81"]
+[ext_resource type="AudioStream" uid="uid://ssk8anngp6pv" path="res://assets/sound/u_3x9ga8wevj-walking-sound-effect-272246.mp3" id="8_d16vh"]
+[ext_resource type="AudioStream" uid="uid://dxovymyxgj6j3" path="res://assets/sound/charged_walk.mp3" id="9_74uni"]
+[ext_resource type="AudioStream" uid="uid://cyy2eevljcrkg" path="res://assets/sound/swoosh.mp3" id="9_t8ge5"]
+[ext_resource type="AudioStream" uid="uid://ckjr7toiy0jb2" path="res://assets/sound/player_hurt.mp3" id="10_6r0ag"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
 size = Vector2(5, 11)
@@ -89,6 +93,54 @@ tracks/4/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Rect2(0, 0, 160, 96)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Sound/Walking:playing")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Sound/Hit:playing")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [false]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Sound/Dodging:playing")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [false]
 }
 
 [sub_resource type="Animation" id="Animation_0vl2d"]
@@ -329,6 +381,18 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 128, 160, 96)]
 }
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_t8ge5"]
 resource_name = "dodge"
@@ -406,6 +470,18 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 128, 160, 96)]
 }
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Dodging:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.071428575),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_6r0ag"]
 resource_name = "hit"
@@ -482,6 +558,18 @@ tracks/5/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Rect2(0, 128, 160, 96)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Hit:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_74uni"]
@@ -636,6 +724,18 @@ tracks/5/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Rect2(0, 128, 160, 96)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Walking:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_dqsbe"]
@@ -803,6 +903,18 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 0, 160, 96)]
 }
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_hn12h"]
 resource_name = "dodge"
@@ -880,6 +992,18 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 0, 160, 96)]
 }
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Dodging:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_3bx7n"]
 resource_name = "hit"
@@ -956,6 +1080,18 @@ tracks/5/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Rect2(0, 0, 160, 96)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Hit:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_xptln"]
@@ -1110,6 +1246,18 @@ tracks/5/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Rect2(0, 0, 160, 96)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Walking:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_t8ge5"]
@@ -1277,6 +1425,18 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 224, 160, 96)]
 }
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_7sjvd"]
 resource_name = "dodge"
@@ -1354,6 +1514,18 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 224, 160, 96)]
 }
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Dodging:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_g8rbn"]
 resource_name = "hit"
@@ -1430,6 +1602,18 @@ tracks/5/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Rect2(0, 224, 160, 96)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Hit:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_mv4gt"]
@@ -1584,6 +1768,18 @@ tracks/5/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Rect2(0, 224, 160, 96)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sound/Walking:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_6r0ag"]
@@ -1756,3 +1952,21 @@ libraries/horizontal = SubResource("AnimationLibrary_t8ge5")
 libraries/up = SubResource("AnimationLibrary_6r0ag")
 
 [node name="Hand" type="Node2D" parent="VisualController" unique_id=241999519]
+
+[node name="Sound" type="Node2D" parent="." unique_id=1007889944]
+
+[node name="Walking" type="AudioStreamPlayer2D" parent="Sound" unique_id=626187147]
+stream = ExtResource("8_d16vh")
+volume_db = -20.0
+
+[node name="ChargedWalking" type="AudioStreamPlayer2D" parent="Sound" unique_id=899295352]
+stream = ExtResource("9_74uni")
+volume_db = -20.0
+
+[node name="Dodging" type="AudioStreamPlayer2D" parent="Sound" unique_id=1914757521]
+stream = ExtResource("9_t8ge5")
+volume_db = -20.0
+
+[node name="Hit" type="AudioStreamPlayer2D" parent="Sound" unique_id=979835860]
+stream = ExtResource("10_6r0ag")
+volume_db = -5.0

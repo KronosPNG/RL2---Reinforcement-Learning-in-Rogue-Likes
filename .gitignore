@@ -11,5 +11,11 @@ misc/*
 # compiled python
 *pyc
 
+# PyInstaller build output (Game/server/build_inference_server.py)
+/build/
+Game/server/build/
+Game/server/dist/
+Game/server/*.spec
+
 # logs
 *.log

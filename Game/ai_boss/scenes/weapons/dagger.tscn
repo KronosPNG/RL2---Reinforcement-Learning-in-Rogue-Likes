@@ -5,17 +5,18 @@
 [ext_resource type="Script" uid="uid://du1cukgdxdir" path="res://scripts/attack_types/SweepingCrescentMeleeAttack.cs" id="3_2j8e1"]
 [ext_resource type="Texture2D" uid="uid://b3tua3qouv2v" path="res://art/animations/weapons/dagger_sprite_sheet.png" id="4_syark"]
 [ext_resource type="Texture2D" uid="uid://bo352d1lspc8b" path="res://art/static_sprites/weapons-Sheet.png" id="5_1itfw"]
+[ext_resource type="AudioStream" uid="uid://cyy2eevljcrkg" path="res://assets/sound/swoosh.mp3" id="6_2j8e1"]
 
 [sub_resource type="Resource" id="Resource_mhf5r"]
 script = ExtResource("2_1itfw")
 InnerRadius = 0.0
 AngleDeg = 30.0
 ArcCenterOffsetDeg = 5.0
-Damage = 20.0
+Damage = 7.5
 Cooldown = 0.35
 Active = 0.25
 Knockback = 8.0
-Range = 18.0
+Range = 24.0
 
 [sub_resource type="Resource" id="Resource_siec8"]
 script = ExtResource("3_2j8e1")
@@ -185,3 +186,20 @@ collision_mask = 32
 visible = false
 sprite_frames = SubResource("SpriteFrames_syark")
 animation = &"idle"
+
+[node name="Sound" type="Node2D" parent="." unique_id=356892203]
+
+[node name="LightAttack" type="AudioStreamPlayer2D" parent="Sound" unique_id=240286431]
+position = Vector2(1, 0)
+stream = ExtResource("6_2j8e1")
+volume_db = -15.0
+pitch_scale = 2.44
+
+[node name="LightCharge" type="AudioStreamPlayer2D" parent="Sound" unique_id=594438983]
+
+[node name="HeavyAttack" type="AudioStreamPlayer2D" parent="Sound" unique_id=658227157]
+stream = ExtResource("6_2j8e1")
+volume_db = -15.0
+
+[node name="HeavyCharge" type="AudioStreamPlayer2D" parent="Sound" unique_id=1210215638]
+volume_db = 10.0

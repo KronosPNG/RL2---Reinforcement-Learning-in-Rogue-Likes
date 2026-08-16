@@ -8,17 +8,26 @@ public partial class PlayerController : PlayableCharacter, IDamageable, IHasHeal
 
 	public override void _PhysicsProcess(double delta)
 	{
-		// Check for other commands
-		HandleCommands();
+		// ProcessPlayerDeath() (MainHandler.cs) sets ProcessMode to Always on death so the
+		// death animation keeps playing while the tree is paused for DeathScreen — which
+		// means this method keeps running too. Gate the actual input handling on pause
+		// state explicitly so ReadyBoss/EndScreen overlays can't be bypassed by movement,
+		// attack, or pause-menu input while they're up; the animation/state-machine tick
+		// in the base call still runs.
+		if (!GetTree().Paused)
+		{
+			// Check for other commands
+			HandleCommands();
 
-		// Read input direction
-		_movementDirection = ReadDirection();
+			// Read input direction
+			_movementDirection = ReadDirection();
 
-		// Handle combat input (only when not dodging)
-		HandleCombatInput();
+			// Handle combat input (only when not dodging)
+			HandleCombatInput();
 
-		// Handle consumable input
-		HandleConsumableInput();
+			// Handle consumable input
+			HandleConsumableInput();
+		}
 
 		base._PhysicsProcess(delta);
 	}
