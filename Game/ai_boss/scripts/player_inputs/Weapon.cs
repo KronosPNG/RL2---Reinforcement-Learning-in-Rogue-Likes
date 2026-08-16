@@ -44,8 +44,13 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	public float LightCooldownTimer { get; private set; } = 0f; // Cooldown timer for light attacks
 	public float HeavyCooldownTimer { get; private set; } = 0f; // Cooldown timer for heavy attacks
 
-	// ---- Damage Application Settings ----
-	// If false, only the signal will be emitted and other systems should subscribe.
+	// ---- Sound ----
+	public AudioStreamPlayer2D LightAttackSound;
+	public AudioStreamPlayer2D LightChargeSound;
+
+	public AudioStreamPlayer2D HeavyAttackSound;
+	public AudioStreamPlayer2D HeavyChargeSound;
+
 	[Export] public bool AutoApplyDamage = true;
 
 	public override void _Ready()
@@ -62,6 +67,12 @@ public partial class Weapon : WeaponBase, IPedestalItem
 			// Hide pedestal display sprite by default (weapons start equipped)
 			PedestalDisplaySprite.Visible = false;
 		}
+
+		LightAttackSound = GetNodeOrNull<AudioStreamPlayer2D>("Sound/LightAttack");
+		LightChargeSound = GetNodeOrNull<AudioStreamPlayer2D>("Sound/LightCharge");
+
+		HeavyAttackSound = GetNodeOrNull<AudioStreamPlayer2D>("Sound/HeavyAttack");
+		HeavyChargeSound = GetNodeOrNull<AudioStreamPlayer2D>("Sound/HeavyCharge");
 		
 		// Disable physics processing until equipped (prevents null reference when OwnerCharacter isn't set yet)
 		SetPhysicsProcess(false);
@@ -197,9 +208,16 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		if (Sprite != null)
 		{
 			if (isHeavyAttack)
+			{
 				Sprite.Play("heavy_attack");
+				HeavyAttackSound.Play();
+			}
+
 			else if (!isHeavyAttack)
+			{
 				Sprite.Play("light_attack");
+				LightAttackSound.Play();
+			}
 		}
 
 		// Fallback: if animation doesn't call OpenHitWindow, we open it after windup time.
@@ -327,6 +345,9 @@ public partial class Weapon : WeaponBase, IPedestalItem
 		CurrentChargingAttack = null;
 
 		// The attack execution will handle state transitions
+
+		// Interrupt charge sound
+		StopChargeSound();
 	}
 
 	// Cancel the current charge
@@ -497,4 +518,32 @@ public partial class Weapon : WeaponBase, IPedestalItem
 	{
 		return OwnerCharacter.GetAimDirection();
 	}
+
+	// ---- Sound Handling ----
+	public void PlayChargedSound()
+	{
+		if (IsCurrentAttackHeavy)
+		{
+			HeavyChargeSound.Play();
+		}
+
+		else
+		{
+			LightChargeSound.Play();
+		}
+	}
+
+	public void StopChargeSound()
+	{
+		if (IsCurrentAttackHeavy)
+		{
+			HeavyChargeSound.Stop();
+		}
+
+		else
+		{
+			LightChargeSound.Stop();
+		}
+	}
+
 }

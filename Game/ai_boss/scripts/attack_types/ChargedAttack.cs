@@ -79,6 +79,7 @@ public partial class ChargedAttack : AttackBase, IAttack, IChargeable
                 if (weapon.Sprite != null && !string.IsNullOrEmpty(FullyChargedAnimation))
                 {
                     weapon.Sprite.Play(FullyChargedAnimation);
+                    weapon.PlayChargedSound();
                 }
             }
         }

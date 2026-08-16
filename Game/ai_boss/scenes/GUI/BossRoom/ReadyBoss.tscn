@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://c1wg3kxj14i6w"]
+
+[ext_resource type="Script" path="res://scripts/hud/ReadyBoss.cs" id="1_readyboss"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_q41gh"]
+
+[node name="ReadyBoss" type="CanvasLayer" unique_id=1616563872]
+script = ExtResource("1_readyboss")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2039767263]
+custom_minimum_size = Vector2(440, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -145.0
+offset_right = 440.0
+offset_bottom = 145.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 50
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=58097891]
+custom_minimum_size = Vector2(440, 80)
+layout_mode = 2
+text = "This is the throne room of a powerful construct.
+
+It is said that it learned how to fight by defeating countless adventurers before you...
+
+No one has yet succeeded.
+
+
+Are you ready?"
+label_settings = SubResource("LabelSettings_q41gh")
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=541554159]
+custom_minimum_size = Vector2(138, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/VBoxContainer" unique_id=1568942815]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "I'm ready"

@@ -11,6 +11,17 @@ public partial class MainHandler : Node
 	// actually been sent first (which StartConnection() delays behind a fixed timer).
 	bool _hasSentStaticState = false;
 
+	// True once we intend to be connected — set when StartConnection() is first called,
+	// cleared on intentional shutdown. Distinguishes "connection dropped, keep retrying"
+	// from "we're closing, stop trying."
+	bool _shouldMaintainConnection = false;
+	double _reconnectTimer = 0.0;
+	const double ReconnectIntervalSeconds = 1.0;
+
+	// PID of the bundled AI server process we launched (-1 if we didn't launch one —
+	// e.g. running in the editor, where a dev-managed server is assumed instead).
+	long _serverProcessId = -1;
+
 	GlobalState globalState;
 	AnimationPlayer _cutscenePlayer;
 	WebSocketPeer socket = new WebSocketPeer();
@@ -20,6 +31,13 @@ public partial class MainHandler : Node
 	{
 		Engine.MaxFps = 60;
 		_cutscenePlayer = GetNode<AnimationPlayer>("CutscenePlayer");
+
+		// We handle the window-close request ourselves (see _Notification) so the
+		// bundled server process gets a chance to be killed before the game exits —
+		// without this, Godot quits immediately on its own and our cleanup never runs.
+		GetTree().AutoAcceptQuit = false;
+
+		StartServerProcess();
 
 		// Subscribe to EventBus events
 		EventBus.OnGamePaused += HandleGamePaused;
@@ -41,6 +59,14 @@ public partial class MainHandler : Node
 		// the EventBus subscriptions and populate statState/dynState every frame) only
 		// run for nodes actually in the scene tree. TrainingHandler.cs does this too.
 		AddChild(globalState);
+	}
+
+	public override void _Notification(int what)
+	{
+		if (what == (int)NotificationWMCloseRequest)
+		{
+			EventBus.RaiseGameExit();
+		}
 	}
 
 	public override void _Process(double delta)
@@ -74,6 +100,21 @@ public partial class MainHandler : Node
 				var code = socket.GetCloseCode();
 				var reason = socket.GetCloseReason();
 				GD.Print($"WebSocket closed with code: {code}, reason: {reason}");
+
+				// Keep retrying while we still want to be connected — the bundled server
+				// can take several seconds to load torch and the policy checkpoint, so
+				// the first few connection attempts failing is the expected common case,
+				// not an error condition.
+				if (_shouldMaintainConnection)
+				{
+					_reconnectTimer += delta;
+					if (_reconnectTimer >= ReconnectIntervalSeconds)
+					{
+						_reconnectTimer = 0.0;
+						GD.Print("Retrying connection to AI server...");
+						AttemptConnect();
+					}
+				}
 				break;
 
 			case WebSocketPeer.State.Closing:
@@ -105,12 +146,16 @@ public partial class MainHandler : Node
 
 	private async void HandleGameExit()
 	{
+		_shouldMaintainConnection = false;
+
 		SendCommand(CommandType.CloseSession);
 
 		// Give the WebSocket a moment to actually flush the outgoing
 		// message before the tree (and the socket with it) is torn down.
 		socket.Poll();
 		await ToSignal(GetTree().CreateTimer(0.1f), "timeout");
+
+		StopServerProcess();
 
 		GetTree().Quit();
 	}
@@ -144,15 +189,65 @@ public partial class MainHandler : Node
 
 	private void StartConnection()
 	{
+		_shouldMaintainConnection = true;
+		_reconnectTimer = 0.0;
+		AttemptConnect();
+	}
+
+	private void AttemptConnect()
+	{
 		_hasSentStaticState = false;
 
 		var code = socket.ConnectToUrl("ws://localhost:7000");
 
 		// No fixed wait here — _Process() polls socket state every frame and sends
 		// STATIC_STATE as soon as it actually reports Open, however long that takes.
+		// If the connection attempt itself fails to even start (as opposed to being
+		// refused once attempted), the Closed-state retry loop in _Process() picks
+		// it back up on the next tick.
 		if (code != Error.Ok)
 		{
 			GD.PrintErr("Boss AI server is not available.");
+		}
+	}
+
+	// --- Bundled AI server process (exported builds only) ---
+
+	private void StartServerProcess()
+	{
+		if (OS.HasFeature("editor"))
+		{
+			// Running from the Godot editor — assume a server is already running
+			// manually (matches the existing dev workflow: `python main.py ...` /
+			// `python inference_server.py`). Only exported builds auto-launch the
+			// bundled server, since spawning a second one alongside a dev server
+			// would just fight over the same port.
+			return;
+		}
+
+		string serverExePath = OS.GetExecutablePath().GetBaseDir().PathJoin("server").PathJoin("ai_boss_inference_server.exe");
+
+		if (!FileAccess.FileExists(serverExePath))
+		{
+			GD.PrintErr($"Bundled AI server not found at {serverExePath}");
+			return;
+		}
+
+		_serverProcessId = OS.CreateProcess(serverExePath, System.Array.Empty<string>());
+
+		if (_serverProcessId <= 0)
+		{
+			GD.PrintErr("Failed to launch bundled AI server.");
+			_serverProcessId = -1;
+		}
+	}
+
+	private void StopServerProcess()
+	{
+		if (_serverProcessId > 0)
+		{
+			OS.Kill((int)_serverProcessId);
+			_serverProcessId = -1;
 		}
 	}
 

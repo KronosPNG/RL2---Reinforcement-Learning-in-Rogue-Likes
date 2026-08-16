@@ -6,6 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://dga6m0jed3vlt" path="res://scenes/GUI/HUD.tscn" id="2_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85mcslte1v7i" path="res://scenes/GUI/PauseMenu/PauseMenu.tscn" id="2_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://bho26uagji2ed" path="res://scenes/GUI/BossHealthbar/BossHealthbar.tscn" id="2_tefeu"]
+[ext_resource type="PackedScene" uid="uid://c1wg3kxj14i6w" path="res://scenes/GUI/BossRoom/ReadyBoss.tscn" id="2_tipki"]
+[ext_resource type="PackedScene" uid="uid://cost0vfobnnr3" path="res://scenes/GUI/EndScreens/WinScreen.tscn" id="7_wnscr"]
+[ext_resource type="PackedScene" uid="uid://clylvltvpgcpd" path="res://scenes/GUI/EndScreens/DeathScreen.tscn" id="8_dthscr"]
 [ext_resource type="PackedScene" uid="uid://yp1662tkaqhp" path="res://scenes/rooms/starting_room.tscn" id="6_o6xl0"]
 
 [sub_resource type="Animation" id="Animation_tbgi4"]
@@ -19,6 +22,15 @@ _data = {
 [node name="Main" type="Node2D" unique_id=1241760868]
 script = ExtResource("1_sugp2")
 _frameInterval = 10
+
+[node name="ReadyBoss" parent="." unique_id=1616563872 instance=ExtResource("2_tipki")]
+visible = false
+
+[node name="WinScreen" parent="." unique_id=1616563873 instance=ExtResource("7_wnscr")]
+visible = false
+
+[node name="DeathScreen" parent="." unique_id=1616563874 instance=ExtResource("8_dthscr")]
+visible = false
 
 [node name="BossHealthbar" parent="." unique_id=106652635 instance=ExtResource("2_tefeu")]
 visible = false
