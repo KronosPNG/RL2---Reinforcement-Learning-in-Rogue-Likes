@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://cw1g1cat1v2ps"]
+
+[ext_resource type="Theme" uid="uid://dowfsv6q20axa" path="res://assets/theme/bean_theme.tres" id="1_fvfld"]
+[ext_resource type="Texture2D" uid="uid://cnqhxlisqlctu" path="res://art/hud/wasd_icon.png" id="2_hv1yk"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_fvfld"]
+line_spacing = 0.0
+font_size = 3
+
+[node name="DodgeIndicator" type="Control" unique_id=251948909]
+custom_minimum_size = Vector2(16, 26)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1136.0
+offset_bottom = -621.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_fvfld")
+
+[node name="ButtonLabel" type="Label" parent="." unique_id=1502276836]
+layout_mode = 0
+offset_left = 11.0
+offset_top = -2.0
+offset_right = 21.0
+offset_bottom = 3.0
+text = "MOVE"
+label_settings = SubResource("LabelSettings_fvfld")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1899765200]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 0
+offset_left = -1.0
+offset_top = -3.0
+offset_right = 31.0
+offset_bottom = 29.0
+texture = ExtResource("2_hv1yk")

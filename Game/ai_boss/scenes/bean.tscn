@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" uid="uid://no3ubsc2rfbj" path="res://art/animations/bean/helmets/no_helmet-Sheet.png" id="4_rfort"]
 [ext_resource type="Script" uid="uid://bdh62hvlonw8f" path="res://scripts/visual_effects/VisualControllers/PlayerVisualController.cs" id="5_mjp81"]
 [ext_resource type="AudioStream" uid="uid://ssk8anngp6pv" path="res://assets/sound/u_3x9ga8wevj-walking-sound-effect-272246.mp3" id="8_d16vh"]
-[ext_resource type="AudioStream" uid="uid://dxovymyxgj6j3" path="res://assets/sound/charged_walk.mp3" id="9_74uni"]
 [ext_resource type="AudioStream" uid="uid://cyy2eevljcrkg" path="res://assets/sound/swoosh.mp3" id="9_t8ge5"]
 [ext_resource type="AudioStream" uid="uid://ckjr7toiy0jb2" path="res://assets/sound/player_hurt.mp3" id="10_6r0ag"]
 
@@ -97,46 +96,22 @@ tracks/4/keys = {
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Sound/Walking:playing")
+tracks/5/path = NodePath("Sound/Hit:playing")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
+"update": 0,
 "values": [false]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/path = NodePath("Sound/Dodging:playing")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [false]
-}
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = true
-tracks/7/path = NodePath("Sound/Hit:playing")
-tracks/7/interp = 1
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [false]
-}
-tracks/8/type = "value"
-tracks/8/imported = false
-tracks/8/enabled = true
-tracks/8/path = NodePath("Sound/Dodging:playing")
-tracks/8/interp = 1
-tracks/8/loop_wrap = true
-tracks/8/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
@@ -381,17 +356,22 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 128, 160, 96)]
 }
-tracks/6/type = "value"
+tracks/6/type = "method"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/path = NodePath("Sound/Walking")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0.2),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [true]
+"times": PackedFloat32Array(0.4, 1.2),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0.0],
+"method": &"play"
+}, {
+"args": [0.0],
+"method": &"play"
+}]
 }
 
 [sub_resource type="Animation" id="Animation_t8ge5"]
@@ -725,17 +705,22 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 128, 160, 96)]
 }
-tracks/6/type = "value"
+tracks/6/type = "method"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Sound/Walking:playing")
+tracks/6/path = NodePath("Sound/Walking")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
+"times": PackedFloat32Array(0.375, 0.875),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0.0],
+"method": &"play"
+}, {
+"args": [0.0],
+"method": &"play"
+}]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_dqsbe"]
@@ -903,17 +888,22 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 0, 160, 96)]
 }
-tracks/6/type = "value"
+tracks/6/type = "method"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/path = NodePath("Sound/Walking")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0.2),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [true]
+"times": PackedFloat32Array(0.4, 1.2),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0.0],
+"method": &"play"
+}, {
+"args": [0.0],
+"method": &"play"
+}]
 }
 
 [sub_resource type="Animation" id="Animation_hn12h"]
@@ -1247,17 +1237,22 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 0, 160, 96)]
 }
-tracks/6/type = "value"
+tracks/6/type = "method"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Sound/Walking:playing")
+tracks/6/path = NodePath("Sound/Walking")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
+"times": PackedFloat32Array(0.375, 0.875),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0.0],
+"method": &"play"
+}, {
+"args": [0.0],
+"method": &"play"
+}]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_t8ge5"]
@@ -1425,17 +1420,22 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 224, 160, 96)]
 }
-tracks/6/type = "value"
+tracks/6/type = "method"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Sound/ChargedWalking:playing")
+tracks/6/path = NodePath("Sound/Walking")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0.2),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [true]
+"times": PackedFloat32Array(0.4, 1.2),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0.0],
+"method": &"play"
+}, {
+"args": [0.0],
+"method": &"play"
+}]
 }
 
 [sub_resource type="Animation" id="Animation_7sjvd"]
@@ -1769,17 +1769,22 @@ tracks/5/keys = {
 "update": 0,
 "values": [Rect2(0, 224, 160, 96)]
 }
-tracks/6/type = "value"
+tracks/6/type = "method"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Sound/Walking:playing")
+tracks/6/path = NodePath("Sound/Walking")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
+"times": PackedFloat32Array(0.375, 0.875),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0.0],
+"method": &"play"
+}, {
+"args": [0.0],
+"method": &"play"
+}]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_6r0ag"]
@@ -1911,7 +1916,7 @@ hframes = 10
 vframes = 6
 frame = 1
 region_enabled = true
-region_rect = Rect2(0, 0, 160, 96)
+region_rect = Rect2(0, 224, 160, 96)
 metadata/_aseprite_wizard_interface_config_ = {
 "animation_section": false,
 "layer_section": true,
@@ -1957,10 +1962,6 @@ libraries/up = SubResource("AnimationLibrary_6r0ag")
 
 [node name="Walking" type="AudioStreamPlayer2D" parent="Sound" unique_id=626187147]
 stream = ExtResource("8_d16vh")
-volume_db = -20.0
-
-[node name="ChargedWalking" type="AudioStreamPlayer2D" parent="Sound" unique_id=899295352]
-stream = ExtResource("9_74uni")
 volume_db = -20.0
 
 [node name="Dodging" type="AudioStreamPlayer2D" parent="Sound" unique_id=1914757521]

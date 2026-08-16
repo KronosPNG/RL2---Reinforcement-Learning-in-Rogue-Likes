@@ -5,7 +5,7 @@ Licensed under the [Creative Commons Attribution 4.0 International License](http
 
 # Sounds
 
-sword_clang.mp3 - Sourced from the Berserk (2016) anime adaptation
+sword_clang.mp3 - Adapted from sword clang sound from the Berserk (2016) anime adaptation
 
 spell_cast.mp3 - Adapted from [David Dumais Audio](https://daviddumaisaudio.gumroad.com/)'s Magic Spell Cast on [Pixabay](https://pixabay.com/sound-effects/film-special-effects-magical-spell-cast-190272/)
 

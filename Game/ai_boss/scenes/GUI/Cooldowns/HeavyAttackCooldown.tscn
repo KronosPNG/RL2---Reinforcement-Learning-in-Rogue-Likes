@@ -3,11 +3,7 @@
 [ext_resource type="Script" uid="uid://biai6g5c6infy" path="res://scripts/hud/cooldowns/CooldownIndicator.cs" id="1_i2yhg"]
 [ext_resource type="Theme" uid="uid://dowfsv6q20axa" path="res://assets/theme/bean_theme.tres" id="2_mtd86"]
 [ext_resource type="Texture2D" uid="uid://iay6g18lkqip" path="res://art/hud/indicators_sheet.png" id="3_lk76n"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_i2yhg"]
-font_size = 4
-outline_size = 1
-outline_color = Color(0, 0, 0, 1)
+[ext_resource type="Texture2D" uid="uid://byqh3jkxulpfe" path="res://art/hud/right_mouse_icon.png" id="3_mtd86"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mtd86"]
 atlas = ExtResource("3_lk76n")
@@ -32,13 +28,13 @@ grow_vertical = 2
 theme = ExtResource("2_mtd86")
 script = ExtResource("1_i2yhg")
 
-[node name="ButtonLabel" type="Label" parent="." unique_id=2113736135]
+[node name="ButtonLabel" type="TextureRect" parent="." unique_id=1236369014]
 layout_mode = 0
-offset_right = 16.0
+offset_left = 4.0
+offset_top = -3.0
+offset_right = 12.0
 offset_bottom = 5.0
-text = " [RMB]"
-label_settings = SubResource("LabelSettings_i2yhg")
-horizontal_alignment = 1
+texture = ExtResource("3_mtd86")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1899765200]
 layout_mode = 0

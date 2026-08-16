@@ -1,29 +1,29 @@
 # Project Brief — Adaptive Boss AI Thesis
 
-**Document version:** 0.2
+**Document version:** 0.3
 **Author:** Luigi Turco
 **Date created:** 2025-08-20
+**Last revised:** 2026-08-16 — updated Sections 5 and 11 to reflect the implemented architecture (see notes inline); everything else unchanged from v0.2.
 
 ---
 
 ## 1. Title
 
-**2D Roguelike‑Inspired Game with Adaptive Boss AI**
+**RL2 - Reinforcement Learning in Rogue-Likes**
 
-*(WIP Title)*
 
 ---
 
 ## 2. Synopsis (one paragraph)
 
-This project implements and evaluates a deep reinforcement learning (DRL) driven boss for a compact 2D game. The game has a fixed layout of four item rooms followed by a boss room. The research focus is the boss: a single encounter whose behavior (combat tactics and item selection) adapts to different player builds and playstyles using PyTorch‑based DRL. The goal is to demonstrate that an adaptive ML policy can (1) respond to repeated player strategies, (2) counter different archetypes, and (3) produce an alternative paradigm to traditional NPCs AIs.
+This project implements and evaluates a reinforcement learning (RL) driven boss for a compact 2D game. The game has a fixed layout of three item rooms and a boss room. The research focus is the boss: a single encounter whose behavior (combat tactics) adapts to different player builds and playstyles using PyTorch‑based Reinforcement Learning. The goal is to demonstrate that an adaptive ML policy can (1) respond to repeated player strategies, (2) counter different archetypes, and (3) produce an alternative paradigm to traditional NPCs AIs.
 
 ---
 
 ## 3. Research question & hypothesis
 
-**Research question:** Can a deep reinforcement learning policy produce an adaptive boss that dynamically changes behaviour and item selection to counter different player builds and improve performance over repeated encounters?
-**Hypothesis:** A DRL boss conditioned on compact, well‑engineered observations of the player build and recent actions will (a) create a new paradigm in video game AI and (b) exhibit measurable adaptation over repeated encounters with the same player build.
+**Research question:** Can reinforcement learning be used effectively in the development of a video game, specifically to handle entity behaviours that feel natural and challenging? Is is feasible in terms of time, complexity and resources? 
+**Hypothesis:** Reinforcement Learning can be used in the development pipeline of a video game, not requiring a big shift in the default paradigm. Time, resource and complexity requirements are manageable, and the resulting entity behaviours are natural and challenging.
 
 ---
 
@@ -36,22 +36,22 @@ This project implements and evaluates a deep reinforcement learning (DRL) driven
 
 ## 5. Objectives (SMART)
 
-1. **Implement a compact playable game loop** (2D arena with 4 item rooms + boss room) and a deterministic baseline boss.
+1. **Implement a compact playable game loop** (2D arena with 3 item rooms + boss room) and a boss.
 2. **Design and implement a Gym‑like boss environment wrapper** with an observation vector and a multi‑discrete action space.
-3. **Train DRL boss policies (PPO in PyTorch)** against scripted player archetypes and mixed opponents, export best policies to ONNX.
-4. **Integrate trained policies into the game engine** (Godot) for in‑engine playtesting and hot‑swap between ML and rule‑based boss.
-5. **Run reproducible experiments** (multiple seeds) and report metrics: win rate, encounter duration, action entropy, and adaptation curves.
+3. **Train DRL boss policies (PPO in PyTorch)** against scripted player archetypes and mixed opponents. *(Implemented differently than originally planned: no ONNX export. A single shared policy trains centrally across multiple concurrent Godot instances orchestrated by the training server, checkpointed as raw PyTorch `.pt` files rather than exported.)*
+4. **Integrate trained policies into the game engine** (Godot) for in‑engine playtesting. *(Implemented as a live client–server bridge, not embedded in‑engine inference — see Section 11. No rule‑based fallback boss was built; the boss is always the ML policy.)*
+5. **Run reproducible experiments** (fixed seeds) and report metrics: win rate, encounter duration, action entropy, and adaptation curves.
 6. **Produce thesis artifacts**: reproducible code/data/models, figures, playtest videos, and written analysis defending or refuting the hypothesis.
 
 ---
 
 ## 6. Minimum Viable Product (frozen for thesis)
 
-* **Game map:** fixed sequence of 4 item rooms followed by one boss room.
-* **Items available (per room):** a curated set derived from these classes: Dagger (melee/light), Longsword (melee/medium), Longbow (ranged), Staff (magic). Elements: Physical, Fire, Ice. Armors: Light, Medium, Heavy. Consumables: Heal, Damage buff.
+* **Game map:** fixed sequence of 3 item rooms and one boss room.
+* **Items available (per room):** a curated set derived from these classes: Dagger (melee), Longsword (melee), Bow (ranged), Magic Staff (ranged). Elements: *Idea scrapped to avoid domain explosion*  Consumables: Potion (slow hp regeneration), Medkit(instant healing). Armors: No armor(default stats), Light Armor (low defense, high mobility), Medium Armor (slightly higher defence, slightly lower mobility), Heavy Armor (high defense, low mobility).
 * **Boss:** single boss encounter with ML policy.
 * **Training:** PyTorch PPO; logs and model registry.
-* **Evaluation:** scripted player archetypes (melee spammable, tank, kiter/mage) + mixed testing.
+* **Evaluation:** scripted player archetypes, composed from independent Attack/Dodge/Aggro behavior modules (e.g. `AttackSpam`, `AttackTactical`, `AttackCowardly`, `AttackEdgelord`; `DodgePreemptive`, `DodgeReactive`, `DodgeRandom`, `DodgeNever`) and mixed/randomized per training episode — a more granular system than the original melee/tank/kiter split, giving finer control over which player skill dimension is being tested.
 
 > **MVP freeze rule:** items or mechanics outside the list above must be added only via an explicit scope change story.
 
@@ -72,20 +72,20 @@ This project implements and evaluates a deep reinforcement learning (DRL) driven
 2. Gym‑style boss environment and training scripts in PyTorch.
 3. Trained policy artifacts (ONNX) and model registry metadata.
 4. Evaluation scripts and experiment reports (figures + tables).
-5. Playtest logs and short video captures.
-6. Thesis write‑up and reproducibility package (Dockerfile + instructions).
+5. Playtest questionnaires.
+6. Thesis write‑up and reproducibility package.
 
 ---
 
 ## 9. High‑level timeline
 
-* **Week 0 (setup):** scaffold repo, stack docs, MVP item freeze.
-* **Weeks 1–6 (foundation):** baseline playable boss + item rooms + logging.
-* **Weeks 7–8 (env):** Gym wrapper, observation/action mapping, scripted archetypes.
-* **Weeks 9–12 (ML prototyping):** PPO training vs single archetype → mixed opponents, small experiments.
-* **Weeks 13–15 (integration):** export ONNX, integrate in engine, hot‑swap, playtesting.
-* **Weeks 16–19 (experiments):** run final experiments (multi‑seed), collect metrics, produce figures.
-* **Weeks 20–22 (write‑up & polish):** thesis writing, reproducibility checks, final playtests.
+* **Month 0 (setup):** scaffold repo, stack docs, MVP item freeze.
+* **Weeks 1–4 (foundation):** baseline playable boss + item rooms + logging.
+* **Month 5 (env):** Gym wrapper, observation/action mapping, scripted archetypes.
+* **Month 6 (ML prototyping):** PPO training vs single archetype → mixed opponents, small experiments.
+* **Month 6-7 (integration):** export ONNX, integrate in engine, hot‑swap, playtesting.
+* **Month 7 (experiments):** run final experiments, collect metrics, produce figures.
+* **Month 7 (write‑up & polish):** thesis writing, reproducibility checks, final playtests.
 
 ---
 
@@ -100,18 +100,19 @@ This project implements and evaluates a deep reinforcement learning (DRL) driven
 4. **Risk:** Non‑reproducible experiments.
    **Mitigation:** log seeds, env configs, package versions, and provide Dockerfile.
 5. **Risk:** Limited time for thesis writing and experiments.
-   **Mitigation:** prioritize experiments that directly support the hypothesis; automate evaluation and logging.
+   **Mitigation:** prioritize experiments that directly support or invalidate the hypothesis; automate evaluation and logging.
 
 ---
 
-## 11. Resources & Tech Stack (minimum)
+## 11. Resources & Tech Stack (as implemented)
 
-* **Engine:** Unity (recommended) or Godot.
-* **Training:** PyTorch (PPO implementation).
-* **Model export/inference:** ONNX → Barracuda (Unity) or equivalent.
-* **Experiment tracking:** Weights & Biases (optional) or local JSON/CSV logs.
-* **Versioning:** git + Git LFS for models/data.
-* **Reproducibility:** Dockerfile + requirements.txt.
+* **Engine:** Godot 4.6 (Mono build, C#/.NET) — the Unity/Godot choice from v0.2 is resolved; Unity was not used.
+* **Training:** PyTorch, custom PPO with GAE (4 epochs, minibatch 64, lr=3e-4). A single policy trains centrally: the training server can spawn and coordinate multiple concurrent Godot instances via a `TrainingOrchestrator`, pooling their experience into one shared model rather than training per-instance.
+* **Model architecture:** 56‑dim observation → shared MLP trunk (256→256→128) → three heads: continuous movement (Gaussian, learned std, tanh‑squashed) + discrete action (7‑way categorical) + value. Checkpointed as raw PyTorch `.pt` files (`Game/server/checkpoints/`, promoted models in `Game/server/policies/`) — no ONNX export in the pipeline.
+* **Game ↔ AI integration:** *not* embedded in‑engine inference. The Godot client and a separate Python process communicate live over a WebSocket (`ws://localhost:7000`) using a custom fixed‑size binary protocol (`STATIC_STATE` once per episode, `DYNAMIC_STATE` every frame, `ACTION` responses). For distribution, the inference server is packaged into a standalone executable (PyInstaller, CPU‑only) that the exported game auto‑launches as a companion process — end users don't need Python installed.
+* **Experiment tracking:** local JSON metrics logs (no Weights & Biases integration currently).
+* **Versioning:** git. Trained checkpoints are not currently in Git LFS — worth revisiting given `.pt` file sizes.
+* **Reproducibility:** `requirements.txt` exists (`Game/server/requirements.txt`); no Dockerfile yet — outstanding relative to the v0.2 plan.
 
 ---
 
@@ -119,7 +120,7 @@ This project implements and evaluates a deep reinforcement learning (DRL) driven
 
 * The boss fight can be abstracted into a Gym‑style environment amenable to RL training.
 * The limited set of items and fixed room layout provides enough behavioral variety for meaningful ML adaptation.
-* Training resources (local GPU or cloud) will be available for prototyping and final runs.
+* Training resources (local GPU or CPU) will be available for prototyping and final runs.
 
 ---
 

@@ -10,9 +10,19 @@ public partial class ReadyBoss : CanvasLayer
 
 		Visible = false;
 
+		AddBackdrop();
+
 		EventBus.OnBossRoomEntered += ShowPrompt;
 
 		_confirmButton.Pressed += OnConfirmPressed;
+	}
+
+	private void AddBackdrop()
+	{
+		var backdrop = new ColorRect { Color = new Color(0f, 0f, 0f, 0.6f) };
+		backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		AddChild(backdrop);
+		MoveChild(backdrop, 0);
 	}
 
 	// Pauses directly rather than going through EventBus.RaiseGamePaused() — that event

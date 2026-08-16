@@ -2,8 +2,9 @@
 
 **Project:** Adaptive Boss AI Thesis Game
 **Author:** Luigi Turco
-**Version:** 0.2
+**Version:** 0.3
 **Date:** 2025-08-24
+**Last revised:** 2026-08-16 — corrected player Max HP (Section 3) and the ML integration description (Section 11) to match the implemented game; everything else unchanged from v0.2 and not independently re-verified against current content/balance.
 
 ---
 
@@ -22,7 +23,7 @@ A compact 2D roguelike-inspired game designed to test adaptive boss AI. The play
    * **Armor Room:** Defeat basic enemies → choose one armor reward.
    * **Heal Room:** Defeat basic enemies → receive one consumable reward.
    * **Spawning Room:** Narrative/transition room (no combat, sets up boss).
-3. **Boss Room:** Player faces the adaptive boss. Boss behavior and loadout change according to player build and past actions.
+3. **Boss Room:** Player faces the adaptive boss. Boss behavior changes according to player build and past actions.
 4. **End:** Victory → session summary. Defeat → retry.
 
 ---
@@ -31,7 +32,7 @@ A compact 2D roguelike-inspired game designed to test adaptive boss AI. The play
 
 ### Core Stats (base values)
 
-* **Max HP:** 100
+* **Max HP:** 20 *(corrected from v0.2's 100 — matches `MAX_PLAYER_HP` in the reward/observation code. Boss Max HP is 2000, a deliberate ~100:1 scale gap, not a symmetric fight.)*
 * **Move Speed:** 100% (base)
 * **Attack Power:** depends on equipped weapon (see Combat System)
 * **Defense:** provided by armor (see mitigation below)
@@ -45,10 +46,12 @@ A compact 2D roguelike-inspired game designed to test adaptive boss AI. The play
 
 ### Armor & Mitigation
 
-* **None:** speed 100%, **0%** damage reduction.
-* **Light:** speed **+10%**, **0%** damage reduction.
-* **Medium:** speed **±0%**, **10%** damage reduction.
-* **Heavy:** speed **−15%**, **25%** damage reduction.
+*(Corrected 2026-08-16 against `Armor.cs` and the armor scene resources — values are direct multipliers. `DamageModifier`/`KnockbackModifier` above ×1.0 mean **more** damage/knockback taken, not less; `SpeedModifier` above ×1.0 means faster.)*
+
+* **None** (`shirt.tscn`): Speed ×1.0, Damage taken ×1.0, Knockback ×1.0 — no modifiers.
+* **Light:** Speed ×1.25 (+25%), Damage taken ×1.5 (+50%, a penalty), Knockback ×1.2 (+20%). A glass‑cannon tradeoff, not a strict upgrade over None — faster, but meaningfully more fragile.
+* **Medium:** Speed ×0.85 (−15%), Damage taken ×0.5 (−50%), Knockback ×0.8 (−20%, the class default — not explicitly overridden in `medium_armor.tscn`).
+* **Heavy:** Speed ×0.65 (−35%), Damage taken ×0.25 (−75%), Knockback ×0.4 (−60%).
 ### Equipment & Inventory Rules
 
 * **Weapons:** Longsword (starter), Dagger, Bow, Magic Staff — **1 equipped**; Weapon Room allows **swap**.
@@ -83,8 +86,7 @@ Enemies are deliberately simple (scripted behavior, no adaptation). Their role i
 
 ### Boss Enemy
 
-* **Loadout:** weapon, armor, consumables chosen dynamically.
-* **Behavior Variables:** dodging/parrying, aggression, distance from player, attack frequency.
+* **Behavior Variables:** dodging/parrying, aggression, distance from player, attack frequency, attack choice.
 * **Adaptation:** Reinforcement learning (PPO in PyTorch) trained against archetypal player strategies.
 
 ---
@@ -93,17 +95,17 @@ Enemies are deliberately simple (scripted behavior, no adaptation). Their role i
 
 * **Weapon Room:**
 
-  * Contains 2–3 basic enemies.
+  * Contains 5 basic enemies.
   * On victory → choose one weapon reward (dagger, bow, staff; cannot re-pick longsword).
 
 * **Armor Room:**
 
-  * Contains 2–3 basic enemies.
+  * Contains 5 basic enemies.
   * On victory → choose one armor reward (light, medium, heavy).
 
 * **Heal Room:**
 
-  * Contains 2–3 basic enemies.
+  * Contains 5 basic enemies.
   * On victory → choose one consumable (potion or medkit).
 
 * **Spawning Room:**
@@ -165,8 +167,8 @@ Start → Weapon Room (fight → reward) → Armor Room (fight → reward) → H
 ## 11. Technical Assumptions
 
 * **2D top-down** perspective.
-* **Engine:** Godot.
-* **ML Integration:** PyTorch (training) → ONNX export → in-engine inference.
+* **Engine:** Godot 4.6 (Mono/C#).
+* **ML Integration:** *not* ONNX/embedded inference as originally planned. The trained PyTorch policy runs in a separate Python process; the Godot client talks to it live over a WebSocket (custom binary protocol) every frame. For a shipped build, that process is packaged into a standalone executable (PyInstaller) and auto-launched by the game as a companion process, so players don't need Python installed.
 * **Enemy AI:** simple scripted for normal enemies; DRL for boss.
 
 ---

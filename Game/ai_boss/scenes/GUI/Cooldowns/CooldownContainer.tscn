@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dsg20k5k6kigj" path="res://scripts/hud/cooldowns/CooldownContainer.cs" id="1_dhvfn"]
 [ext_resource type="PackedScene" uid="uid://cv0uu3fevcwqb" path="res://scenes/GUI/Cooldowns/LightAttackCooldown.tscn" id="1_fksf4"]
+[ext_resource type="PackedScene" uid="uid://cw1g1cat1v2ps" path="res://scenes/GUI/Cooldowns/MovementIndicator.tscn" id="2_4ltva"]
 [ext_resource type="PackedScene" uid="uid://d1nu4t5d65o7" path="res://scenes/GUI/Cooldowns/HeavyAttackCooldown.tscn" id="2_dhvfn"]
 [ext_resource type="PackedScene" uid="uid://r2wl01cfmbei" path="res://scenes/GUI/Cooldowns/ConsumableIndicator.tscn" id="4_71jdd"]
+[ext_resource type="PackedScene" uid="uid://bydtp5xw70njh" path="res://scenes/GUI/Cooldowns/DodgeIndicator.tscn" id="5_sg8m6"]
 
 [node name="CooldownContainer" type="HBoxContainer" unique_id=1776488148]
 custom_minimum_size = Vector2(32, 16)
@@ -19,10 +21,17 @@ accessibility_description = "Container of all cooldown indicators"
 accessibility_live = 2
 script = ExtResource("1_dhvfn")
 
-[node name="LightAttackCooldown" parent="." unique_id=251948909 instance=ExtResource("1_fksf4")]
+[node name="DodgeIndicator2" parent="." unique_id=251948909 instance=ExtResource("2_4ltva")]
+custom_minimum_size = Vector2(32, 26)
+layout_mode = 2
+
+[node name="LightAttackCooldown" parent="." unique_id=2083483046 instance=ExtResource("1_fksf4")]
 layout_mode = 2
 
 [node name="HeavyAttackCooldown" parent="." unique_id=1617536752 instance=ExtResource("2_dhvfn")]
+layout_mode = 2
+
+[node name="DodgeIndicator" parent="." unique_id=38570707 instance=ExtResource("5_sg8m6")]
 layout_mode = 2
 
 [node name="ConsumableIndicator" parent="." unique_id=635768501 instance=ExtResource("4_71jdd")]
